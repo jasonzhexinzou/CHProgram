@@ -93,7 +93,7 @@ namespace MealH5.Areas.P.Controllers
         [HttpGet]
         [iPathOAuthFilter(MappingKey = "0x0001", CallBackUrl = true)]
         public ActionResult TestInfo(string orderId, HttpPostedFileBase file)
-        { 
+        {
             //var channel = UploadOrderApiClientChannelFactory.GetChannel();
             //ViewBag.ID = orderId;
             //string fileInfo = Request.Form["fileup"];
