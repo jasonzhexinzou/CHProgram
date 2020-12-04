@@ -1,0 +1,62 @@
+﻿@{
+    ViewBag.Title = "审批控制";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+
+
+}
+
+<div class="tool_bar">
+    <label>审批控制</label>
+</div>
+<div class="main_view">
+
+    <div style="margin: 20px;" class="panel admin-panel">
+
+        <div class="padding border-bottom inline form-auto">
+            <div>
+                <button class="button button-small bg-main icon-refresh" id="btnLoad"> 刷新</button>
+                <button class="button button-small bg-blue icon-file-o" id="btnEdit"> 添加</button>
+            </div>
+        </div>
+        <table id="costcenter_dataTable" class="table table-hover">
+            <thead>
+                <tr>
+                    <th style="text-align:center; width:50px;">
+                        <input type="checkbox" />
+                    </th>
+                    <th>代码</th>
+                    <th>名称</th>
+                    <th style="width:50px;">状态</th>
+                    <th style="width:170px;">时间</th>
+                    <th style="width:260px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td align="center"><input type="checkbox" name="id" value="${dr.ID}$"></td>
+                    <td>${dr.Code}$</td>
+                    <td>${dr.Name}$</td>
+                    <td>${dr.State == 0 ? '正常' : dr.State = 2 ? '禁用' : dr.State = 4 ? '删除' : '其他'}$</td>
+                    <td>${getDateByDotNet(dr.ModifyDate).pattern('yyyy-MM-dd HH:mm:ss')}$</td>
+                    <td>
+                        <a class="button border-yellow button-little icon-group" href="~/Admin/CostCenter/CostManager/${dr.ID}$"> 指派审核员</a>
+                        <button class="button border-blue button-little icon-edit" onclick="Edit('${dr.ID}$')"> 修改</button>
+                        <button class="button border-yellow button-little icon-trash-o" onclick="Delete('${dr.ID}$')"> 删除</button>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="6" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+
+
+

@@ -1,0 +1,237 @@
+﻿
+@{
+    ViewBag.Title = "填写订单详情";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<link rel="stylesheet" href="~/Content/css/food_order.css?v=javaScriptVersion" />
+<script type="text/javascript" src="~/Content/js/food_order.js?v=javaScriptVersion"></script>
+
+<script type="text/javascript">
+    var supplier = '@ViewBag.supplier';
+    var state = '@ViewBag.state';
+    var sendTime = '@ViewBag.sendTime';
+</script>
+
+<script type="text/html" id="order_foods">
+
+    <div class="supplier">
+        <span>{{foods.resName}}</span>
+        <span>总价：{{foods.allPrice}}元</span>
+    </div>
+    <div class="details">
+        {{each foods.foods}}
+        <div>
+            <span>￥{{$value.price}}</span>
+            <span>x{{$value.count}}</span>
+            <div>
+                {{$value.foodName}}
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    <div class="other">
+        <div>
+            <span>￥{{foods.sendFee}}</span>
+            <div>
+                配送费
+            </div>
+        </div>
+        <div>
+            <span>￥{{foods.packageFee}}</span>
+            <div>
+                包装费
+            </div>
+        </div>
+    </div>
+
+</script>
+
+<div id="page_order" class="page-main">
+    <div class="page-body">
+        <div class="weui-cells__title"><h3>订单详情</h3></div>
+        <div class="weui-cells weui-cells_form">
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">用餐人数</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="number" id="attendCount" value="" placeholder="请填写用餐人数" pattern="[0-9]*" />
+                </div>
+                <div class="weui-cell__ft" style="display:none;">
+                    <i class="weui-icon-warn"></i>
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">送餐详细地址</label></div>
+                <div class="weui-cell__bd">
+                    <span class="weui-input" id="address"></span>
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">&nbsp;</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" id="deliveryAddress" name="deliveryAddress" value="" placeholder="请填写楼层门牌号等" />
+                </div>
+                <div class="weui-cell__ft" style="display:none;">
+                    <i class="weui-icon-warn"></i>
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">收餐人</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" id="consignee" value="@((Session[MealH5.Util.ConstantHelper.CURRENTWXUSER] as MealAdmin.Entity.P_USERINFO).Name)" placeholder="请填写收餐人姓名" />
+                </div>
+                <div class="weui-cell__ft" style="display:none;">
+                    <i class="weui-icon-warn"></i>
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">手机</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="number" pattern="[0-9]*" maxlength="11" id="phone" value="@((Session[MealH5.Util.ConstantHelper.CURRENTWXUSER] as MealAdmin.Entity.P_USERINFO).PhoneNumber)" placeholder="请填写收餐人手机号码" />
+                </div>
+                <div class="weui-cell__ft" style="display:none;">
+                    <i class="weui-icon-warn"></i>
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">送餐时间</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" id="deliverTime" disabled="disabled" value="" />
+                </div>
+                <div class="weui-cell__ft" style="display:none;">
+                    <i class="weui-icon-warn"></i>
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">发票抬头</label></div>
+                <div class="weui-cell__bd">
+                    <span class="weui-input" id="invoiceTitle"></span>
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">纳税人识别号</label></div>
+                <div class="weui-cell__bd">
+                    <span class="weui-input" id="dutyParagraph"></span>
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">备注</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" id="remark" value="" placeholder="请填写备注信息" />
+                </div>
+            </div>
+            <input class="weui-input" type="text" id="createTime" value="" style="display:none;" />
+        </div>
+
+        <div class="foodinfo">
+        </div>
+    </div>
+
+    <div class="page-foot">
+        <form id="form1" action="~/P/Food/MMCoE" method="get"></form>
+        <button id="btnSubmitOrder" class="weui-btn weui-btn_orange" type="button">提交订单</button>
+    </div>
+</div>
+
+<style type="text/css">
+    #chooseDeliverTime {
+        background-color: #FFFFFF;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        display: none;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 8;
+    }
+</style>
+<script type="text/html" id="tmpl_delivertime">
+    <div class="close"></div>
+    <div class="chooseDeliverBody">
+        <div class="title">
+            <div class="weui-cells__title">请选择一个配送时间</div>
+
+            <div class="day_panel">
+                <div class="days">
+                    {{each delivertime}}
+                    <div class="day " _val="{{$value.time}}">
+                        <div class="month">{{$value.month}}月</div>
+                        <div class="week">{{$value.weekday}}</div>
+                        {{$value.day}}
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+        <div class="body">
+            <div class="hour_body">
+                {{each delivertime}}
+                <div _val="{{$value.time}}">
+                    {{include 'menu_days' $value}}
+                </div>
+                {{/each}}
+            </div>
+            <div class="time_body">
+                {{each delivertime}}
+                {{include 'menu_days2' $value}}
+                {{/each}}
+            </div>
+
+
+
+
+
+
+            @*{{each delivertime}}
+                <div class="weui-cells" _val="{{$value.time}}">
+                    {{include 'menu_days' $value}}
+                </div>
+                {{/each}}
+                {{each delivertime}}
+                {{include 'menu_days2' $value}}
+                {{/each}}*@
+
+            @*<div class="weui-cells" _val="2017-05-17 08">
+                    <a class="weui-cell weui-cell_access chooseTime" href="javascript:;" _val="{{$value.time}}">
+                        <div class="weui-cell__bd">
+                            <p>选个具体时间</p>
+                        </div>
+                        <div class="weui-cell__ft">{{$value.weekday}}</div>
+                    </a>
+                </div>*@
+
+        </div>
+    </div>
+</script>
+<script type="text/html" id="menu_days">
+    {{each hours}}
+    <div class="houritem choosehour" _val="{{$value.hour}}">
+        {{$value.hour.substr(11)}}时
+    </div>
+    {{/each}}
+
+</script>
+<script type="text/html" id="menu_days2">
+    {{each hours}}
+    <div class="weui-cells" _val="{{$value.hour}}">
+        {{include 'menu_times' $value}}
+    </div>
+    {{/each}}
+</script>
+<script type="text/html" id="menu_times">
+    {{each times}}
+    <a class="weui-cell weui-cell_access chooseTime" href="javascript:;" _val="{{$value.time}}">
+        <div class="weui-cell__bd">
+            <p>{{$value.time.substr(0, $value.time.length-3)}}</p>
+        </div>
+        <div class="weui-cell__ft">{{$value.weekday}}</div>
+    </a>
+    {{/each}}
+</script>
+
+
+
+<div id="chooseDeliverTime">
+
+</div>

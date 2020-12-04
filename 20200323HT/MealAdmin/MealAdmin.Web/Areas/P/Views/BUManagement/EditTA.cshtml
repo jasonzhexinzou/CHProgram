@@ -1,0 +1,96 @@
+﻿@{
+    ViewBag.Title = "TerritoryTA";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        var ID = '@ViewBag.ID';
+
+        function btnOKClick(e, callback) {
+            $ajaxSubmit('form0', contextUri + '/P/BUManagement/SaveTA'
+                , function (data) {
+                    $showdialog({ body: '操作成功' });
+                    callback();
+                    e.close();
+                });
+
+
+        }
+
+        $(function () {
+            $.PintuerPost(contextUri + '/P/BUManagement/GetTAInfoByID', { ID: ID }, function (d) {
+                var data = d.data;
+                $('#ID').val(data.ID);
+                $('#TerritoryTA').val(data.TerritoryTA);
+                $('#TerritoryHead').val(data.TerritoryHead);
+                $('#TerritoryHeadName').val(data.TerritoryHeadName);
+                $('#BUID').val(data.BUID);
+
+                $.post(contextUri + '/P/BUManagement/LoadBUInfo', {}, function (d) {
+                    var buList = d.rows;
+                    $('#BU').html('');
+                    var html = '';
+                    if (buList.length > 0) {
+                        for (var i in buList) {
+                            html += '<option value="' + buList[i].ID + '">' + buList[i].BUName + '</option>';
+                        }
+                    }
+                    $('#BU').html(html);
+
+                    $('#BU').val(data.BUID);
+                }, 'json')
+            });
+        });
+
+        function ShowUserName() {
+            var TerritoryHead = $('#TerritoryHead').val();//获取申请人MUDID
+            if (TerritoryHead != null && TerritoryHead != "") {
+                $.post(contextUri + '/P/BUManagement/ShowName', { Mudid: TerritoryHead }, function (d) {
+                    if (d.ishave == 1) {
+                        $('#TerritoryHeadName').val(d.res.Name);//如果MUDID存在自动添加姓名
+                    }
+                    if (d.ishave == 0) {
+                        $showdialog({ title: '提示', body: d.txt });
+                        $('#TerritoryHeadName').val("");
+                    }
+                }, 'json')
+            }
+            return;
+
+        }
+    </script>
+    <style type="text/css">
+    </style>
+}
+<div style="padding: 15px;">
+    <form action="" id='form0' method="post">
+        <input name="ID" value="" type="hidden" id="ID" />
+        <input name="BUID" value="" type="hidden" id="BUID" />
+        <div class="form-group">
+            <div class="label"><label>TerritoryTA</label></div>
+            <div class="field">
+                <input type="text" class="input" id="TerritoryTA" name="TerritoryTA" value="" readonly="readonly" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label>TAHead Mudid</label></div>
+            <div class="field">
+                <input type="text" class="input" id="TerritoryHead" name="TerritoryHead" value="" data-validate="required:必填" autocomplete="off" onblur="ShowUserName()" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label>TAHead Name</label></div>
+            <div class="field">
+                <input type="text" class="input" id="TerritoryHeadName" name="TerritoryHeadName" value="" readonly="readonly" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label>BU 所属</label></div>
+            <div class="field">
+                <select type="text" class="input" id="BU" name="BU" data-validate="required:必填" autocomplete="off">
+                </select>
+            </div>
+        </div>
+    </form>
+</div>

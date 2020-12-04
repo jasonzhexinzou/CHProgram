@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<error-resource>
+  <error-info id="100000" name="err">
+    <msg lang="en_US">System Error</msg>
+    <msg lang="zh_CN">
+      <![CDATA[错误码:9001<br/>请联系呼叫中心：<br/>BDS：400-6868-912<br/>XMS：400-820-5577]]>
+    </msg>
+  </error-info>
+
+  <error-info id="100003" name="err">
+    <msg lang="en_US">System Error</msg>
+    <msg lang="zh_CN">登录超时，请重新登录</msg>
+  </error-info>
+
+  <error-info id="200001" name="err">
+    <msg lang="en_US">System Error</msg>
+    <msg lang="zh_CN">页面超时，请刷新后重试。</msg>
+  </error-info>
+
+  <error-info id="900001" name="err">
+    <msg lang="en_US">System Error</msg>
+    <msg lang="zh_CN">抱歉，您不具备该功能的使用权限。</msg>
+  </error-info>
+</error-resource>

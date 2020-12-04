@@ -1,0 +1,230 @@
+﻿
+@{
+    ViewBag.Title = "二线审批人代理查询";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+@section scripts{
+    <script type="text/javascript">
+        var pdg;
+        $(function () {
+
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/OrderApprovalManagement/ApproverSecondAgentLoad', paging: true });
+            pdg.QueryParams = function () {
+                return {
+                    ApprovalNameOrMUDID: $('#txtApprovalNameOrMUDID').val(),
+                    AgentNameOrMUDID: $('#txtAgentNameOrMUDID').val(),
+
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+
+            //$('#btnDelete').click(function () {
+            //    var ids = new Array();
+            //    $('#costcenter_dataTable input[name="id"]:checked').each(function () {
+            //        ids.push($(this).val());
+            //    });
+
+            //    if (ids.length == 0) {
+            //        $showdialog({ title: '提示', body: "请先选择被删除代理" });
+            //        return;
+            //    }
+
+            //    $showdialogForConfim(
+            //    {
+            //        title: '确认删除',
+            //        body: '删除后无法恢复，您确定要删除吗？',
+            //        ok: function () {
+            //            $.PintuerPost(contextUri + '/P/OrderApprovalManagement/DeleteSecondAgent', { ids: ids.toString() }, function () {
+            //                Load();
+            //            });
+            //        }
+            //    }
+            //    );
+            //});
+
+            $('#btnExport').bind('click', function () {
+                $showdialogForUrl(
+                    {
+                        title: '导出代理审批人信息',
+                        width: '450px',
+                        height: '100px',
+                        url: contextUri + '/P/OrderApprovalManagement/ExportApproverSecondAgent?ApprovalNameOrMUDID=' + encodeURIComponent($('#txtApprovalNameOrMUDID').val())
+                            + '&AgentNameOrMUDID=' + encodeURIComponent($('#txtAgentNameOrMUDID').val()),
+                        pageid: 'manager',
+                        buttons: [
+                            {
+                                cls: 'button',
+                                txt: '关闭',
+                                handler: function (e) { e.close(); }
+                            }
+                        ]
+                    }
+                );
+                //ExportSearchList
+            });
+            $('#btnAdd').bind('click', function () {
+                $showdialogForUrl(
+               {
+                   title: '设置代理审批人',
+                   width: '360px',
+                   height: '520px',
+                   url: contextUri + '/P/OrderApprovalManagement/AddSecondApproverAgent?id=',
+                   pageid: 'manager',
+                   buttons: [
+                       {
+                           cls: 'button bg-green',
+                           txt: '确定',
+                           handler: function (e) {
+                               top.c_manager.window.btnOKClick(e, function () { pdg.Load(); });
+                           }
+                       },
+                       {
+                           cls: 'button',
+                           txt: '取消',
+                           handler: function (e) { e.close(); }
+                       }
+                   ]
+               }
+           );
+            });
+        });
+
+        function MyFormateDateTime(Data, fmt) {
+            if (Data) {
+                return getDateByDotNet(Data).pattern(fmt);
+            }
+            else {
+                return '';
+            }
+        }
+
+        function Edit(id) {
+            $showdialogForUrl(
+           {
+               title: '设置代理审批人',
+               width: '360px',
+               height: '520px',
+               url: contextUri + '/P/OrderApprovalManagement/AddSecondApproverAgent?id=' + id,
+               pageid: 'manager',
+               buttons: [
+                   {
+                       cls: 'button bg-green',
+                       txt: '确定',
+                       handler: function (e) {
+                           top.c_manager.window.btnOKClick(e, function () { pdg.Load(); });
+                       }
+                   },
+                   {
+                       cls: 'button',
+                       txt: '取消',
+                       handler: function (e) { e.close(); }
+                   }
+               ]
+           })
+        }
+
+        function Del(id, UserName) {
+
+            $showdialogForConfim(
+                {
+                    title: '确认删除',
+                    body: '删除后无法恢复，您确定要删除吗？',
+                    ok: function () {
+                        $.PintuerPost(contextUri + '/P/OrderApprovalManagement/DelSecondAgent', { id: id, UserName: UserName }, function () {
+                            pdg.Load();
+                        });
+                    }
+                }
+            );
+        }
+
+        function ShowDetail(UserId) {
+
+            $showdialogForUrl(
+                {
+                    title: '代理人设置历史',
+                    width: '1200px',
+                    height: '600px',
+                    url: contextUri + '/P/OrderApprovalManagement/SecoundApproverAgentHis?UserId=' + UserId,
+
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '导出',
+                            handler: function (e) {
+                                window.location.href = contextUri + '/P/OrderApprovalManagement/ExportApproverSecondAgentHis?UserId=' + UserId;
+                            }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+                }
+            );
+        }
+    </script>
+}
+<div class="tool_bar">
+    <label>二线审批人代理查询</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;overflow:auto" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <input type="text" class="input input-small" style="width:130px;" id="txtApprovalNameOrMUDID" name="txtApprovalNameOrMUDID" placeholder="审批人姓名 or MUDID" />
+                    <input type="text" class="input input-small" style="width:130px;" id="txtAgentNameOrMUDID" name="txtAgentNameOrMUDID" placeholder="代理人姓名 or MUDID" />
+                    <button class="button button-small bg-blue icon-search" id="btnLoad"> 查询</button>
+                    <button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>
+                    @*<button class="button button-small bg-blue icon-file-o" id="btnAdd" style="display:none"> 新增审批人代理</button>*@
+                    <button class="button button-small bg-blue icon-file-o" id="btnAdd"> 添加</button>
+                </div>
+            </div>
+        </div>
+        <table id="costcenter_dataTable" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>审批人姓名</th>
+                    <th>审批人MUDID</th>
+                    <th>代理人姓名</th>
+                    <th>代理人MUDID</th>
+                    <th>开始日期</th>
+                    <th>结束日期</th>
+                    <th>是否启用</th>
+                    <th style="width: 200px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>${dr.UserName}$</td>
+                    <td>${dr.UserMUDID}$</td>
+                    <td>${dr.DelegateUserName}$</td>
+                    <td>${dr.DelegateUserMUDID}$</td>
+                    <td>${MyFormateDateTime(dr.StartTime,'yyyy-MM-dd')}$</td>
+                    <td>${MyFormateDateTime(dr.EndTime,'yyyy-MM-dd')}$ </td>
+                    <td>${dr.IsEnable==0?"否":"是"}$ </td>
+                    <td>
+                        <a href="javascript:;" class="button border-blue button-little icon-edit" onclick="Edit('${dr.ID}$')"> 修改</a>
+                        <a href="javascript:;" class="button border-red button-little icon-trash-o" onclick="Del('${dr.ID}$', '${dr.UserName}$')"> 删除</a>
+                        <a href="javascript:;" class="button border-blue button-little icon-edit" onclick="ShowDetail('${dr.UserMUDID}$')"> 详情</a>
+                    </td>
+                    @*<td>${getDateByDotNet(dr.CreateDate).pattern('yyyy-MM-dd HH:mm:ss')}$</td>*@
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="8" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+

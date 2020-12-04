@@ -1,0 +1,363 @@
+﻿
+@{
+    ViewBag.Title = "确认收餐";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<style type="text/css">
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 60px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    p {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+</style>
+
+<script type="text/javascript">
+    var orderID = '@ViewBag.OrderID';
+    var supplier = '@ViewBag.Supplier';
+    var htCode = '@ViewBag.HTCode';
+    var oldPrice ='@ViewBag.Price';
+    var oldCount = '@ViewBag.Count';
+    var submit = false;
+    var orderState = '@ViewBag.OrderState';
+    $(function () {
+        $('#isShowMore1').hide();
+        $('#isShowMore2').hide();
+        $('#isShowMore3').hide();
+        $('#isShowMore4').hide();
+        $("#FollowVisit").change(function () {
+            alert("checked");
+        });
+
+        $('#count').bind('input propertychange', function () {
+            var count = $('#count').val();
+            if (count * 1 == oldCount * 1) {
+                $('#isShowMore3').hide();
+                $('#isShowMore4').hide();
+            } else {
+                $('#isShowMore3').show();
+                $('#isShowMore4').show();
+            }
+        });
+
+        $('#price').bind('input propertychange', function () {
+            var price = $('#price').val();
+            if (price * 1 == oldPrice * 1) {
+                $('#isShowMore1').hide();
+                $('#isShowMore2').hide();
+            } else {
+                $('#isShowMore1').show();
+                $('#isShowMore2').show();
+            }
+        });
+
+        $("#txtChangeConfirmBudgetReason").click(function () {
+            $("#dpChangeConfirmBudgetReason").show();
+        })
+
+        $("#txtChangeCountReason").click(function () {
+            $("#dpChangeCountReason").show();
+        })
+        if (orderState != "4" && orderState != "12") {
+            $("#btnConfirm").attr("disabled", "true");
+            $('#btnConfirm').css("background-color", "rgba(0, 0, 0, 0.3)");
+        }
+    });
+
+    function to_change() {
+        var isSame = $('input[name="IsSame"]:checked').val();
+        if (isSame == 2) {
+            $('#isShowMore1').show();
+            $('#isShowMore2').show();
+        } else {
+            var price = $('#price').val();
+            if (price * 1 == oldPrice * 1) {
+                $('#isShowMore1').hide();
+                $('#isShowMore2').hide();
+            } else {
+                $('#isShowMore1').show();
+                $('#isShowMore2').show();
+            }
+
+        }
+    }
+
+    function outputmoney(number) {
+        number = number.replace(/\,/g, "");
+        if (isNaN(number) || number == "") return "";
+        number = Math.round(number * 100) / 100;
+        if (number < 0)
+            return '-' + outputdollars(Math.floor(Math.abs(number) - 0) + '') + outputcents(Math.abs(number) - 0);
+        else
+            return outputdollars(Math.floor(number - 0) + '') + outputcents(number - 0);
+    }
+    //格式化金额
+    function outputdollars(number) {
+        if (number.length <= 3)
+            return (number == '' ? '0' : number);
+        else {
+            var mod = number.length % 3;
+            var output = (mod == 0 ? '' : (number.substring(0, mod)));
+            for (i = 0; i < Math.floor(number.length / 3) ; i++) {
+                if ((mod == 0) && (i == 0))
+                    output += number.substring(mod + 3 * i, mod + 3 * i + 3);
+                else
+                    output += ',' + number.substring(mod + 3 * i, mod + 3 * i + 3);
+            }
+            return (output);
+        }
+    }
+
+    function outputcents(amount) {
+        amount = Math.round(((amount) - Math.floor(amount)) * 100);
+        return (amount < 10 ? '.0' + amount : '.' + amount);
+    }
+
+    function delcommafy(num) {
+        num = num.replace(/,/gi, '');
+        return num;
+    }
+
+    function confirm() {
+        if (submit) {
+            return;
+        }
+        var price = $('#price').val();
+        var isSame = $('input[name="IsSame"]:checked').length > 0 ? $('input[name="IsSame"]:checked').val() : 0;
+        var reason = $('#txtChangeConfirmBudgetReason').val();
+        var remark = $('#remark').val();
+        var count = $('#count').val();
+        var cReason = $('#txtChangeCountReason').val();
+        var cRemark = $('#cRemark').val();
+        var text = '';
+        var cText = '';
+
+        if (price * 1 < -1) {
+            showTopMsg('请填写确认金额');
+            return;
+        }
+        if (parseFloat(delcommafy(price)) > parseFloat(delcommafy(oldPrice))) {
+            showTopMsg('确认金额不能超过实际金额');
+            return;
+        }
+
+        if (isSame < 1) {
+            showTopMsg('是否与预定餐品一致');
+            return;
+        }
+        if (isSame == 2 || parseFloat(delcommafy(price)) != parseFloat(delcommafy(oldPrice))) {
+            if (reason =="请选择确认金额调整原因") {
+                showTopMsg('请选择确认金额调整原因');
+                return;
+            }
+            text = $('#txtChangeConfirmBudgetReason').val();
+            if (remark.length < 8) {
+                showTopMsg('请填写用户确认金额调整备注，至少八个字以上');
+                return;
+            }
+        }
+
+        if (count * 1 < 0) {
+            showTopMsg('请填写实际用餐人数');
+            return;
+        }
+        if (count * 1 != oldCount * 1) {
+            if (cReason =="请选择用餐人数调整原因") {
+                showTopMsg('请选择用餐人数调整原因');
+                return;
+            }
+            cText = $('#txtChangeCountReason').val();
+            if (cRemark.length < 8) {
+                showTopMsg('请填写实际用餐人数调整备注，至少八个字以上');
+                return;
+            }
+        }
+        submit = true;
+        post('/P/Order/ConfirmOrder', {
+            id: orderID,
+            supplier: supplier,
+            price: price,
+            reason: text,
+            remark: remark,
+            count: count,
+            cReason: cText,
+            cRemark: cRemark,
+            isSame: isSame
+        },
+            function (d) {
+                showConfim('收餐成功', '', function () {
+                    location.href = contextUri + '/P/Upload/UploadFiles' + '?htCode=' + htCode + '&fileType=' + 0;
+                }, '上传文件', '返回', function () {
+                    //location.href = contextUri + '/P/Order/Index1';
+                    WeixinJSBridge.call('closeWindow');
+                },'success');
+            }, 'json');
+    }
+
+    function ChangeConfirmBudgetReason(selectValue) {
+        $("#txtChangeConfirmBudgetReason").val(selectValue);
+        $("#dpChangeConfirmBudgetReason").hide();
+    }
+
+    function ChangeConfirmBudgetReasonCancel() {
+        $("#txtChangeConfirmBudgetReason").val("请选择确认金额调整原因");
+        $("#dpChangeConfirmBudgetReason").hide();
+    }
+
+    function ChangeCountReason(selectValue) {
+        $("#txtChangeCountReason").val(selectValue);
+        $("#dpChangeCountReason").hide();
+    }
+
+    function ChangeCountReasonCancel() {
+        $("#txtChangeCountReason").val("请选择用餐人数调整原因");
+        $("#dpChangeCountReason").hide();
+    }
+</script>
+
+
+<div class="page-main">
+    <div class="page-body">
+        <div class="weui-cells">
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">实际金额</label></div>
+                <div class="weui-cell__bd">
+                    <span style="margin-left:20%;opacity:0.6">@ViewBag.Price</span>
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label for="" class="weui-label">用户确认金额</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" style="margin-left:20%;width:85%;" type="text" id="price" name="price" value="@ViewBag.Price" onblur="this.value=outputmoney(this.value);" />
+                </div>
+                <div class="weui-cell__ft" style="display: none;">
+                    <i class="weui-icon-warn"></i>
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label for="" class="weui-label">是否与预定餐品一致</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input type="radio" name="IsSame" value="1" checked="checked" style="float:left;margin-top:5px;margin-left:20%" onclick="to_change()"><p style="float:left;">是</p>
+                    <input type="radio" name="IsSame" value="2" style="float:left;margin-top:5px;margin-left:5%" onclick="to_change()"><p>否</p>
+                </div>
+                <div class="weui-cell__ft" style="display: none;">
+                    <i class="weui-icon-warn"></i>
+                </div>
+            </div>
+
+            <div class="weui-cell weui-cell_select weui-cell_select-after" id="isShowMore1">
+                <div class="weui-cell__hd"><label class="weui-label">确认金额调整原因</label></div>
+                <div class="weui-cell__bd">
+                    @*<select style="width:100%;margin-left:17%;height:50px;border:0;font-size:16px;background-color:white;" id="reason">
+                            <option value="0">请选择确认金额调整原因</option>
+                            <option value="1">与实际金额存在差异</option>
+                            <option value="2">餐品少送</option>
+                            <option value="3">其他</option>
+                        </select>*@
+                    <input class="weui-input" type="text" id="txtChangeConfirmBudgetReason" value="请选择确认金额调整原因" style="margin-left:20%"/>
+                </div>
+            </div>
+            <div class="weui-cell" id="isShowMore2">
+                <div class="weui-cell__hd"><label class="weui-label">确认金额调整备注</label></div>
+                <div class="weui-cell__bd">
+                    <textarea class="weui-textarea" rows="2" id="remark" placeholder="请填写确认金额调整备注，至少八个字" style="margin-left:20%;width:85%;border:1px solid silver"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="weui-cells">
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">用餐人数</label></div>
+                <div class="weui-cell__bd">
+                    <span style="margin-left:20%;opacity:0.6">@ViewBag.Count</span>
+                </div>
+            </div>
+
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label for="" class="weui-label">实际用餐人数</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" style="margin-left:20%;width:85%;" type="number" id="count" value="@ViewBag.Count" pattern="[0-9]*" />
+                </div>
+                <div class="weui-cell__ft" style="display: none;">
+                    <i class="weui-icon-warn"></i>
+                </div>
+            </div>
+
+            <div class="weui-cell weui-cell_select weui-cell_select-after" id="isShowMore3">
+                <div class="weui-cell__hd"><label class="weui-label">用餐人数调整原因</label></div>
+                <div class="weui-cell__bd">
+                    @*<select style="width:100%;margin-left:17%;height:50px;border:0px;font-size:16px;background-color:white;" id="cReason">
+            <option value="0">请选择用餐人数调整原因</option>
+            <option value="1">计划邀请医生实际未参会</option>
+            <option value="2">其他</option>
+        </select>*@
+                    <input class="weui-input" type="text" id="txtChangeCountReason" value="请选择用餐人数调整原因" style="margin-left:20%" readonly="readonly" />
+                </div>
+            </div>
+            <div class="weui-cell" id="isShowMore4">
+                <div class="weui-cell__hd"><label class="weui-label">用餐人数调整备注</label></div>
+                <div class="weui-cell__bd">
+                    <textarea class="weui-textarea" rows="2" placeholder="请填写用餐人数调整备注，至少八个字" id="cRemark" style="margin-left:20%;width:85%;border:1px solid silver"></textarea>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="page-foot">
+        <button type="button" id="btnConfirm" class="weui-btn weui-btn_orange" onclick="confirm()">确定</button>
+    </div>
+</div>
+
+<div id="dpChangeConfirmBudgetReason" style="display:none;">
+    <div class="weui-mask" id="iosChangeConfirmBudgetReasonMask" style="opacity: 1;"></div>
+    <div class="weui-actionsheet weui-actionsheet_toggle" id="iosChangeConfirmBudgetReasonActionsheet">
+        <div class="weui-actionsheet__menu">
+            <div class="weui-actionsheet__cell" id="ChangeConfirmBudgetReason2" onclick="ChangeConfirmBudgetReason($(this).html())">与实际金额存在差异</div>
+            <div class="weui-actionsheet__cell" id="ChangeConfirmBudgetReason3" onclick="ChangeConfirmBudgetReason($(this).html())">餐品少送</div>
+            <div class="weui-actionsheet__cell" id="ChangeConfirmBudgetReason5" onclick="ChangeConfirmBudgetReason($(this).html())">退单失败，实际未送餐</div>
+            <div class="weui-actionsheet__cell" id="ChangeConfirmBudgetReason4" onclick="ChangeConfirmBudgetReason($(this).html())">其他</div>
+        </div>
+        <div class="weui-actionsheet__action">
+            <div class="weui-actionsheet__cell" id="iosActionsheetCancel" onclick="ChangeConfirmBudgetReasonCancel()">取消</div>
+        </div>
+    </div>
+</div>
+
+<div id="dpChangeCountReason" style="display:none;">
+    <div class="weui-mask" id="iosChangeCountReasonMask" style="opacity: 1;"></div>
+    <div class="weui-actionsheet weui-actionsheet_toggle" id="iosChangeCountReasonActionsheet">
+        <div class="weui-actionsheet__menu">
+            <div class="weui-actionsheet__cell" id="ChangeCountReason2" onclick="ChangeCountReason($(this).html())">计划邀请医生实际未参会</div>
+            <div class="weui-actionsheet__cell" id="ChangeCountReason3" onclick="ChangeCountReason($(this).html())">退单失败，实际未送餐</div>
+            <div class="weui-actionsheet__cell" id="ChangeCountReason4" onclick="ChangeCountReason($(this).html())">其他</div>
+        </div>
+        <div class="weui-actionsheet__action">
+            <div class="weui-actionsheet__cell" id="iosActionsheetCancel" onclick="ChangeCountReasonCancel()">取消</div>
+        </div>
+    </div>
+</div>

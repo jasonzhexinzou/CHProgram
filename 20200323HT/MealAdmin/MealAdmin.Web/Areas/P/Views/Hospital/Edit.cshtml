@@ -1,0 +1,179 @@
+﻿@{
+    ViewBag.Title = "医院详情";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        var hospitalCode = '@ViewBag.id';
+
+
+        //function btnOKClick(e, callback) {
+        //    $ajaxSubmit('form0', contextUri + '/P/Hospital/Save',
+        //        function (data) {
+        //            if (callback != undefined) {
+        //                callback();
+        //            }
+        //            e.close();
+        //        });
+
+
+        //}
+        function btnOKClick(e, callback) {
+            $ajaxSubmit('form0', contextUri + '/P/Hospital/Save',
+                function (data) {
+                    $showdialog({ body: '操作成功' });
+                    if (callback != undefined) {
+                        callback();
+                    }
+                    e.close();
+                });
+
+
+        }
+        var provinceNmae = "";
+        $(function () {
+            //if (hospitalCode == '') {
+            //    //$('#External').removeAttr("readonly");
+            //    $('#External').attr("readonly", "readonly");
+            //    return;
+            //}
+            $.PintuerPost(contextUri + '/P/Hospital/FindById', { id: hospitalCode }, function (d) {
+                var data = d.data.hospital;
+                $('#ID').val(data.ID);
+                $('#HospitalCode').val(data.HospitalCode);
+                $('#GskHospital').val(data.GskHospital);
+                //$('#txtOldGskHospital').val(data.OldGskHospital);
+                //$('#Province').val(d.data.province.Name);
+                //$('#City').val(d.data.city.Name);
+                //$('#Name').val(data.Name);
+                //$('#txtOldName').val(data.OldName);
+                //$('#Address').val(data.Address);
+                //$('#Type').val(data.Type);
+                //$('#IsXMS').val(data.IsXMS);
+                //$('#IsBDS').val(data.IsBDS);
+                //$('#IsMT').val(data.IsMT);
+                //$('#External').val(data.External);
+                //$('#txtRelateUserList').val(data.RelateUserList);
+                //$('#Remark').val(data.Remark);
+                //$('#MainAddress').val(data.MainAddress);
+            });
+            //$('#External').attr("readonly", "readonly");
+            //$('#MainAddress').attr("readonly", "readonly");
+        });
+        //function checkProvince() {
+        //    $.PintuerPost(contextUri + "/P/Hospital/provinceExisten", { provinceName: provinceName });
+        //}
+    </script>
+    <style type="text/css">
+    </style>
+}
+<div style="padding: 15px;">
+    <form action="" id='form0' method="post">
+        <input name="ID" value="" type="hidden" id="ID" />
+        <input name="HospitalCode" value="" type="hidden" id="HospitalCode" />
+        <div class="form-group">
+            <div class="label"><label for="NameCn">医院代码</label></div>
+            <div class="field">
+                <input type="text" class="input" id="GskHospital" name="GskHospital" value="" data-validate="required:必填" autocomplete="off" />
+            </div>
+        </div>
+        @*<div class="form-group">
+            <div class="label"><label for="OldGskHospital">原医院代码</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtOldGskHospital" name="OldGskHospital" value="" autocomplete="off" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="NameCn">省份</label></div>
+            <div class="field">
+                <input type="text" class="input" id="Province" name="Province" value="" data-validate="required:必填" autocomplete="off" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="NameCn">城市</label></div>
+            <div class="field">
+                <input type="text" class="input" id="City" name="City" value="" data-validate="required:必填" autocomplete="off" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="NameCn">医院名称</label></div>
+            <div class="field">
+                <input type="text" class="input" id="Name" name="Name" value="" data-validate="required:必填" autocomplete="off" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="OldName">原医院名称</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtOldName" name="OldName" value="" autocomplete="off" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="MainAddressCn">是否为主地址</label></div>
+            <div class="field">
+                <input type="text" class="input" id="MainAddress" name="MainAddress" value="主地址" readonly="readonly" data-validate="required:必填" autocomplete="off" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="NameCn">医院地址</label></div>
+            <div class="field">
+                <input type="text" class="input" id="Address" name="Address" value="院外" readonly="readonly" data-validate="required:必填" autocomplete="off" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="NameCn">Market</label></div>
+            <div class="field">
+                <input type="text" class="input" id="Type" name="Market" value="" data-validate="required:必填" autocomplete="off" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="NameCn">XMS</label></div>
+            <div class="field">
+                <select class="input" id="IsXMS" name="IsXMS">
+                    <option value="是">是</option>
+                    <option value="否">否</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="NameCn">BDS</label></div>
+            <div class="field">
+                <select class="input" id="IsBDS" name="IsBDS">
+                    <option value="是">是</option>
+                    <option value="否">否</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="NameCn">MT</label></div>
+            <div class="field">
+                <select class="input" id="IsMT" name="IsMT">
+                    <option value="是">是</option>
+                    <option value="否">否</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="NameCn">院外HT</label></div>
+            <div class="field">
+                <select class="input" id="External" name="External">
+                    <option value="1" selected="selected">是</option>
+                    <option value="0">否</option>
+                </select>
+                <input type="text" class="input" id="External" name="External" value="1" readonly="readonly" data-validate="required:必填" autocomplete="off" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="NameCn">院外代表</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtRelateUserList" name="RelateUserList" value="" autocomplete="off" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="NameCn">备注</label></div>
+            <div class="field">
+                <input type="text" class="input" id="Remark" name="Remark" value="" autocomplete="off" />
+            </div>
+        </div>*@
+    </form>
+</div>

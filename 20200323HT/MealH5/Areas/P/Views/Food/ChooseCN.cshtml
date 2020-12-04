@@ -1,0 +1,157 @@
+﻿
+@{
+    ViewBag.Title = "选择CN号";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<style type="text/css">
+    html, body {
+        width: 100%;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 60px;
+        overflow: auto;
+    }
+    
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+</style>
+
+<script type="text/javascript">
+
+    var nowOrderInfo;
+
+    $(function () {
+        post('/P/Food/NowOrderInfo', {}, function (d) {
+            nowOrderInfo = d.data;
+            pageInit();
+        }, 'json');
+    });
+
+    function pageInit() {
+        $('#CN').change(function () {
+            var cncode = $('#CN').val();
+            post('/P/Food/FindMeeting', { code: cncode }, function (d) {
+                var meeting = d.data;
+                $('#userid').val(meeting.UserId);
+                $('#username').val(meeting.UserName);
+                $('#meetingtitle').html(meeting.Title);
+                $('#budgettotal').val(meeting.BudgetTotal);
+            }, 'json');
+
+        });
+
+        $('#btnRestaurant').click(function () {
+
+            var cncode = $('#CN').val();
+            if (cncode == undefined || cncode == '') {
+                showTopMsg('请选择一个CN号');
+                return;
+            }
+
+            post('/P/Food/ChooseCN', { code: cncode },
+                function (d) {
+                    if ($('input[name="restaurantId"]').val().length > 0) {
+                        // 已经选过了餐厅
+                        $('#form2').submit();
+                    } else {
+                        $('#form1').submit();
+                    }
+                    
+                }, 'json');
+
+
+        });
+        if (nowOrderInfo != null && nowOrderInfo.CnCode != null) {
+            $('#CN').val(nowOrderInfo.CnCode);
+        }
+        $('#CN').change();
+    }
+
+</script>
+
+<div class="page-main">
+    <div class="page-body">
+        <div class="weui-cells__title"><h3>选择已通过审批的 <预申请表>CN号</h3></div>
+        <div class="weui-cells">
+            <div class="weui-cell weui-cell_select">
+                <div class="weui-cell__bd">
+                    <select class="weui-select" name="CN" id="CN">
+                        @foreach (var item in ViewBag.listMeeting)
+                        {
+                            <option value="@item.Code">@item.Code</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="weui-cells__title"><h3>会议基本信息</h3></div>
+        <div class="weui-cells weui-cells_form">
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">业务领域</label></div>
+                <div class="weui-cell__bd">
+                    @ViewBag.P_ChooseHospital.market
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">MUDID</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" readonly="readonly" id="userid" value="" />
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">订餐人</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" readonly="readonly" id="username" value="" />
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">医院名称</label></div>
+                <div class="weui-cell__bd">
+                    @ViewBag.P_ChooseHospital.hospitalName
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">预算金额</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" readonly="readonly" id="budgettotal" value="" />
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">会议名称</label></div>
+                <div class="weui-cell__bd">
+                    <span id="meetingtitle"></span>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+
+    <div class="page-foot">
+        <form id="form1" action="~/P/Restaurant/List" method="get">
+            <input type="hidden" name="formenu"value="1" />
+        </form>
+        <form id="form2" action="~/P/Restaurant/Menu" method="get">
+            <input type="hidden" name="restaurantId" value="@Request["restaurantId"]" />
+            <input type="hidden" name="supplier" value="@Request["supplier"]" />
+        </form>
+        <button id="btnRestaurant" class="weui-btn weui-btn_orange">我要订餐</button>
+    </div>
+</div>

@@ -1,0 +1,104 @@
+﻿
+@{
+    ViewBag.Title = "Redistribution";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+@section scripts{
+    <script type="text/javascript">
+function Pop() {
+            $showdialogForUrl(
+                {
+                    title: '上传文件重新分配',
+                    width: '340px',
+                    height: '180px',
+                    url: contextUri + '/P/UploadFileManagement/Pop',
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '确认',
+                            handler: function (e) {
+                                top.c_manager.window.btnOKClick(e, function () {
+                                    $showdialog({ body: '' });                                    
+                                });
+                            }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+
+                }
+            );
+        }
+    </script>
+}
+<div class="tool_bar">
+    <label>上传文件查询</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;overflow:auto" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding" style="width:2700px;">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <input type="text" class="input input-small" style="width:100px;" id="txtBUHeadMUDID" name="txtBUHeadMUDID" placeholder="订餐人MUDID" />
+                    <button class="button button-small bg-main icon-search" id="btnLoad"> 查询</button>
+                    <button class="button button-small bg-blue icon-file-o" id="btnAdd" onclick="Pop('')"> 重新分配</button>
+                </div>
+                <div style="display: none">
+                    <input id="fileUpload" type="file" name="file" onchange="fileChange('import', 'fileUpload')" />
+                </div>
+
+                <div style="display: none;">
+                    <form id="repor_HospitalRes" action="~/P/Restaurant/ReportHospitalResExcel" method="post" target="_blank"></form>
+                    <form id="repor_Res" action="~/P/Restaurant/ReportResExcel" method="post" target="_blank"></form>
+                </div>
+            </div>
+        </div>
+        <table id="costcenter_dataTable" class="table table-hover"style="width:2700px;" >
+            <thead>
+                <tr>
+                    <th style="text-align:center; width:50px;">
+                        <input type="checkbox" />
+                    </th>
+                    <th>申请人姓名</th>
+                    <th>申请人MUDID</th>
+                    <th>申请人手机号码</th>
+                    <th>HT编号</th>
+                    <th>会议日期</th>
+                    <th>Re-Open发起人</th>
+                    <th>Re-Open原因</th>
+                    <th>要求Re-open日期</th>
+                    <th>支持文件</th>                   
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td align="center"><input type="checkbox" name="id" value="${dr.ID}$"></td>
+                    <td>${dr.BUHeadMUDID}$</td>
+                    <td>${dr.Name}$</td>
+                    <td>${dr.PhoneNumber}$</td>
+                    <td>${dr.MeetingDate}$</td>
+                    <td>${dr.MeetingTime}$</td>
+                    <td>${dr.HTCode}$ </td>
+                    <td>${dr.Market}$ </td>
+                    <td>${dr.TA}$ </td>
+                    <td>${dr.Province}$ </td>                    
+                    @*<td><a href="javascript:;" class="button border-blue button-little icon-edit" onclick="ShowDetail('${dr.ID}$')"> 详情</a></td>*@
+                    @*<td>${getDateByDotNet(dr.CreateDate).pattern('yyyy-MM-dd HH:mm:ss')}$</td>*@
+
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="80" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+
+

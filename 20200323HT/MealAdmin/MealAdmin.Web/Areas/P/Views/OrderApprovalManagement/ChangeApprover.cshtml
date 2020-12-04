@@ -1,0 +1,157 @@
+﻿
+@{
+    ViewBag.Title = "ChangeApprover";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        var pdg;
+        $(function () {
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/OrderApprovalManagement/LoadUpload', paging: true });
+            pdg.QueryParams = function () {
+                return {
+                    HTCode: $('#txtHTCode').val(),
+                    ApplierMUDID: $('#txtApplierMUDID').val(),
+                    BUHeadMUDID: $('#txtBUHeadMUDID').val(),
+                    Type: $('#sltAdvanceType').val(),
+                    State: $('#sltAdvanceState').val()
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+
+
+            $('#btnChange').bind('click', function () {
+                var id_array = [];
+                var ht_array = [];
+                $('input[name="id"]:checked').each(function () {
+                    id_array.push($(this).val());
+                    ht_array.push($(this).parents('tr').find('td:eq(1)').text());
+                });
+                if (id_array.length < 1) {
+                    alert("请选择后再操作");
+                    return;
+                }
+
+                $showdialogForUrl(
+                {
+                    title: '重新分配审批人',
+                    width: '500px',
+                    height: '200px',
+                    url: contextUri + '/P/OrderApprovalManagement/Pops?ids=' + id_array + '&hts=' + ht_array,
+                    pageid: 'uploadfilemanagementpops',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '确定',
+                            handler: function (e) {
+                                window.top.c_uploadfilemanagementpops.window.btnOKClick(e, function () {
+                                    pdg.LoadPage(pdg.page);
+                                    e.close();
+                                });
+                            }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+                }
+            );
+
+            });
+
+        });
+
+    </script>
+}
+
+<div class="tool_bar">
+    <label>重新分配审批人</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;overflow:auto" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding" style="width:2500px;max-width:2500px;">
+            <div class="container margin-little-left">
+
+                <div class="line">
+                    <input type="text" class="input input-small" style="width:100px;" id="txtHTCode" name="txtHTCode" placeholder="HT编号" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtApplierMUDID" name="txtApplierMUDID" placeholder="申请人MUDID" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtBUHeadMUDID" name="txtBUHeadMUDID" placeholder="审批人MUDID" />
+                    <span>审批类别</span>
+                    <select class="input input-small" style="width:100px;" id="sltAdvanceType" name="sltAdvanceType">
+                        <option value="" selected="selected"></option>
+                        <option value="预申请">预申请</option>
+                        <option value="上传文件">上传文件</option>
+                    </select>
+                    <span>审批状态</span>
+                    <select class="input input-small" style="width:100px;" id="sltAdvanceState" name="sltAdvanceState">
+                        <option value="" selected="selected"></option>
+                        <option value="待审批">待审批</option>
+                        <option value="审批通过">审批通过</option>
+                        <option value="审批驳回">审批驳回</option>
+                        <option value="已取消">已取消</option>
+                    </select>
+                    <button class="button button-small bg-main icon-search" id="btnLoad"> 查询</button>
+                    <button class="button button-small bg-blue icon-file-excel-o" id="btnChange">重新分配审批人</button>
+                </div>
+            </div>
+        </div>
+        <table id="costcenter_dataTable" class="table table-hover" style="width:2500px;max-width:2500px;">
+            <thead>
+                <tr>
+                    <th style="text-align:center; width:50px;">
+                        <input type="checkbox" />
+                    </th>
+                    <th>HT编号</th>
+                    <th>申请人姓名</th>
+                    <th>申请人MUDID</th>
+                    <th>审批类别</th>
+                    <th>审批状态</th>
+                    <th>提交日期</th>
+                    <th>提交时间</th>
+                    <th>审批人姓名</th>
+                    <th>审批人MUDID</th>
+                    <th>审批动作</th>
+                    <th>审批理由</th>
+                    <th>审批日期</th>
+                    <th>审批时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <script type="text/html">
+                    <tr>
+                        <td align="center">
+                            ${dr.c5=='待审批' && dr.c14 != '多级' && dr.c14 != '自动' ? '<input type="checkbox" name="id" value="'+ dr.c0 + '">': ''}$
+                        </td>
+                        <td>${dr.c1}$</td>
+                        <td>${dr.c2}$</td>
+                        <td>${dr.c3}$</td>
+                        <td>${dr.c4}$</td>
+                        <td>${dr.c5}$</td>
+                        <td>${dr.c6}$ </td>
+                        <td>${dr.c7}$ </td>
+                        <td>${dr.c9}$ </td>
+                        <td>${dr.c8}$ </td>
+                        <td>${dr.c10}$ </td>
+                        <td>${dr.c11}$ </td>
+                        <td>${dr.c12}$ </td>
+                        <td>${dr.c13}$ </td>
+                    </tr>
+                </script>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="30" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+

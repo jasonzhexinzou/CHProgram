@@ -1,0 +1,467 @@
+﻿@{
+    ViewBag.Title = "上传文件查询详情";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+<script type="text/javascript">
+    var id = '@ViewBag.id';
+    $(function () {
+        $.PintuerPost(contextUri + '/P/UploadFileManagement/DetailsLoad', { id: id }, function (d) {
+            var data = d.data;
+            var data1 = d.data1;
+            var html = '';
+            for (var i = 0; i < data1.length; i++) {
+
+                html += '<tr>';
+                html += ' <td id="UserName">' + data1[i].UserName + '</td>';
+                html += ' <td id="ActionType">' + data1[i].ActionType + '</td>';
+                var comment = data1[i].Comments == null ? "" : data1[i].Comments;
+                html += ' <td id="Comments">' + comment + '</td>';
+                html += ' <td id="ApproveDate">' + data1[i].ApproveDate + '</td>';
+                html += '</tr>';
+            }
+            $('#txttbody').html(html);
+            if (data1) {
+                $('#UserName').html(data1.UserName);
+                $('#ActionType').html(data1.ActionType);
+                $('#Comments').html(data1.Comments);
+                $('#ApproveDate').html(data1.ApproveDate);
+            }
+            $('#txtApplierName').val(data.ApplierName);
+            $('#txtApplierMUDID').val(data.ApplierMUDID);
+            $('#txtPosition').val(data.Position);
+            $('#txtApplierMobile').val("");
+            $('#txtHTCode').val(data.HTCode);
+            $('#txtMarket').val(data.Market);
+            $('#txtVeevaMeetingID').val(data.VeevaMeetingID); //VeevaMeetingID
+            $('#txtTA').val(data.TA);
+            $('#txtProvince').val(data.Province);
+            $('#txtCity').val(data.City);
+            $('#txtHospitalName').val(data.HospitalName);
+            $('#txtMeetingName').val(data.MeetingName);
+            $('#txtAttendCount').val(data.AttendCount);
+            $('#txtCostCenter').val(data.CostCenter);
+            $('#txtSupplier').val(data.Channel);
+            $('#txtOrderNumber').val(data.CN);
+            $('#txtDeliveryDate').val(data.DeliverDate);
+            $('#txtDeliveryTime').val(data.DeliverTime);
+            $('#txtDinersNo').val(data.AttendCounts);
+            $('#txtTotalNumber').val(data.FoodCount);
+            $('#txtBudgetTotal').val(data.TotalPrice);
+            $('#txtActualAmount').val(data.XmsTotalPrice);
+            $('#txtReasonAmountAdjustment').val(data.ChangeTotalPriceReason);
+            $('#txtConfirmReceiptDate').val(data.ReceiveDate);
+            $('#txtConfirmReceiptTime').val(data.ReceiveTime);
+            $('#txtUserConfirmationAmount').val(data.RealPrice);
+            $('#txtUserConfirmationAmountReason').val(data.RealPriceChangeReason);
+            $('#txtUserConfirmationAmountRemark').val(data.RealPriceChangeRemark);
+            $('#txtActualNumberDiners').val(data.RealCount);
+            $('#txtActualNumberDinersReason').val(data.RealCountChangeReason);
+            $('#txtActualNumberDinersRemark').val(data.RealCountChangeRemrak);            
+            $('#txtOrderStatus').val(data.State);
+            $('#txtIsUploadFile').val(data.IsOrderUpload);
+            $('#txtIsRedistribute').val(data.IsReAssign);
+            $('#txtUploadFileManagerName').val(data.ReAssignBUHeadName);
+            $('#txtUploadFileManagerMUDID').val(data.ReAssignBUHeadMUDID);            
+            $('#txtUploadFileApprovalStatus').val(data.Stated);
+            $('#txtWhetherAttendanceEqualDiners').val(data.IsAttentSame);
+            $('#txtReasonNumberAdjustment').val(data.AttentSameReason);
+            $('#txtIsUploadFileReOpen').val(data.IsReopen);
+            $('#txtUploadFileReOpenUser').val(data.ReopenOperatorName);
+            $('#txtUploadFileReOpenUserMUDID').val(data.ReopenOperatorMUDID);
+            $('#txtUploadFileReOpenDate').val(data.ReopenOperateDate);
+            $('#txtUploadFileReOpenTime').val(data.ReopenOperateTime);
+            $('#txtUploadFileReOpenReason').val(data.ReopenReason);           
+            $('#txtUploadFileReOpenApprovalStatus').val(data.UploadReOpenState);
+            $('#txtCheckInTableFile').html(data.MMCoEImageOne);
+            $('#txtFieldPhotoFile').html(data.MMCoEImageTwo);
+            $('#txtOtherFiles').html(data.MMCoEImageThree);
+            $('#txtIsCancel').val(data.IsCancel);
+            $('#txtCancelState').val(data.CancelState);
+            $('#txtIsReceive').val(data.IsReceive);
+            $('#txtIsMealSame').val(data.IsMealSame);
+            $('#txtSpecialReason').val(data.SpecialReason);
+            $('#txtApproveDate').val(data.ApproveDate);
+            $('#txtIsMeetingSame').val(data.IsMeetingSame);
+            $('#txtMeetingSameReason').val(data.MeetingSameReason);
+            $('#txtSpecialUploadReason').val(data.SpecialUploadReason);
+            console.log(data.MMCoEImageOne)
+            console.log(data.MMCoEImageTwo)
+            console.log(data.MMCoEImageThree)
+        });
+    });
+
+</script>
+}
+<div style="padding: 15px;">
+    <form action="" id='form0' method="post">
+        <input name="ID" value="@ViewBag.id" type="hidden" />
+        <div class="form-group">
+            <div class="label"><label for="txtApplierName">申请人姓名</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtApplierName" name="txtApplierName" value="" autocomplete="off" readonly="readonly" />
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtApplierMUDID">申请人MUDID</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtApplierMUDID" name="txtApplierMUDID" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtPosition">申请人职位</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtPosition" name="txtPosition" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtApplierMobile">申请人手机号码</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtApplierMobile" name="txtApplierMobile" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtHTCode">HT编号</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtHTCode" name="txtHTCode" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtMarket">Market</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtMarket" name="txtMarket" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtMarket">VeevaMeetingID</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtVeevaMeetingID" name="txtVeevaMeetingID" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtTA">TA</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtTA" name="txtTA" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtProvince">省份</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtProvince" name="txtProvince" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtCity">城市</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtCity" name="txtCity" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtHospitalName">医院名称</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtHospitalName" name="txtHospitalName" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtMeetingName">会议名称</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtMeetingName" name="txtMeetingName" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtAttendCount">参会人数</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtAttendCount" name="txtAttendCount" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtCostCenter">大区区域代码</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtCostCenter" name="txtCostCenter" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtSupplier">供应商</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtSupplier" name="txtSupplier" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtOrderNumber">订单号</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtOrderNumber" name="txtOrderNumber" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtDeliveryDate">送餐日期</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtDeliveryDate" name="txtDeliveryDate" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtDeliveryTime">送餐时间</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtDeliveryTime" name="txtDeliveryTime" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtDinersNo">用餐人数</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtDinersNo" name="txtDinersNo" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtTotalNumber">总份数</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtTotalNumber" name="txtTotalNumber" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtBudgetTotal">预订金额</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtBudgetTotal" name="txtBudgetTotal" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtActualAmount">实际金额</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtActualAmount" name="txtActualAmount" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtReasonAmountAdjustment">金额调整原因</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtReasonAmountAdjustment" name="txtReasonAmountAdjustment" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtIsCancel">是否申请退单</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtIsCancel" name="txtIsCancel" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtCancelState">是否退单成功</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtCancelState" name="txtCancelState" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtIsReceive">是否收餐/未送达</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtIsReceive" name="txtIsReceive" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtConfirmReceiptDate">确认收餐日期</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtConfirmReceiptDate" name="txtConfirmReceiptDate" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtConfirmReceiptTime">确认收餐时间</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtConfirmReceiptTime" name="txtConfirmReceiptTime" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtUserConfirmationAmount">用户确认金额</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtUserConfirmationAmount" name="txtUserConfirmationAmount" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtIsMealSame">是否与预定餐品一致</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtIsMealSame" name="txtIsMealSame" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtUserConfirmationAmountReason">用户确认金额调整原因</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtUserConfirmationAmountReason" name="txtUserConfirmationAmountReason" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtUserConfirmationAmountRemark">用户确认金额调整备注</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtUserConfirmationAmountRemark" name="txtUserConfirmationAmountRemark" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtActualNumberDiners">实际用餐人数</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtActualNumberDiners" name="txtActualNumberDiners" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtActualNumberDinersReason">实际用餐人数调整原因</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtActualNumberDinersReason" name="txtActualNumberDinersReason" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtActualNumberDinersRemark">实际用餐人数调整备注</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtActualNumberDinersRemark" name="txtActualNumberDinersRemark" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtOrderStatus">订单状态</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtOrderStatus" name="txtOrderStatus" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtSpecialReason">项目组特殊备注</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtSpecialReason" name="txtSpecialReason" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtIsUploadFile">是否上传文件</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtIsUploadFile" name="txtIsUploadFile" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtIsRedistribute">是否重新分配</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtIsRedistribute" name="txtIsRedistribute" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtUploadFileManagerName">上传文件审批直线经理姓名</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtUploadFileManagerName" name="txtUploadFileManagerName" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtUploadFileManagerMUDID">上传文件审批直线经理MUDID</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtUploadFileManagerMUDID" name="txtUploadFileManagerMUDID" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtApproveDate">上传文件审批日期</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtApproveDate" name="txtApproveDate" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtUploadFileApprovalStatus">上传文件审批状态</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtUploadFileApprovalStatus" name="txtUploadFileApprovalStatus" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtWhetherAttendanceEqualDiners">签到人数是否等于实际用餐人数</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtWhetherAttendanceEqualDiners" name="txtWhetherAttendanceEqualDiners" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtReasonNumberAdjustment">签到人数调整原因</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtReasonNumberAdjustment" name="txtReasonNumberAdjustment" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtIsMeetingSame">是否与会议信息一致</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtIsMeetingSame" name="txtIsMeetingSame" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtMeetingSameReason">会议信息不一致原因</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtMeetingSameReason" name="txtMeetingSameReason" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtSpecialUploadReason">退单原因/未送达，会议未正常召开原因/会议文件丢失原因</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtSpecialUploadReason" name="txtSpecialUploadReason" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="label"><label for="txtIsUploadFileReOpen">上传文件是否Re-Open</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtIsUploadFileReOpen" name="txtIsUploadFileReOpen" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtUploadFileReOpenUser">上传文件Re-Open操作人</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtUploadFileReOpenUser" name="txtUploadFileReOpenUser" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtUploadFileReOpenUserMUDID">上传文件Re-Open操作人MUDID</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtUploadFileReOpenUserMUDID" name="txtUploadFileReOpenUserMUDID" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtUploadFileReOpenDate">上传文件Re-Open日期</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtUploadFileReOpenDate" name="txtUploadFileReOpenDate" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtUploadFileReOpenTime">上传文件Re-Open时间</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtUploadFileReOpenTime" name="txtUploadFileReOpenTime" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtUploadFileReOpenReason">上传文件Re-Open原因</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtUploadFileReOpenReason" name="txtUploadFileReOpenReason" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtUploadFileReOpenApprovalStatus">上传文件Re-Open审批状态</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtUploadFileReOpenApprovalStatus" name="txtUploadFileReOpenApprovalStatus" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtCheckInTableFile">签到表文件</label></div>
+                <div class="field">
+                    <div id="txtCheckInTableFile" name="txtCheckInTableFile"></div>
+
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtFieldPhotoFile">会议照片文件</label></div>
+                <div class="field">
+                    <div id="txtFieldPhotoFile" name="txtFieldPhotoFile"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtOtherFiles">其他文件</label></div>
+                <div class="field">
+                    <div id="txtOtherFiles" name="txtOtherFiles"></div>
+                </div>
+            </div>
+            <div class="label"><label for="txtIsReAssign">审批流程：</label></div>
+            <table id="costcenter_dataTable" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>操作人</th>
+                        <th>操作</th>
+                        <th>审批意见</th>
+                        <th>审批时间</th>
+                    </tr>
+                </thead>
+                <tbody id="txttbody"></tbody>
+                <tfoot>
+                </tfoot>
+
+            </table>
+        </div>
+    </form>
+</div>
+

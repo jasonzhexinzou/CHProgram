@@ -1,0 +1,270 @@
+﻿
+@{
+    ViewBag.Title = "请选餐";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<link rel="stylesheet" href="~/Content/css/restaurant_menu.css?v=javaScriptVersion" />
+<script type="text/javascript" src="~/Content/js/restaurant_menu.js?v=javaScriptVersion"></script>
+
+
+<style type="text/css">
+    .page-body {
+        bottom: 135px;
+    }
+
+    .page-foot {
+        height: 135px;
+    }
+</style>
+
+<script type="text/html" id="menu_lists">
+    {{each listMenu}}
+    <li target="menu_{{$value.typeId}}">{{$value.typeName}}</li>
+    {{/each}}
+</script>
+
+<script type="text/html" id="menu_foods">
+    {{each listMenu}}
+    <ul id="menu_{{$value.typeId}}" style="display: none;">
+        {{include 'menu_foods_food' $value}}
+    </ul>
+    {{/each}}
+</script>
+<script type="text/html" id="menu_foods_food">
+    {{each listFood}}
+    <li _id="{{$value.foodId}}">
+        <div class="cover" style="background-image:url({{$value.picUrlSmall}})"></div>
+        <div class="infopanel">
+            <div class="name">{{$value.foodName}}</div>
+            <div class="description" style="display:none;">{{$value.describe}}</div>
+            <div class="price" price="{{$value.price}}">
+                <div class="btntools">
+                    <span></span>
+                    <span class="spFastSelect">0</span>
+                    <span></span>
+                    <span></span>
+                </div>
+                {{$value.price}}元
+            </div>
+        </div>
+    </li>
+    {{/each}}
+</script>
+
+<script type="text/html" id="menu_shoppingcart">
+    {{each listFood}}
+    <li _id="{{$value.foodId}}">
+        <div class="tools">
+            <div class="btntools">
+                <span></span>
+                <span>{{$value.count}}</span>
+                <span></span>
+                <span></span>
+            </div>
+            <span class="money" price="{{$value.price}}">{{$value.price * 100 * $value.count / 100}}</span>
+        </div>
+        <span>{{$value.foodName}}</span>
+    </li>
+    {{/each}}
+</script>
+
+
+<script type="text/javascript">
+    var hospitalId = '@ViewBag.hospitalId';
+    var restaurantId = '@ViewBag.restaurantId';
+    var supplier = '@ViewBag.supplier';
+    var State = '@ViewBag.State';
+    var sendTime = '@ViewBag.sendTime';
+    var changeSendTime = '@ViewBag.changeSendTime';
+    var restaurantName = '@ViewBag.restaurantName';
+</script>
+
+<div id="menu_page" class="page-main">
+    <div class="page-body">
+        <!-- 餐厅菜单 -->
+        <div class="foodgroup">
+            <ul id="foodtype">
+                @*<li target="">主食套餐</li>
+                    <li target="">早餐套餐</li>
+                    <li target="">下午茶套餐</li>*@
+            </ul>
+        </div>
+        <div class="foodlist" id="foodlist">
+            @*<ul id="">
+                    <li _id="">
+                        <div class="cover" style="background-image:url(http://upload4.95171.cn/albumpicimages/20131014/201310/9f2d76dd-adc1-482f-83be-6b2edaf6a6f4.jpg)"></div>
+                        <div class="infopanel">
+                            <div class="name">红薯</div>
+                            <div class="description"></div>
+                            <div class="ad">月销量12笔</div>
+                            <div class="price" price="10">
+                                <div class="btntools">
+                                    <span></span>
+                                    <span>0</span>
+                                    <span></span>
+                                </div>
+                                ￥10
+                            </div>
+                        </div>
+                    </li>
+                </ul>*@
+        </div>
+    </div>
+
+    <div class="shoppingcart">
+        <div class="carpanel">
+            <div class="head">
+                <span>购物车</span>
+                <span>清空</span>
+            </div>
+            <div class="list" id="shoppingcart">
+                <ul>
+                    @*<li _id="">
+                            <span>烤土豆</span>
+                            <div class="tools">
+                                <span class="money" price="10">￥20</span>
+                                <div class="btntools">
+                                    <span></span>
+                                    <span>2</span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </li>*@
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-foot">
+        <div class="tool">
+            <div>
+                <a id="btnClear" href="javascript:void(0)" class="weui-btn weui-btn_mini weui-btn_orange ">清空</a>
+            </div>
+            <div>
+                <a id="btnShopCart" href="javascript:void(0)" class="weui-btn weui-btn_mini weui-btn_orange">已选菜品</a>
+            </div>
+            <div>
+                <a id="btnNext" href="javascript:void(0)" class="weui-btn weui-btn_mini weui-btn_orange">下一步</a>
+            </div>
+        </div>
+        <div class="tip">
+            <ul class="first">
+                <li>
+                    <label class="key">已　点</label>
+                    <label class="val0">0</label>
+                </li>
+                <li>
+                    <label class="key">菜品费</label>
+                    <label class="val">0</label>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <form id="form0" action="~/P/Food/Order" method="get">
+        <input type="hidden" name="supplier" value="@Request["supplier"]" />
+    </form>
+</div>
+
+<script type="text/html" id="order_foods">
+    <div class="supplier">
+        <span>{{foods.resName}}</span>
+        <span>总价：{{foods.allPrice}}元</span>
+    </div>
+    <div class="details">
+        {{each foods.foods}}
+        <div>
+            <span>￥{{$value.price}}</span>
+            <span>x{{$value.count}}</span>
+            <div>
+                {{$value.foodName}}
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    <div class="other">
+        <div>
+            <span>{{foods.totalCount}}</span>
+            <div>
+                份数
+            </div>
+        </div>
+        <div>
+            <span>￥{{foods.totalFoodFee}}</span>
+            <div>
+                菜品费
+            </div>
+        </div>
+        <div>
+            <span>￥{{foods.sendFee}}</span>
+            <div>
+                外送费
+            </div>
+        </div>
+        <div>
+            <span>￥{{foods.packageFee}}</span>
+            <div>
+                包装费
+            </div>
+        </div>
+    </div>
+
+</script>
+
+<div id="checked_page" class="page-main" style="display: none; background-color: #FFFFFF;">
+    <div class="page-body" style="bottom: 50px;">
+        <div class="foodinfo">
+
+        </div>
+    </div>
+    <div class="page-foot" style="height: 50px;">
+        <div class="tip" style="display: none;">
+            <ul>
+                <li>
+                    <label class="key">已　点</label>
+                    <label class="val0">0</label>
+                </li>
+                <li>
+                    <label class="key">菜品费</label>
+                    <label class="val">0</label>
+                </li>
+                <li>
+                    <label class="key">外送费</label>
+                    <label class="val">0</label>
+                </li>
+                <li>
+                    <label class="key">包装费</label>
+                    <label class="val">0</label>
+                </li>
+                <li>
+                    <label class="key">总费用</label>
+                    <label class="val">0</label>
+                </li>
+            </ul>
+        </div>
+        <div style="padding: 5px 10px;">
+            <button id="btnTrueNext" type="button" class="weui-btn weui-btn_orange">下一步</button>
+        </div>
+    </div>
+</div>
+
+<div id="dvFastSelect" style="display:none;">
+    <div class="weui-mask" id="iosFastSelectMask" style="opacity: 1;"></div>
+    <div class="weui-actionsheet weui-actionsheet_toggle" id="iosFastSelectActionsheet">
+        <div class="weui-actionsheet__menu">
+            <div class="weui-actionsheet__cell" onclick="FastSelect($(this).html())">0</div>
+            <div class="weui-actionsheet__cell" onclick="FastSelect($(this).html())">5</div>
+            <div class="weui-actionsheet__cell" onclick="FastSelect($(this).html())">10</div>
+            <div class="weui-actionsheet__cell" onclick="FastSelect($(this).html())">15</div>
+            <div class="weui-actionsheet__cell" onclick="FastSelect($(this).html())">20</div>
+            <div class="weui-actionsheet__cell" onclick="FastSelect($(this).html())">25</div>
+            <div class="weui-actionsheet__cell" onclick="FastSelect($(this).html())">30</div>
+            <div class="weui-actionsheet__cell" onclick="FastSelect($(this).html())">40</div>
+            <div class="weui-actionsheet__cell" onclick="FastSelect($(this).html())">50</div>
+            <div class="weui-actionsheet__cell" onclick="FastSelect($(this).html())">60</div>
+        </div>
+        <div class="weui-actionsheet__action">
+            <div class="weui-actionsheet__cell" id="iosActionsheetCancel" onclick="FastSelectCancel()">取消</div>
+        </div>
+    </div>
+</div>

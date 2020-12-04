@@ -1,0 +1,96 @@
+﻿@{
+    ViewBag.Title = "发送报表";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+<script type="text/javascript">
+    
+    $(function () {
+    });
+
+    function btnOKClick(e) {
+        var _recipients = $('#recipient').val();
+        var _ccs = $('#cc').val();
+        if (_recipients == "") {
+            $showdialog({ body: '请添加收件人！' });
+            return;
+        }
+        var arrTo = _recipients.split(';');
+        for (var i = 0; i < arrTo.length; i++) {
+            if (arrTo[i] != "") {
+                if (!checkEmail(arrTo[i])) {
+                    $showdialog({ body: arrTo[i] + '：邮箱地址错误！' });
+                    return;
+                }
+            }
+        }
+        var ccTo = _ccs.split(';');
+        for (var i = 0; i < ccTo.length; i++) {
+            if (ccTo[i] != "") {
+                if (!checkEmail(ccTo[i])) {
+                    $showdialog({ body: ccTo[i] + '：邮箱地址错误！' });
+                    return;
+                }
+            }
+        }
+        $.PintuerPost(contextUri + '/P/PreApproval/Send', {
+            Recipient: _recipients,
+            CCs: _ccs,
+            srh_HTCode: '@ViewBag.HTCode',
+            srh_HospitalCode: '@ViewBag.HospitalCode',
+            srh_CostCenter: '@ViewBag.CostCenter',
+            srh_ApplierMUDID: '@ViewBag.ApplierMUDID',
+            srh_ApplierTerritory: '@ViewBag.ApplierTerritory',
+
+
+            srh_BUHeadMUDID: '@ViewBag.BUHeadMUDID',
+            srh_Market: '@ViewBag.Market',
+            srh_TA: '@ViewBag.TA',
+            srh_State:"@Html.Raw(ViewBag.State)",
+            srh_StartBUHeadApproveDate: '@ViewBag.StartBUHeadApproveDate',
+            srh_EndBUHeadApproveDate: '@ViewBag.EndBUHeadApproveDate',
+            srh_StartMeetingDate: '@ViewBag.StartMeetingDate',
+            srh_EndMeetingDate: '@ViewBag.EndMeetingDate',
+            srh_RD: '@ViewBag.RDTerritoryCode',
+            srh_BudgetTotal: '@ViewBag.BudgetTotal'
+        }, function (result) {
+            if (result.state != 1) {
+                $showdialog({ body: result.txt });
+            }
+            else {
+                $showdialog({ body: result.txt });
+                e.close();
+            }
+            });
+        function checkEmail(v) {
+            var email = v;
+            var str = email.lastIndexOf(".");
+            var str2 = email.substring(str);
+            var str3 = email.indexOf("@@");
+            var str4 = email.substring(0, str3);
+            var str5 = email.substring(str3, str3 + 1);
+            var str6 = email.substring(str + 1);
+            var str7 = email.substring(str, str + 1);
+            var str8 = email.indexOf(".");
+            var str9 = email.substring(str3 + 1, str8);
+            var str10 = email.substring(0, str3 + 1);
+            var str11 = email.substring(0, str + 1);
+            var str12 = (email.split(".")).length - 1;
+            var str13 = email.substring(email.indexOf("@@") + 1, email.indexOf("@@") + 4).toUpperCase();
+            if ((str5 == "@@" && str7 == "." && (str11.length > str10.length) && str4 != "" && str6 != "" && str9 != "" && (str2 == ".com" || str2 == ".cn") && str12 <= 2) || str13 == "GSK") {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+</script>
+}
+<div style="padding: 15px;">
+    <span><strong>收件人：</strong></span><br />
+    <textarea style="width:100%;" rows="6" id="recipient" name="recipient" placeholder="多个收件人需用英文分号; 分割"></textarea><br /><br />
+    <span><strong>抄送人：</strong></span><br />
+    <textarea style="width:100%;" rows="6" id="cc" name="cc" placeholder="多个抄送人需用英文分号; 分割"></textarea>
+</div>

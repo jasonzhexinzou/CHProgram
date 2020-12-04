@@ -1,0 +1,47 @@
+﻿
+@{
+    ViewBag.Title = "原订单详情";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+@Html.Partial("DetailTmpl")
+
+<script type="text/javascript">
+    var orderId = '@ViewBag.orderId';
+    var supplier = '@ViewBag.supplier';
+</script>
+<script type="text/javascript" src="~/Content/js/order_original.js?v=javaScriptVersion"></script>
+
+<div class="page-main">
+    <div class="page__bd" style="height: 100%;">
+        <div class="weui-tab">
+            <div class="weui-tab__panel" id="orderinfo">
+
+            </div>
+            @if (ViewBag.flag && ViewBag.flag1)
+            {
+                <div class="weui-tabbar" id="action_buttons">
+                    <a href="javascript:;" class="weui-tabbar__item">
+                        <p class="weui-tabbar__label" onclick="postFood()">按原订单配送</p>
+                    </a>
+                    <a href="javascript:;" class="weui-tabbar__item">
+                        <p class="weui-tabbar__label" onclick="closepage()">返回</p>
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="weui-tabbar" id="action_buttons">
+                    <a href="javascript:;" class="weui-tabbar__item">
+                        <p class="weui-tabbar__label" style="background-color:rgba(0,0,0,0.2);color:#999999">按原订单配送</p>
+                    </a>
+                    <a href="javascript:;" class="weui-tabbar__item">
+                        <p class="weui-tabbar__label" onclick="closepage()">返回</p>
+                    </a>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+

@@ -1,0 +1,108 @@
+﻿
+@{
+    ViewBag.Title = "人员列表";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        var pdg;
+        $(function () {
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/Personnel/Load', paging: true });
+            pdg.QueryParams = function () {
+                return {
+                    userId: $('#txtMUDID').val(),
+                    DMUserId: $('#txtDMUserId').val()
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+
+            $('#btnSync').bind('click', function () {
+                $showdialogForConfim(
+                    {
+                        title: '确认同步？',
+                        body: '该操作属于高危作，结果不可逆转，您确认要执行该操作吗？',
+                        ok: function () {
+                            $.PintuerPost(contextUri + '/P/Personnel/SyncQyUser', {}, Load);
+                        }
+                    }
+                );
+            });
+        });
+
+        function Load() {
+            pdg.Load();
+        }
+
+    </script>
+}
+
+
+
+<div class="tool_bar">
+    <label>人员列表</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+
+                <div class="line">
+                    <div class="x10">
+                        <input type="text" class="input input-small" style="width:100px;" id="txtMUDID" name="txtMUDID" placeholder="MUDID" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtDMUserId" name="txtDMUserId" placeholder="直线经理MUDID" />
+
+                        <button class="button button-small bg-main icon-search" id="btnLoad"> 搜索</button>
+                        <button class="button button-small bg-blue icon-refresh" id="btnSync"> 同步</button>
+
+                    </div>
+                    <div class="x2">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table id="costcenter_dataTable" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>MUDID</th>
+                    <th>姓名</th>
+                    <th>Title</th>
+                    <th>手机号码</th>
+                    <th>Market</th>
+                    <th>个人区域代码</th>
+                    <th>直线经理姓名</th>
+                    <th>直线经理MUDID</th>
+                    <th>是否同意声明</th>
+                    <th>WorkDay是否离职</th>
+                    <th>创建时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>${dr.UserId}$</td>
+                    <td>${dr.Name}$</td>
+                    <td>${dr.Title==null?"":dr.Title}$</td>
+                    <td>${dr.PhoneNumber==null?"":dr.PhoneNumber}$</td>
+                    <td>${dr.Market==null?"":dr.Market}$</td>
+                    <td>${dr.TerritoryCode==null?"":dr.TerritoryCode}$</td>
+                    <td>${dr.DMName==null?"":dr.DMName}$</td>
+                    <td>${dr.DMUserId==null?"":dr.DMUserId}$</td>
+                    <td>${dr.IsCheckedStatement==1?"是":"否"}$</td>
+                    <td>${dr.State==4?"是":"否"}$</td>
+                    <td>${getDateByDotNet(dr.CreateDate).pattern('yyyy-MM-dd HH:mm:ss')}$ </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="10" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+

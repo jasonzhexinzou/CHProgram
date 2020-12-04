@@ -1,0 +1,346 @@
+﻿
+@{
+    ViewBag.Title = "选择订单";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<style type="text/css">
+    html, body {
+        width: 100%;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 60px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .weui-label {
+        width: 180px !important;
+    }
+</style>
+
+<script type="text/html" id="tmpl_OrderDetails">
+    <div class="weui-cells__title">
+        订单详情
+        @*<p style="float:right;">{{State}}</p>*@
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">订单状态</label></div>
+            <div class="weui-cell__bd">
+                {{State}}
+            </div>
+        </div>
+        {{if IsRetuen!='' && IsRetuen!=null}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">退单状态</label></div>
+            <div class="weui-cell__bd">
+                {{IsRetuen}}
+            </div>
+        </div>
+        {{/if}}
+        {{if State=='订单未送达'}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">会议正常召开</label></div>
+            <div class="weui-cell__bd">
+                {{IsSpecialOrder=='3'?'否':'是'}}
+            </div>
+        </div>
+        {{/if}}
+        {{if IsSpecialOrder=='呼叫中心操作退单' || IsSpecialOrder=='会议支持文件丢失'}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label" style="color:red;">项目组特殊备注</label></div>
+            <div class="weui-cell__bd">
+                <span style="color:red;">{{IsSpecialOrder}}</span>
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">HT编号</label></div>
+            <div class="weui-cell__bd">
+                {{CN}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">申请人姓名</label></div>
+            <div class="weui-cell__bd">
+                {{details.preApproval.ApplierName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">MUDID</label></div>
+            <div class="weui-cell__bd">
+                {{details.preApproval.ApplierMUDID}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">Market</label></div>
+            <div class="weui-cell__bd">
+                {{Market}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">TA</label></div>
+            <div class="weui-cell__bd">
+                {{TA}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">供应商</label></div>
+            <div class="weui-cell__bd">
+                {{Channel.toUpperCase()}}
+            </div>
+        </div>
+        {{if Channel.toUpperCase()=='BDS'}}
+        <div class="weui-cell">
+            <div class="weui-cells__title" style="color:red;padding:0px 0px;margin:0px 0px;">
+                *BDS订单会产生3%的额外税费,此费用不计入餐费,每月由中央订餐项目组统一支付。
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">呼叫中心</label></div>
+            {{if Channel.toUpperCase()=='XMS'}}
+            <a href="tel:400-820-5577">400-820-5577</a>
+            {{else}}
+            <a href="tel:400-6868-912">400-6868-912</a>
+            {{/if}}
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用餐人数</label></div>
+            <div class="weui-cell__bd">
+                {{AttendCount}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">实际用餐人数</label></div>
+            <div class="weui-cell__bd">
+                {{RealCount}}
+            </div>
+        </div>
+        {{if RealCountChangeReason!='' && RealCountChangeReason!=null}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用餐人数调整原因</label></div>
+            <div class="weui-cell__bd">
+                {{RealCountChangeReason}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用餐人数调整备注</label></div>
+            <div class="weui-cell__bd">
+                {{RealCountChangeRemrak}}
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">预定金额</label></div>
+            <div class="weui-cell__bd">
+                RMB {{TotalPrice}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">实际金额</label></div>
+            <div class="weui-cell__bd">
+                {{if XmsTotalPrice > -1 && XmsTotalPrice != TotalPrice}}
+                RMB {{XmsTotalPrice}}
+                {{else}}
+                RMB {{TotalPrice}}
+                {{/if}}
+            </div>
+        </div>
+        {{if ChangeTotalPriceReason != '' && ChangeTotalPriceReason != null}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">实际金额调整原因</label></div>
+            <div class="weui-cell__bd">
+                {{ChangeTotalPriceReason}}
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用户确认金额</label></div>
+            <div class="weui-cell__bd">
+                RMB {{RealPrice}}
+            </div>
+        </div>
+        {{if RealPriceChangeReason!='' && RealPriceChangeReason!=null}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">确认金额调整原因</label></div>
+            <div class="weui-cell__bd">
+                {{RealPriceChangeReason}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">确认金额调整备注</label></div>
+            <div class="weui-cell__bd">
+                {{RealPriceChangeRemark}}
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">医院名称</label></div>
+            <div class="weui-cell__bd">
+                {{HospitalName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">医院编码</label></div>
+            <div class="weui-cell__bd">
+                {{HospitalId}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">送餐地址</label></div>
+            <div class="weui-cell__bd">
+                {{Address}} {{DeliveryAddress}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">收餐人</label></div>
+            <div class="weui-cell__bd">
+                {{Consignee}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联系电话</label></div>
+            <div class="weui-cell__bd">
+                {{Phone}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">送餐时间</label></div>
+            <div class="weui-cell__bd">
+                {{DeliverTime.pattern('yyyy-MM-dd HH:mm')}}
+            </div>
+        </div>
+        @*<div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">会议名称</label></div>
+            <div class="weui-cell__bd">
+                {{MeetingName}}
+            </div>
+        </div>*@
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">备注</label></div>
+            <div class="weui-cell__bd">
+                {{Remark}}
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/javascript">
+    var render;
+    var IsSpecialOrder;
+    $(function () {
+        render = template('tmpl_OrderDetails');
+        pageInit();
+        $('#HTCode').change();
+        $("#btnNextStep").click(function () {
+            var htCode = $('#HTCode').val();
+            if (htCode == undefined || htCode == '') {
+                showTopMsg('请选择一个HT编号');
+                return;
+            }
+            if (!isInTimespan(getTimeNow(), timeConfig.UploadOperableTimeSpanBegin, timeConfig.UploadOperableTimeSpanEnd)) {
+                showDlg(MSG_NOUPLOADFILETIME, '确定', function () {
+                }, 'info');
+                return;
+            }
+            location.href = contextUri + '/P/Upload/UploadFiles' + '?htCode=' + htCode + ' &fileType=' + IsSpecialOrder;
+        });
+    });
+
+    function pageInit() {
+        $('#HTCode').change(function () {
+            var htcode = $('#HTCode').val();
+            post('/P/Upload/FindOrderByHTCode', { HTCode: htcode }, function (d) {
+                var orderInfo = d.data;
+                if (orderInfo == null || orderInfo == "") {
+                    $("#dvOrderInfo").hide();
+                } else {
+                    switch (orderInfo.State) {
+                        case 6: orderInfo.State = "订单确认收餐"; break;
+                        case 7: orderInfo.State = "订单系统收餐"; break;
+                        case 8: orderInfo.State = "订单未送达"; break;
+                        case 9: orderInfo.State = "订单已评价"; break;
+                        case 12: orderInfo.State = "订单退单失败"; break;
+                    }
+                    orderInfo.DeliverTime = getDateByDotNet(orderInfo.DeliverTime);
+                    orderInfo.TotalPrice = format(orderInfo.TotalPrice);
+                    orderInfo.XmsTotalPrice = format(orderInfo.XmsTotalPrice);
+                    orderInfo.RealPrice = format(delcommafy(orderInfo.RealPrice)*1);
+                    IsSpecialOrder = orderInfo.IsSpecialOrder;
+                    switch (orderInfo.IsSpecialOrder) {
+                        case 1: orderInfo.IsSpecialOrder = "呼叫中心操作退单"; break;
+                        case 2: orderInfo.IsSpecialOrder = "会议支持文件丢失"; break;
+                    }
+                    switch (orderInfo.IsRetuen) {
+                        case 1: orderInfo.IsRetuen = "订单申请退单"; break;
+                        case 2: orderInfo.IsRetuen = "订单退单成功"; break;
+                        case 3: orderInfo.IsRetuen = "订单退单失败"; break;
+                        case 4: orderInfo.IsRetuen = "订单退单失败"; break;
+                        case 5: orderInfo.IsRetuen = "订单退单失败"; break;
+                        case 6: orderInfo.IsRetuen = "订单退单失败"; break;
+                    }
+                    orderInfo.details = JSON.parse(orderInfo.Detail);
+                    var html = render(orderInfo);
+                    $('#dvOrderInfo').html(html);
+                }
+            }, 'json');
+        });
+    }
+
+    function delcommafy(num) {
+        num = num.replace(/,/gi, '');
+        return num;
+    }
+
+</script>
+
+<div class="page-main">
+    <div class="page-body">
+        <div class="weui-cells__title"><h3>请选择HT编号</h3></div>
+        <div class="weui-cells">
+            <div class="weui-cell weui-cell_select">
+                <div class="weui-cell__bd">
+                    <select class="weui-select" name="HTCode" id="HTCode">
+                        @foreach (var ite in ViewBag.listHTCode)
+                        {
+                            <option value="@ite.CN">@ite.CN（@ite.MeetingName）</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="dvOrderInfo">
+        </div>
+    </div>
+    <div class="page-foot">
+        <form id="form1" action="~/P/Upload/UploadFiles" method="get"></form>
+        <div class="page__bd page__bd_spacing">
+            <div class="weui-flex">
+                <div class="weui-flex__item">
+                    <div class="placeholder">
+                        <button id="btnNextStep" class="weui-btn weui-btn_orange">下一步</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

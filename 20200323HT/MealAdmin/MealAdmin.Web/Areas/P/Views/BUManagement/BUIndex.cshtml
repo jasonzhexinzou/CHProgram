@@ -1,0 +1,219 @@
+﻿@{
+    ViewBag.Title = "BU/TA关系";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+
+    <link href="~/Content/css/layui.css" rel="stylesheet" />
+    <script src="~/Content/js/layui.all.js"></script>
+    <script src="~/Content/js/layui.js"></script>
+    <script type="text/javascript">
+        var pdg;
+        var pdgta;
+        $(function () {
+            pdg = $('#buinfo_dataTable').iPathDataGrid({ url: contextUri + '/P/BUManagement/LoadBUInfo', paging: true });
+            //pdg.QueryParams = function () {
+                
+            //}
+            pdg.Load();
+
+
+            pdgta = $('#tainfo_dataTable').iPathDataGrid({ url: contextUri + '/P/BUManagement/LoadTAInfo', paging: true });
+            //pdgta.QueryParams = function () {
+
+            //}
+            pdgta.Load();
+
+        });
+
+        function Load() {
+            pdg.Load();
+            pdgta.Load();
+        }
+
+        function AddBU() {
+            $showdialogForUrl(
+                {
+                    title: 'BU信息',
+                    width: '450px',
+                    height: '320px',
+                    url: contextUri + '/P/BUManagement/EditBU',
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '保存',
+                            handler: function (e) { top.c_manager.window.btnOKClick(e, function () { Load(); }); }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+
+                }
+            );
+        }
+
+        function EditBU(id) {
+            $showdialogForUrl(
+                {
+                    title: 'BU信息',
+                    width: '450px',
+                    height: '320px',
+                    url: contextUri + '/P/BUManagement/EditBU?ID=' + id,
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '保存',
+                            handler: function (e) { top.c_manager.window.btnOKClick(e, function () { Load(); }); }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+
+                }
+            );
+        }
+
+        function DelBU(id) {
+
+            $showdialogForConfim(
+                {
+                    title: '确认删除',
+                    body: '删除后无法恢复，您确定要删除吗？',
+                    ok: function () {
+                        $.PintuerPost(contextUri + '/P/BUManagement/DelBUInfoByID', { ID: id }, function () {
+                            Load();
+                        });
+                    }
+                }
+            );
+        }
+
+
+        function EditTA(id) {
+            $showdialogForUrl(
+                {
+                    title: 'TA信息',
+                    width: '450px',
+                    height: '320px',
+                    url: contextUri + '/P/BUManagement/EditTA?ID=' + id,
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '保存',
+                            handler: function (e) { top.c_manager.window.btnOKClick(e, function () { Load(); }); }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+
+                }
+            );
+        }
+
+        function DelTA(id) {
+
+            $showdialogForConfim(
+                {
+                    title: '确认删除',
+                    body: '删除后无法恢复，您确定要删除吗？',
+                    ok: function () {
+                        $.PintuerPost(contextUri + '/P/BUManagement/DelTAInfoByID', { ID: id }, function () {
+                            Load();
+                        });
+                    }
+                }
+            );
+        }
+    </script>
+}
+<div class="tool_bar">
+    <label>BU/TA关系</label>
+</div>
+
+<div class="layui-tab layui-tab-card">
+    <ul class="layui-tab-title">
+        <li class="layui-this">BU</li>
+        <li>TerritoryTA</li>
+    </ul>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <div class="inline form-auto padding">
+                <div class="container margin-little-left">
+
+                    <div class="line">
+                        <div class="x10">
+                            <button class="button button-small bg-blue icon-file-o" onclick="AddBU()"> 添加</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin: 20px;overflow:auto" class="panel admin-panel">
+                <table id="buinfo_dataTable" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>BUName</th>
+                            <th>BUHead 姓名</th>
+                            <th>BUHead Mudid</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>${dr.BUName}$</td>
+                            <td>${dr.BUHead}$</td>
+                            <td>${dr.BUHeadMudid}$</td>
+                            <td>
+                                <a href="javascript:;" class="button border-blue button-little icon-edit" onclick="EditBU('${dr.ID}$')"> 修改</a>
+                                <a href="javascript:;" class="button border-red button-little icon-trash-o" onclick="DelBU('${dr.ID}$')"> 删除</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="layui-tab-item">
+            <div style="margin: 20px;overflow:auto" class="panel admin-panel">
+                <table id="tainfo_dataTable" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>TerritoryTA</th>
+                            <th>TA Head 姓名</th>
+                            <th>TA Head Mudid</th>
+                            <th>BU 所属</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>${dr.TerritoryTA}$</td>
+                            <td>${dr.TerritoryHeadName}$</td>
+                            <td>${dr.TerritoryHead}$</td>
+                            <td>${dr.BUName}$</td>
+                            <td>
+                                <a href="javascript:;" class="button border-blue button-little icon-edit" onclick="EditTA('${dr.ID}$')"> 修改</a>
+                                <a href="javascript:;" class="button border-red button-little icon-trash-o" onclick="DelTA('${dr.ID}$')"> 删除</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+         </div>
+    </div>
+</div>

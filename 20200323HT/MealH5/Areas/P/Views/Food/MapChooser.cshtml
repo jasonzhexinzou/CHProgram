@@ -1,0 +1,181 @@
+﻿
+<style type="text/css">
+    .chooser {
+        z-index: 10;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        background-color: #ffffff;
+        display: none;
+        overflow: hidden;
+    }
+
+        .chooser .options {
+            position: absolute;
+            top: 50px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            overflow: auto;
+        }
+
+    .weui-search-bar__cancel-btn {
+        display: block !important;
+    }
+</style>
+
+<script type="text/html" id="chooser_options">
+    @*alert(rows.length);*@
+    {{each rows}}
+    {{if $value.val!='' && $value.del != 1}}
+    <a class="weui-cell weui-cell_access" href="#" _key="{{$value.key}}" _val="{{$value.val}}" _ext="{{$value.ext}}" _hco="{{$value.hco}}">
+        <div class="weui-cell__bd">
+            <p>{{$value.val}}</p>
+        </div>
+        <div class="weui-cell__ft">
+        </div>
+    </a>
+    {{/if}}
+    {{/each}}
+</script>
+<script type="text/javascript">
+    var _gskHospital;
+    var _market;
+    var _ta;
+    var _province;
+    var _city;
+    var _lat;
+    var _lon;
+    var Chooser = function () { }
+    Chooser.fn = Chooser.prototype;
+    Chooser.fn.$divChooser = undefined;
+    Chooser.fn.$tbxSearchInput = undefined;
+    Chooser.fn.$btnSearchCancel = undefined;
+    Chooser.fn.$btnSearchClear = undefined;
+    Chooser.fn.callbackChoosed = undefined;
+    Chooser.fn.callbackLoading = undefined;
+    Chooser.fn.render = undefined;
+
+    Chooser.fn.Init = function () {
+        var that = this;
+        that.$divChooser = $('#chooser');
+        that.$tbxSearchInput = $('#chooserSearchInput');
+        that.$btnSearchCancel = $('#chooserSearchCancel');
+        that.$btnSearchClear = $('#chooserSearchClear');
+        that.render = template('chooser_options');
+
+        that.$tbxSearchInput.bind('input propertychange', function () {
+            that.Loading();
+        });
+        that.$btnSearchClear.click(function () {
+            that.$tbxSearchInput.val('');
+            that.Loading();
+        });
+        that.$btnSearchCancel.click(function () {
+            document.getElementById("chooserSearchInput").style.display = "block";
+            that.Hide();
+        });
+    }
+
+    Chooser.fn.Show = function (callbackLoading, callbackChoosed) {
+        var that = this;
+        that.callbackLoading = callbackLoading;
+        that.callbackChoosed = callbackChoosed;
+        that.$divChooser.show();
+        that.$tbxSearchInput.focus();
+        // 载入初始查询结果
+        that.Loading();
+    }
+
+    Chooser.fn.Loading = function () {
+        var that = this;
+        var keyword = that.$tbxSearchInput.val();
+
+        that.callbackLoading(keyword, function (list) { that.Loaded(list) });
+    }
+
+    Chooser.fn.Loaded = function (list) {
+        if (list.length > 0) {
+            _gskHospital = list[0].ext;
+            _market = list[0].market;
+            _ta = list[0].ta;
+            document.getElementById("addNewAddress").href = contextUri + "/P/PreApproval/Map?ta=" + _ta + "&market=" + _market + "&hospitalcode=" + _gskHospital + "&actionType=ADD";
+        }
+        var that = this;
+        var html = that.render({ rows: list });
+        var $html = $(html);
+        that.$divChooser.find('.options').html($html);
+        $('.chooser .options a').click(function () {
+            that.OptionClick(this);
+        });
+    }
+
+    Chooser.fn.OptionClick = function (option) {
+        var that = this;
+        var $option = $(option);
+        this.callbackChoosed({
+            key: $option.attr('_key'),
+            val: $option.attr('_val'),
+            ext: $option.attr('_ext'),
+            hco: $option.attr('_hco')
+        });
+        that.Hide();
+    }
+
+    Chooser.fn.Hide = function () {
+        document.getElementById("newBtnDiv").style.display = "none";
+        var that = this;
+        that.$tbxSearchInput.val('');
+        that.$divChooser.hide();
+        that.$divChooser.find('.options').html('');
+    }
+
+</script>
+<script type="text/javascript">
+    var chooser;
+    $(function () {
+        chooser = new Chooser();
+        chooser.Init();
+        //chooser.Show(callbackLoading, callbackChoosed);
+
+        $('#formChooser').bind('onsubmit', function () { return false; });
+    });
+
+    //function callbackLoading(key, callback) {
+    //    searchHospital(-1, key, function (list) {
+    //        var res = iPath.Select(list, function (a) {
+    //            return { key: a.ID, val: a.Name, ext: a.Address };
+    //        });
+    //        callback(res);
+    //    });
+    //}
+
+    //function callbackChoosed(opt) {
+    //    console.log(opt);
+    //}
+
+
+
+</script>
+
+<div id="chooser" class="chooser">
+    <div class="weui-search-bar" id="searchBar">
+        <form id="formChooser" class="weui-search-bar__form" onsubmit="return false;">
+            <div class="weui-search-bar__box">
+                <i class="weui-icon-search"></i>
+                <input type="search" class="weui-search-bar__input" id="chooserSearchInput" placeholder="搜索" required="">
+                <a href="javascript:" class="weui-icon-clear" id="chooserSearchClear"></a>
+            </div>
+        </form>
+        <a href="javascript:" class="weui-search-bar__cancel-btn" id="chooserSearchCancel">取消</a>
+    </div>
+    <div id="newBtnDiv" style="display:none; padding-left:17px;">
+        <img style="height:18px;padding-top:1px;" src="~/Content/image/add.png" />
+        <a style="font-size:17px;" id="addNewAddress" class="menuname" target="main_frame"><font color="orange">新增外送地址</font></a>
+    </div>
+    <div class="options weui-cells" style="top:50px;">
+
+    </div>
+</div>

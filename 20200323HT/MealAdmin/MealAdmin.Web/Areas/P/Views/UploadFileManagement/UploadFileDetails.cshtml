@@ -1,0 +1,95 @@
+﻿
+@{
+    ViewBag.Title = "UploadFileDetails";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+<script type="text/javascript">
+
+    function btnOKClick(e, callback) {
+        var uploadID = '@ViewBag.id';
+        var originatorMUDID = $('#originatorMUDID').val();
+        var originatorName = $('#originatorName').val();
+
+        if (originatorMUDID == '' || originatorMUDID == null) {
+            alert("请输入Re-Open发起人MUDID");
+            return;
+        }
+
+        var val = $('#resion option:selected').val();
+        if (val == 0) {
+            alert("请选择Re-Open原因");
+            return;
+        }
+
+        var val1 = $('#remark option:selected').val();
+        if (val1 == 0) {
+            alert("请选择备注");
+            return;
+        }
+
+        var reason = $('#resion option:selected').text();
+        var remark = $('#remark option:selected').text();
+
+        var url = contextUri + '/P/UploadFileManagement/UploadReopen';
+        
+        $.post(url, {
+            UploadID: uploadID,
+            reason: reason,
+            remark: remark,
+            originatorMUDID: originatorMUDID,
+            originatorName: originatorName
+            },function (data) {
+                $showdialog({ body: '提交成功' });
+                callback();
+            });
+    }
+
+    function FindByUserId() {
+
+        var userId = $('#originatorMUDID').val();
+        $.post(contextUri + '/P/UploadFileManagement/Find', {
+            userId: userId
+        }, function (d) {
+            var user = d.data;
+            $('#originatorMUDID').val(user.UserId);
+            $('#originatorName').val(user.Name);
+        });
+    }
+
+
+</script>
+
+
+<div style="margin-top:10%;margin-left:10%">
+    <div style="float:left;width:30%">
+        <span>Re-Open发起人MUDID</span><br /><br /><br />
+        <span>Re-Open发起人姓名</span><br /><br /><br />
+        <span>Re-Open原因</span><br /><br />
+        <span>备注</span>
+    </div>
+    <div style="float:left;width:70%">
+
+        <div style="width:260px;">
+            <input type="text" class="input input-small" id="originatorMUDID" name="originatorMUDID" value="" data-validate="required:必填" autocomplete="off" onchange="FindByUserId()" />
+        </div>
+        <br />
+        <div style="width:260px;">
+            <input type="text" class="input input-small" id="originatorName" name="originatorName" value="" disabled="disabled" />
+        </div>
+        <br />
+        <select class="input input-small" style="width:260px;" id="resion" name="resion">
+            <option value="0" selected="selected">请选择Re-Open原因</option>
+            <option value="1">签到表时间与会议时间不一致</option>
+            <option value="2">签到表信息与会议信息不一致</option>
+            <option value="3">签到表人数与实际用餐人数不一致</option>
+            <option value="4">签到表无法辨认</option>
+            <option value="5">会议照片无法辨认</option>
+        </select>
+        <br />
+        <select class="input input-small" style="width:260px;" id="remark" name="remark">
+            <option value="0" selected="selected">请选择备注</option>
+            <option value="1">直线经理线下审批驳回</option>
+            <option value="2">财务线下审批驳回</option>
+        </select>
+    </div>
+</div>

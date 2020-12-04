@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="MealAdminApi.WxMessage" CodeBehind="WxMessage.svc.cs" %>

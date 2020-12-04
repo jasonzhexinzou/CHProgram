@@ -1,0 +1,312 @@
+﻿
+@{
+    ViewBag.Title = "预申请最高审批人";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+@section scripts{
+    <script type="text/javascript">
+        var pdg;
+        $(function () {
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/PreApproval/CostCenterLoad', paging: true });
+            pdg.QueryParams = function () {
+                return {
+                    //srh_Market: $('#sltMarket').val().replace(/\s/g, ""),
+                    //srh_TA: $('#sltTA').val().replace(/\s/g, ""),
+                    //srh_BUHead: $('#txtBUHead').val().replace(/\s/g, ""),
+                    //srh_Region: $('#txtRegion').val().replace(/\s/g, ""),
+                    //srh_CostCenter: $('#txtCostCenter').val().replace(/\s/g, "")
+                    
+                };
+            }
+            pdg.Load();
+            //查询
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+            //添加
+            $('#btnAdd').click(function () {
+                Edit();
+            });
+            //导出
+            //$('#btnExport').bind('click', function (){
+
+            //    window.location.href = contextUri + '/P/PreApproval/ExportCostCenterList?srh_Market=' + encodeURIComponent($('#sltMarket ').val().replace(/\s/g, ""))
+            //                + '&srh_TA=' + encodeURIComponent($('#sltTA').val().replace(/\s/g, ""))
+            //                + '&srh_BUHead=' + encodeURIComponent($('#txtBUHead').val().replace(/\s/g, ""))
+            //                + '&srh_Region=' + encodeURIComponent($('#txtRegion').val().replace(/\s/g, ""))
+            //                + '&srh_CostCenter=' + encodeURIComponent($('#txtCostCenter').val().replace(/\s/g, ""));
+
+            //});
+
+            $('#btnExport').bind('click', function () {
+
+                window.location.href = contextUri + '/P/PreApproval/ExportCostCenterList?';
+            });
+
+            $('#btnImport').click(function () {
+                ajaxFileUpload();
+            });
+            $('#sltTA').bind('click', function () {
+                var num = $('#sltTA option').length;
+                if (num < 2) {
+                    alert('请先选择Market');
+                }
+            });
+        });
+
+        //显示当前id的成本中心
+        function Details(id) {
+            $showdialogForUrl(
+                {
+                    title: '修改预申请最高审批人',
+                    width: '360px',
+                    height: '400px',
+                    url: contextUri + '/P/PreApproval/CostCenterDetails?id=' + id,
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '确定',
+                            handler: function (e) {
+                                top.c_manager.window.btnOKClick(e, function () { pdg.Load(); });
+                            }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+                }
+            );
+        }
+
+        
+
+        function ajaxFileUpload() {
+            $("#fileUpload").click();            
+        }        
+        
+        /**
+         * 上传文件
+         */
+        function fileChange(uri, fileInputId) {
+            var fileName = $("#" + fileInputId).val().replace(/\s/g, "");
+            var fileType = fileName.substr(fileName.length - 4, 4);
+            if (fileType != 'xlsx') {
+                $showdialog({ body: '请选择一个.xlsx格式Execl的文档！' });
+                return;
+            }
+
+            var qyAccountId = '';
+            $.ajaxFileUpload
+            (
+                {
+                    url: uri,
+                    secureuri: false,
+                    fileElementId: fileInputId,
+                    dataType: 'json',
+                    success: function (data, status) {
+                        if (data.state == 1) {
+                            $showdialog({ body: '导入成功，请刷新页面查看' });
+                        } else {
+                            if (data.data != undefined) {
+                                var txt = '';
+                                for (var i in data.data) {
+                                    var item = data.data[i];
+                                    txt += '<br />' + item;
+                                }
+                                var body = '<strong>' + data.txt + '</strong>: <br />' + '<div style="max-height: 150px; overflow:auto">' + txt + '</div>'
+                                $showdialog({ body: body });
+                            } else {
+                                $showdialog({ body: data.txt });
+                            }
+
+                        }
+                    },
+                    error: function (data, status, e) {
+                        $showdialog({ body: '网络故障' });
+                    }
+                }
+            )
+        }
+        //显示添加成本中心页面
+        function Edit() {
+            $showdialogForUrl(
+                {
+                    title: '添加成本中心',
+                    width: '360px',
+                    height: '400px',
+                    url: contextUri + '/P/PreApproval/EditCostCenter',
+                    pageid: 'editcostcenter',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '添加',
+                            handler: function (e) {
+                                top.c_editcostcenter.window.btnOKClick(e, function () {
+                                    pdg.Load();
+                                    e.close();                                    
+                                });
+                            }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+                }
+            );
+        }
+        //删除成本中心
+        //function Del(id, CostCenter) {
+
+        //    $showdialogForConfim(
+        //        {
+        //            title: '确认删除',
+        //            body: '删除后无法恢复，您确定要删除吗？',
+        //            ok: function () {
+        //                $.PintuerPost(contextUri + '/P/PreApproval/DelById', { id: id, CostCenter: CostCenter }, function () {
+        //                    pdg.Load();
+        //                });
+        //            }
+        //        }
+        //    );
+        //}
+
+        function Del(id) {
+
+            $showdialogForConfim(
+                {
+                    title: '确认删除',
+                    body: '删除后无法恢复，您确定要删除吗？',
+                    ok: function () {
+                        $.PintuerPost(contextUri + '/P/PreApproval/DelById', { id: id }, function () {
+                            pdg.Load();
+                        });
+                    }
+                }
+            );
+        }
+
+        function selectMarket() {
+            var market = $('#sltMarket').val();
+            $.post(contextUri + '/P/PreApproval/LoadTa', {
+                marketName: market
+            }, function (data) {
+                var taList = data.data;
+                $('#sltTA').html('');
+                var html = '<option value="" selected="selected"></option>';
+                if (taList.length > 0) {
+                    for (var i in taList) {
+                        html += '<option value="' + taList[i].Name + '">' + taList[i].Name + '</option>';
+                    }
+                }
+                $('#sltTA').html(html);
+            });
+        };
+
+
+    </script>
+}
+
+<div class="tool_bar">
+    <label>预申请最高审批人</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;overflow:auto" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding" >
+            <div class="container margin-little-left">
+
+                <div class="line">
+                    @*Market<select class="input input-small" style="width:100px;" id="sltMarket" name="sltMarket" onchange="selectMarket()">
+                                <option value="" selected="selected"></option>
+                                <option value="Rx">Rx</option>
+                                <option value="Vx">Vx</option>
+                                <option value="TSKF">TSKF</option>
+                                <option value="DDT">DDT</option>
+                          </select>
+                    TA<select class="input input-small" style="width:100px;" id="sltTA" name="sltTA">
+                            <option value="" selected="selected"></option>
+                            <option value="THRO">THRO</option>
+                            <option value="CNS">CNS</option>
+                            <option value="DDT">DDT</option>
+                            <option value="RESP">RESP</option>
+                            <option value="HA">HA</option>
+                            <option value="HEP">HEP</option>
+                            <option value="TSKF">TSKF</option>
+                            <option value="Vx">Vx</option>
+                            <option value="HIV">HIV</option>
+                            <option value="VOL">VOL</option>
+                       </select>
+                    BU Head<input type="text" class="input input-small" style="width:100px;" id="txtBUHead" name="txtBUHead" placeholder="MUDID" />
+                    Region<input type="text" class="input input-small" style="width:100px;" id="txtRegion" name="txtRegion"  />
+                    CostCenter<input type="text" class="input input-small" style="width:100px;" id="txtCostCenter" name="txtCostCenter" />*@
+                    
+                    
+                    @*<button class="button button-small bg-main icon-search" id="btnLoad"> 查询</button>
+                    <button class="button button-small bg-blue icon-file-o" id="btnAdd"> 添加</button>*@
+                    <button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>
+                    @*<button class="button button-small bg-yellow icon-cloud-upload" id="btnImport"> 导入</button>*@
+                </div>
+                @*<div style="display: none">
+                    <input id="fileUpload" type="file" name="file" onchange="fileChange('importCostCenter', 'fileUpload')" />
+                </div>
+
+                <div style="display: none;">
+                    <form id="repor_HospitalRes" action="~/P/Restaurant/ReportHospitalResExcel" method="post" target="_blank"></form>
+                    <form id="repor_Res" action="~/P/Restaurant/ReportResExcel" method="post" target="_blank"></form>
+                </div>*@
+            </div>
+        </div>
+        <table id="costcenter_dataTable" class="table table-hover" >
+            <thead>
+                <tr>
+
+                    <th>TERRITORY_TA</th>
+                    @*<th>TA</th>*@
+                    <th>BU Head(Rx/Vx)或销售总监(DDT/TSKF)姓名</th>
+                    <th>BU Head(Rx/Vx)或销售总监(DDT/TSKF)MUDID</th>
+                    @*<th>Region</th>
+                    <th>Regional Manager</th>
+                    <th>Regional Manager MUDID</th>
+                    <th>RD/SD Manager</th>
+                    <th>RD/SD Manager MUDID</th>
+                    <th>Regional ManagerCost Center</th>
+                    <th>Old Regional ManagerCost Center</th>*@
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>${dr.TERRITORY_TA}$</td>
+                    @*<td>${dr.TA}$</td>*@
+                    <td>${dr.BUHeadName}$</td>
+                    <td>${dr.BUHeadMUDID}$</td>
+                    @*<td>${dr.Region}$</td>
+                    <td>${dr.RegionManagerName}$</td>
+                    <td>${dr.RegionManagerMUDID}$</td>
+                    <td>${dr.RDSDName==null?"":dr.RDSDName}$</td>
+                    <td>${dr.RDSDMUDID==null?"":dr.RDSDMUDID}$</td>
+                    <td>${dr.CostCenter}$</td>
+                    <td>${dr.OldCostCenter==null?"":dr.OldCostCenter}$</td>*@
+                    <td>
+                        <a href="javascript:;" class="button border-blue button-little icon-edit" onclick="Details('${dr.ID}$')"> 修改</a>
+                        @*<a href="javascript:;" class="button border-red button-little icon-trash-o" onclick="Del('${dr.ID}$', '${dr.CostCenter}$')"> 删除</a>*@
+                        <a href="javascript:;" class="button border-red button-little icon-trash-o" onclick="Del('${dr.ID}$')"> 删除</a>
+                    </td>
+
+                    @*<td>${getDateByDotNet(dr.CreateDate).pattern('yyyy-MM-dd HH:mm:ss')}$</td>*@
+
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="80" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+

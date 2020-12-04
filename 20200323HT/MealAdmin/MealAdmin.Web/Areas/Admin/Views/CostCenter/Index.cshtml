@@ -1,0 +1,123 @@
+﻿
+@{
+    ViewBag.Title = "成本中心";
+    Layout = "~/Views/Shared/_LayoutPagePanel.cshtml";
+}
+
+<script type="text/javascript">
+    var pdg;
+    $(function () {
+        pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/Admin/CostCenter/Load', paging: true });
+        pdg.QueryParams = function () {
+
+            return {};
+        }
+        pdg.Load();
+
+        $('#btnLoad').bind('click', function () {
+            pdg.Load();
+        });
+
+        $('#btnEdit').bind('click', function () {
+            Edit();
+        });
+    });
+
+    function Load() {
+        pdg.Load();
+    }
+
+    function Edit(id) {
+
+        id = id == undefined ? '' : id;
+        $showdialogForUrl(
+            {
+                title: '成本中心',
+                width: '400px',
+                height: '400px',
+                url: contextUri + '/Admin/CostCenter/Edit/' + id,
+                pageid: 'costcenter',
+                buttons: [
+                    {
+                        cls: 'button bg-green',
+                        txt: '保存',
+                        handler: function (e) { window.top.c_costcenter.window.btnOKClick(e, function () { Load(); }); }
+                    },
+                    {
+                        cls: 'button',
+                        txt: '取消',
+                        handler: function (e) { e.close(); }
+                    }
+                ]
+
+            }
+        );
+    }
+
+    function Delete(id) {
+        $showdialogForConfim(
+            {
+                title: '确认删除',
+                body: '删除后无法恢复，您确定要删除吗？',
+                ok: function () {
+                    $.PintuerPost(contextUri + '/Admin/CostCenter/Remove', { id: id }, function () {
+                        Load();
+                    });
+                }
+            }
+        );
+    }
+
+</script>
+
+<div class="tool_bar">
+    <label>成本中心</label>
+</div>
+<div class="main_view">
+
+    <div style="margin: 20px;" class="panel admin-panel">
+
+        <div class="padding border-bottom inline form-auto">
+            <div>
+                <button class="button button-small bg-main icon-refresh" id="btnLoad"> 刷新</button>
+                <button class="button button-small bg-blue icon-file-o" id="btnEdit"> 添加</button>
+            </div>
+        </div>
+        <table id="costcenter_dataTable" class="table table-hover">
+            <thead>
+                <tr>
+                    <th style="text-align:center; width:50px;">
+                        <input type="checkbox" />
+                    </th>
+                    <th>代码</th>
+                    <th>名称</th>
+                    <th style="width:50px;">状态</th>
+                    <th style="width:170px;">时间</th>
+                    <th style="width:260px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td align="center"><input type="checkbox" name="id" value="${dr.ID}$"></td>
+                    <td>${dr.Code}$</td>
+                    <td>${dr.Name}$</td>
+                    <td>${dr.State == 0 ? '正常' : dr.State = 2 ? '禁用' : dr.State = 4 ? '删除' : '其他'}$</td>
+                    <td>${getDateByDotNet(dr.ModifyDate).pattern('yyyy-MM-dd HH:mm:ss')}$</td>
+                    <td>
+                        <a class="button border-yellow button-little icon-group" href="~/Admin/CostCenter/CostManager/${dr.ID}$"> 指派审核员</a>
+                        <button class="button border-blue button-little icon-edit" onclick="Edit('${dr.ID}$')"> 修改</button>
+                        <button class="button border-yellow button-little icon-trash-o" onclick="Delete('${dr.ID}$')"> 删除</button>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="6" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+
+

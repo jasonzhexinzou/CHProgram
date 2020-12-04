@@ -1,0 +1,648 @@
+﻿
+@{
+    ViewBag.Title = ViewBag.PageTitle;
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+
+    <script type="text/javascript">
+        var pdg;
+
+        function MyFormateDateTime(Data, fmt) {
+            if (Data) {
+                return getDateByDotNet(Data).pattern(fmt);
+            }
+            else {
+                return '';
+            }
+        }
+        function MyComNullVal(Data) {
+            if (Data) {
+                return Data;
+            }
+            else {
+                return '';
+            }
+        }
+        // 评价是否
+        function MyESF(Data) {
+            if (Data) {
+                if (Data == 1) {
+                    return '是';
+                }
+                else {
+                    return '否';
+                }
+            }
+            else {
+                return '';
+            }
+        }
+        // 评价好中差
+        function MyEHZC(Data) {
+            if (Data) {
+                if (Data == 1) {
+                    return '好';
+                }
+                else if (Data == 2) {
+                    return '中';
+                }
+                else if (Data == 3) {
+                    return '差';
+                }
+                else {
+                    return '';
+                }
+            }
+            else {
+                return '';
+            }
+        }
+        function MyEOnTime(Data) {
+            if (Data) {
+                if (Data == 1) {
+                    return '迟到60分钟以上';
+                }
+                else if (Data == 2) {
+                    return '迟到60分钟以内';
+                }
+                else if (Data == 3) {
+                    return '早到';
+                }
+                else if (Data == 4) {
+                    return '准点';
+                }
+                else if (Data == 5) {
+                    return '迟到60分及以上';
+                }
+                else if (Data == 6) {
+                    return '迟到30-60分钟';
+                }
+                else if (Data == 7) {
+                    return '迟到30分钟以内';
+                }
+                else if (Data == 8) {
+                    return '早到30分钟及以上';
+                }
+                else if (Data == 9) {
+                    return '早到30分钟以内';
+                }
+                else if (Data == 10) {
+                    return '准点';
+                }
+                else {
+                    return '';
+                }
+            }
+            else {
+                return '';
+            }
+        }
+        $(function () {
+            var _option = {
+                dateFormat: "yy-mm-dd",
+                closeText: "关闭",
+                prevText: "&#x3C;上月",
+                nextText: "下月&#x3E;",
+                currentText: "今天",
+                monthNames: ["一月", "二月", "三月", "四月", "五月", "六月",
+                "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月",
+                "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                dayNames: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+                dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"],
+                weekHeader: "周",
+                dateFormat: "yy-mm-dd",
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: true,
+                yearSuffix: "年"
+
+            }
+            var _stBegin = $("#txtSendTimeBegin").datepicker(_option);
+            var _stEnd = $("#txtSendTimeEnd").datepicker(_option);
+
+
+
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/Report/LoadCater', paging: true });
+            pdg.QueryParams = function () {
+                return {
+                    CN: $('#txtCN').val().replace(/\s/g, "").replace(/，/ig, ','),
+                    MUID: $('#txtMudId').val(),
+                    TACode: $('#txtTACode').val(),
+                    HospitalCode: $('#txtHospitalCode').val(),//医院编码
+                    RestaurantId: $('#txtRestaurantId').val(),//餐厅编码
+                    CostCenter: $('#txtCostCenter').val(),//成本中心
+                    startDate: $('#txtSendTimeBegin').val(),
+                    endDate: $('#txtSendTimeEnd').val(),
+                    isOrderSuccess: $('#isOrderSuccess').val(),
+                    isReceived: $('#isReceived').val(),
+                    isReturn: $('#isReturn').val(),
+                    isReturnSuccess: $('#isReturnSuccess').val(),
+                    Supplier: $("#dpSupplier").val(),
+                    IsSpecialOrder: $("#IsSpecialOrder").val(),
+                    OrderState: $("#dpOrderState").val()
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+
+            $('#btnEdit').bind('click', function () {
+                Import();
+            });
+
+            $('#btnClear').bind('click', function () {
+                Clear();
+            });
+            $('#btnExportFoodDetails').bind('click', function () {
+                var p = {
+                    CN: $('#txtCN').val().replace(/\s/g, "").replace(/，/ig, ','),
+                    MUID: $('#txtMudId').val(),
+                    TACode: $('#txtTACode').val(),
+                    HospitalCode: $('#txtHospitalCode').val(),//医院编码
+                    RestaurantId: $('#txtRestaurantId').val(),//餐厅编码
+                    CostCenter: $('#txtCostCenter').val(),//成本中心
+                    startDate: $('#txtSendTimeBegin').val(),
+                    endDate: $('#txtSendTimeEnd').val(),
+                    isOrderSuccess: $('#isOrderSuccess').val(),
+                    isReceived: $('#isReceived').val(),
+                    isReturn: $('#isReturn').val(),
+                    isReturnSuccess: $('#isReturnSuccess').val(),
+                    Supplier: $('#dpSupplier').val(),
+                    IsSpecialOrder: $('#IsSpecialOrder').val(),
+                    OrderState: $("#dpOrderState").val()
+                };
+                window.location.href = contextUri + '/P/Report/ExportFoodDetails?CN=' + p.CN
+                    + '&MUID=' + p.MUID
+                    + '&TACode=' + p.TACode
+                    + '&HospitalCode=' + p.HospitalCode
+                    + '&RestaurantId=' + p.RestaurantId
+                    + '&CostCenter=' + p.CostCenter
+                    + '&startDate=' + p.startDate
+                    + '&endDate=' + p.endDate
+                    + '&isOrderSuccess=' + p.isOrderSuccess
+                    + '&isReceived=' + p.isReceived
+                    + '&isReturn=' + p.isReturn
+                    + '&isReturnSuccess=' + p.isReturnSuccess
+                    + '&Supplier=' + p.Supplier
+                    + '&IsSpecialOrder=' + p.IsSpecialOrder
+                    + '&OrderState=' + p.OrderState
+            });
+            $('#btnExport').bind('click', function () {
+                var p = {
+                    CN: $('#txtCN').val().replace(/\s/g, "").replace(/，/ig, ','),
+                    MUID: $('#txtMudId').val(),
+                    TACode: $('#txtTACode').val(),
+                    HospitalCode: $('#txtHospitalCode').val(),//医院编码
+                    RestaurantId: $('#txtRestaurantId').val(),//餐厅编码
+                    CostCenter: $('#txtCostCenter').val(),//成本中心
+                    startDate: $('#txtSendTimeBegin').val(),
+                    endDate: $('#txtSendTimeEnd').val(),
+                    isOrderSuccess: $('#isOrderSuccess').val(),
+                    isReceived: $('#isReceived').val(),
+                    isReturn: $('#isReturn').val(),
+                    isReturnSuccess: $('#isReturnSuccess').val(),
+                    Supplier: $('#dpSupplier').val(),
+                    IsSpecialOrder: $('#IsSpecialOrder').val(),
+                    OrderState: $("#dpOrderState").val()
+                };
+                window.location.href = contextUri + '/P/Report/ExcelCater?CN=' + p.CN
+                    + '&MUID=' + p.MUID
+                    + '&TACode=' + p.TACode
+                    + '&HospitalCode=' + p.HospitalCode
+                    + '&RestaurantId=' + p.RestaurantId
+                    + '&CostCenter=' + p.CostCenter
+                    + '&startDate=' + p.startDate
+                    + '&endDate=' + p.endDate
+                    + '&isOrderSuccess=' + p.isOrderSuccess
+                    + '&isReceived=' + p.isReceived
+                    + '&isReturn=' + p.isReturn
+                    + '&isReturnSuccess=' + p.isReturnSuccess
+                    + '&Supplier=' + p.Supplier
+                    + '&IsSpecialOrder=' + p.IsSpecialOrder
+                    + '&OrderState=' + p.OrderState
+                //ExportSearchList
+            });
+        });
+
+
+        // 弹出选择企业成员对话框
+        function Detail(OrderID) {
+            $showdialogForUrl(
+                {
+                    title: '评价详情',
+                    width: '550px',
+                    height: '580px',
+                    url: contextUri + '/P/OrderMnt/EvaluateDetail?OrderID=' + OrderID,
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button',
+                            txt: '关闭',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+                }
+            );
+        }
+    </script>
+}
+
+
+<div class="tool_bar">
+    <label>报表查询</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <div>
+                        <input type="text" class="input input-small" style="width:200px;" id="txtCN" name="txtCN" placeholder="HT编号" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtMudId" name="txtMudId" placeholder="申请人MUDID" />
+                        <input type="text" class="input input-small" style="width:150px;" id="txtTACode" name="txtTACode" placeholder="申请人Territory Code" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtHospitalCode" name="txtHospitalCode" placeholder="医院编码" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtRestaurantId" name="txtRestaurantId" placeholder="餐厅编码" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtCostCenter" name="txtCostCenter" placeholder="大区区域代码" />
+                        <label class="border-small label-block">
+                            送餐日期
+                            <input type="text" class="input input-small" style="width:100px;" id="txtSendTimeBegin" name="txtSendTimeBegin" placeholder="开始时间" />
+                            <input type="text" class="input input-small" style="width:100px;" id="txtSendTimeEnd" name="txtSendTimeEnd" placeholder="结束时间" />
+                        </label>
+                    </div>
+                    <div style="padding-top: 15px;">
+                        <label>预订状态</label>
+                        <select class="input" id="isOrderSuccess">
+                            <option value="">请选择</option>
+                            <option value="是">预定成功</option>
+                            <option value="否">预定失败</option>
+                        </select>
+
+                        <label>收餐状态</label>
+                        <select class="input" id="isReceived">
+                            <option value="">请选择</option>
+                            <option value="是">收餐成功</option>
+                            <option value="否">收餐失败</option>
+                        </select>
+
+                        <label>退订状态</label>
+                        <select class="input" id="isReturn">
+                            <option value="">请选择</option>
+                            <option value="是">发起退订</option>
+                            <option value="否">未退订</option>
+                        </select>
+
+                        <label>退订结果</label>
+                        <select class="input" id="isReturnSuccess">
+                            <option value="">请选择</option>
+                            <option value="是">退订成功</option>
+                            <option value="否">退订失败</option>
+                        </select>
+                        <label>供应商</label>
+                        <select class="input" id="dpSupplier">
+                            <option value="">请选择</option>
+                            <option value="XMS">XMS</option>
+                            <option value="BDS">BDS</option>
+                        </select>
+                        <label>订单状态</label>
+                        <select class="input" id="dpOrderState">
+                            <option value="">请选择</option>
+                            <option value="订单提交成功">订单提交成功</option>
+                            <option value="订单预定成功">订单预定成功</option>
+                            <option value="订单预定失败">订单预定失败</option>
+                            <option value="订单确认收餐">订单确认收餐</option>
+                            <option value="订单系统收餐">订单系统收餐</option>
+                            <option value="订单未送达">订单未送达</option>
+                            <option value="订单已评价">订单已评价</option>
+                            <option value="订单退单成功">订单退单成功</option>
+                        </select>
+                        <br />
+                        <label>项目组特殊备注</label>
+                        <select class="input" id="IsSpecialOrder">
+                            <option value="">请选择</option>
+                            <option value="9">全部</option>
+                            <option value="1">呼叫中心操作退单</option>
+                            <option value="2">会议支持文件丢失</option>
+                        </select>
+                        <button class="button button-small bg-main icon-search" id="btnLoad"> 搜索</button>
+                        <button class="button button-small bg-main icon-search" id="btnExport"> 导出</button>
+                        <button class="button button-small bg-blue icon-file-excel-o" id="btnExportFoodDetails"> 导出菜品详情</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="panel-body" style="overflow-x:auto;">
+
+            <table id="costcenter_dataTable" class="table table-hover" style="width:20000px; max-width:20000px;">
+                <thead class="text-unbreak">
+                    <tr>
+                        @*<th style="text-align:center; width:50px;">
+                                <input type="checkbox" />
+                            </th>*@
+                        <th>申请人姓名</th>
+                        <th>申请人MUDID</th>
+                        <th>申请人Territory Code</th>
+                        <th>申请人职位</th>
+                        <th>申请人手机号码</th>
+                        <th>预申请申请日期</th>
+                        <th>预申请申请时间</th>
+                        <th>预申请修改日期</th>
+                        <th>预申请修改时间</th>
+                        <th>HT编号</th>
+                        <th>Market</th>
+                        <th>VeevaMeetingID</th>
+                        <th>TA</th>
+                        <th>省份</th>
+                        <th>城市</th>
+                        <th>医院编码</th>
+                        <th>医院名称</th>
+                        <th>医院地址</th>
+                        <th>会议名称</th>
+                        <th>会议日期</th>
+                        <th>会议时间</th>
+                        <th>参会人数</th>
+                        <th>大区区域代码</th>
+                        <th>预算金额</th>
+                        <th>直线经理是否随访</th>
+                        <th>是否由外部免费讲者来讲</th>
+                        @*<th>RD/SD 姓名</th>
+                        <th>RD/SD MUDID</th>*@
+                        <th>RD Territory Code</th>
+                        <th>预申请审批人姓名</th>
+                        <th>预申请审批人MUDID</th>
+                        <th>预申请审批日期</th>
+                        <th>预申请审批时间</th>
+                        <th>预申请审批状态</th>
+                        <th>预申请是否重新分配审批人</th>
+                        <th>预申请重新分配审批人-操作人</th>
+                        <th>预申请重新分配审批人-操作人MUDID</th>
+                        <th>预申请被重新分配审批人姓名</th>
+                        <th>预申请被重新分配审批人MUDID</th>
+                        <th>预申请重新分配审批人日期</th>
+                        <th>预申请重新分配审批人时间</th>
+                        <th>供应商</th>
+                        <th>订单号</th>
+                        <th>下单日期</th>
+                        <th>下单时间</th>
+                        <th>送餐日期</th>
+                        <th>送餐时间</th>
+                        <th>餐厅编码</th>
+                        <th>餐厅名称</th>
+                        <th>用餐人数</th>
+                        <th>预订金额</th>
+                        <th>实际金额</th>
+                        <th>金额调整原因</th>
+                        <th>送餐地址</th>
+                        <th>收餐人姓名</th>
+                        <th>收餐人电话</th>
+                        <th>下单备注</th>
+                        <th>是否预定成功</th>
+                        <th>预定成功日期</th>
+                        <th>预定成功时间</th>
+                        <th>是否申请退单</th>
+                        <th>是否退单成功</th>
+                        <th>退单失败平台发起配送需求</th>
+                        <th>退单失败线下反馈配送需求</th>
+                        <th>预定/退单失败原因</th>
+                        <th>是否收餐/未送达</th>
+                        <th>确认收餐日期</th>
+                        <th>确认收餐时间</th>
+                        <th>用户确认金额</th>
+                        <th>是否与预定餐品一致</th>
+                        <th>用户确认金额调整原因</th>
+                        <th>用户确认金额调整备注</th>
+                        <th>实际用餐人数</th>
+                        <th>实际用餐人数调整原因</th>
+                        <th>实际用餐人数调整备注</th>
+                        <th>未送达描述</th>
+                        <th>准点率</th>
+                        <th>准点率描述</th>
+                        <th>食品安全存在问题</th>
+                        <th>食品安全问题描述</th>
+                        <th>餐品卫生及新鲜</th>
+                        <th>餐品卫生描述</th>
+                        <th>餐品包装</th>
+                        <th>餐品包装描述</th>
+                        <th>餐品性价比</th>
+                        <th>餐品性价比描述</th>
+                        <th>其他评价</th>
+                        <th>在线评分</th>
+                        <th>评论日期</th>
+                        <th>评论时间</th>
+                        <th>1=同一医院当日多场</th>
+                        <th>2=同一代表当日多场</th>
+                        <th>3=同一餐厅当日多场</th>
+                        <th>4=同一代表同一医院当日多场</th>
+                        <th>5=同一代表同一餐厅当日多场</th>
+                        <th>6=同一代表同一医院同一餐厅当日多场</th>
+                        <th>7=参会人数&gt;=60</th>
+                        @*<th>8=参会人数&lt;60,订单份数&gt;=60 </th>*@
+                        <th>8=代表自提</th>
+                        @*<th>直线经理姓名</th>
+                            <th>直线经理MUDID</th>
+                            <th>Level2 Manager 姓名</th>
+                            <th>Level2 Manager MUDID</th>
+                            <th>Level3 Manager 姓名</th>
+                            <th>Level3 Manager MUDID</th>*@
+                        <th>是否上传文件</th>
+                        <th>上传文件提交日期</th>
+                        <th>上传文件提交时间</th>
+                        <th>上传文件审批直线经理姓名</th>
+                        <th>上传文件审批直线经理MUDID</th>
+                        <th>上传文件审批日期</th>
+                        <th>上传文件审批时间</th>
+                        <th>上传文件审批状态</th>
+                        <th>签到人数是否等于实际用餐人数</th>
+                        @*<th>签到人数</th>*@
+                        <th>签到人数调整原因</th>
+                        <th>是否与会议信息一致</th>
+                        <th>会议信息不一致原因</th>
+                        <th>上传文件是否Re-Open</th>
+                        <th>上传文件Re-Open操作人</th>
+                        <th>上传文件Re-Open操作人MUDID</th>
+                        <th>上传文件Re-Open日期</th>
+                        <th>上传文件Re-Open时间</th>
+                        <th>上传文件Re-Open原因</th>
+                        <th>上传文件Re-Open审批状态</th>
+                        <th>上传文件是否重新分配</th>
+                        <th>上传文件重新分配操作人</th>
+                        <th>上传文件重新分配操作人MUDID</th>
+                        <th>上传文件被重新分配人姓名</th>
+                        <th>上传文件被重新分配人MUDID</th>
+                        <th>上传文件被重新分配日期</th>
+                        <th>上传文件被重新分配时间</th>
+                        <th>上传文件是否重新分配审批人</th>
+                        <th>上传文件重新分配审批人-操作人</th>
+                        <th>上传文件重新分配审批人-操作人MUDID</th>
+                        <th>上传文件被重新分配审批人姓名</th>
+                        <th>上传文件被重新分配审批人MUDID</th>
+                        <th>上传文件重新分配审批人日期</th>
+                        <th>上传文件重新分配审批人时间</th>
+                        <th>项目组特殊备注</th>
+                        <th>订单状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        @* <td align="center"><input type="checkbox" name="id" value="${dr.ID}$"></td>*@
+                        <td>${dr.c0}$</td>
+                        <td>${dr.c1}$</td>
+                        <td>${dr.c144}$</td>
+                        <td>${dr.c132}$</td>
+                        <td>${dr.c2}$</td>
+                        <td>${dr.c3}$</td>
+                        <td>${dr.c4}$</td>
+                        <td>${dr.c5}$</td>
+                        <td>${dr.c6}$</td>
+                        <td>${dr.c7}$</td>
+                        <td>${dr.c8}$</td>
+                        <td>${dr.c143}$</td>
+                        <td>${dr.c9}$</td>
+                        <td>${dr.c10}$</td>
+                        <td>${dr.c11}$</td>
+                        <td>${dr.c12}$</td>
+                        <td>${dr.c13}$</td>
+                        <td>${dr.c14}$</td>
+                        <td>${dr.c15}$</td>
+                        <td>${dr.c16}$</td>
+                        <td>${dr.c17}$</td>
+                        <td>${dr.c18}$</td>
+                        <td>${dr.c19}$</td>
+                        <td>${dr.c20}$</td>
+                        <td>${dr.c21}$</td>
+                        <td>${dr.c22}$</td>
+                        @*<td>${dr.c141}$</td>
+                        <td>${dr.c142}$</td>*@
+                        <td>${dr.c145}$</td>
+                        <td>${dr.c23}$</td>
+                        <td>${dr.c24}$</td>
+                        <td>${dr.c25}$</td>
+                        <td>${dr.c26}$</td>
+                        <td>${dr.c27}$</td>
+                        <td>${dr.c28}$</td>
+                        <td>${dr.c29}$</td>
+                        <td>${dr.c30}$</td>
+                        <td>${dr.c31}$</td>
+                        <td>${dr.c32}$</td>
+                        <td>${dr.c33}$</td>
+                        <td>${dr.c34}$</td>
+                        <td>${dr.c35}$</td>
+                        <td>${dr.c36}$</td>
+                        <td>${dr.c37}$</td>
+                        <td>${dr.c38}$</td>
+                        <td>${dr.c39}$</td>
+                        <td>${dr.c40}$</td>
+                        <td>${dr.c41}$</td>
+                        <td>${dr.c42}$</td>
+                        <td>${dr.c43}$</td>
+                        <td>${dr.c45}$</td>
+                        <td>${dr.c46}$</td>
+                        <td>${dr.c47}$</td>
+                        <td>${dr.c48}$</td>
+                        <td>${dr.c49}$</td>
+                        <td>${dr.c50}$</td>
+                        <td>${dr.c51}$</td>
+                        <td>${dr.c52}$</td>
+                        <td>${dr.c53}$</td>
+                        <td>${dr.c54}$</td>
+                        <td>${dr.c55}$</td>
+                        <td>${dr.c56}$</td>
+                        <td>${dr.c57}$</td>
+                        <td>${dr.c58}$</td>
+                        <td>${dr.c59}$</td>
+                        <td>${dr.c60}$</td>
+                        <td>${dr.c61}$</td>
+                        <td>${dr.c62}$</td>
+                        <td>${dr.c63}$</td>
+                        <td>${dr.c138}$</td>
+                        <td>${dr.c64}$</td>
+                        <td>${dr.c65}$</td>
+                        <td>${dr.c66}$</td>
+                        <td>${dr.c67}$</td>
+                        <td>${dr.c68}$</td>
+                        <td>${dr.c69}$</td>
+                        <td>${dr.c70}$</td>
+                        <td>${dr.c71}$</td>
+                        <td>${dr.c72}$</td>
+                        <td>${dr.c73}$</td>
+                        <td>${dr.c74}$</td>
+                        <td>${dr.c75}$</td>
+                        <td>${dr.c76}$</td>
+                        <td>${dr.c77}$</td>
+                        <td>${dr.c78}$</td>
+                        <td>${dr.c79}$</td>
+                        <td>${dr.c80}$</td>
+                        <td>${dr.c81}$</td>
+                        <td>${dr.c82}$</td>
+                        <td>${dr.c83}$</td>
+                        <td>${dr.c84}$</td>
+                        <td>${dr.c85}$</td>
+                        <td>${dr.c86}$</td>
+                        <td>${dr.c87}$</td>
+                        <td>${dr.c88}$</td>
+                        <td>${dr.c89}$</td>
+                        <td>${dr.c90}$</td>
+                        @*<td>${dr.c91}$</td>*@
+                        <td>${dr.c92}$</td>
+                        @*<td>${dr.c93}$</td>
+                            <td>${dr.c94}$</td>
+                            <td>${dr.c95}$</td>
+                            <td>${dr.c96}$</td>
+                            <td>${dr.c97}$</td>
+                            <td>${dr.c98}$</td>*@
+                        <td>${dr.c99}$</td>
+                        <td>${dr.c100}$</td>
+                        <td>${dr.c101}$</td>
+                        <td>${dr.c102}$</td>
+                        <td>${dr.c103}$</td>
+                        <td>${dr.c104}$</td>
+                        <td>${dr.c105}$</td>
+                        <td>${dr.c106}$</td>
+                        <td>${dr.c107}$</td>
+                        @*<td>${dr.c108}$</td>*@
+                        <td>${dr.c109}$</td>
+                        <td>${dr.c139}$</td>
+                        <td>${dr.c140}$</td>
+                        <td>${dr.c110}$</td>
+                        <td>${dr.c111}$</td>
+                        <td>${dr.c112}$</td>
+                        <td>${dr.c113}$</td>
+                        <td>${dr.c114}$</td>
+                        <td>${dr.c115}$</td>
+                        <td>${dr.c116}$</td>
+                        <td>${dr.c117}$</td>
+                        <td>${dr.c118}$</td>
+                        <td>${dr.c119}$</td>
+                        <td>${dr.c120}$</td>
+                        <td>${dr.c121}$</td>
+                        <td>${dr.c122}$</td>
+                        <td>${dr.c123}$</td>
+                        <td>${dr.c124}$</td>
+                        <td>${dr.c125}$</td>
+                        <td>${dr.c126}$</td>
+                        <td>${dr.c127}$</td>
+                        <td>${dr.c128}$</td>
+                        <td>${dr.c129}$</td>
+                        <td>${dr.c130}$</td>
+                        <td>${dr.c131}$</td>
+                        <td>${dr.c137}$</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="150" class="paging"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>

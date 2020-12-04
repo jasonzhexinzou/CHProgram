@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1E0D5CAD-6D61-49E1-99FF-46B3E216CFBB}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MealAdminApi</RootNamespace>
+    <AssemblyName>MealAdminApi</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <WcfConfigValidationEnabled>True</WcfConfigValidationEnabled>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="iPathFeast.Agent">
+      <HintPath>..\MealAdmin.Web\import\iPathFeast.Agent.dll</HintPath>
+    </Reference>
+    <Reference Include="iPathFeast.API.Client">
+      <HintPath>..\MealAdmin.Web\import\iPathFeast.API.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="iPathFeast.ApiEntity">
+      <HintPath>..\MealAdmin.Web\import\iPathFeast.ApiEntity.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="XFramework.WeChatAPI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\XFramework.WeChatAPI.1.1.0.10\lib\net45\XFramework.WeChatAPI.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XFramework.XException, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\XFramework.XException.1.1.0\lib\net45\XFramework.XException.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XFramework.XInject, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\XFramework.XInject.1.1.0\lib\net45\XFramework.XInject.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XFramework.XUtil, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\XFramework.XUtil.1.1.0.2\lib\net45\XFramework.XUtil.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="BaseData.svc" />
+    <Content Include="Bean_Config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Evaluate.svc" />
+    <Content Include="Exception.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Global.asax" />
+    <Content Include="BUManagement.svc" />
+    <Content Include="Hospital.svc" />
+    <Content Include="Order.svc" />
+    <Content Include="PreApproval.svc" />
+    <Content Include="Province.svc" />
+    <Content Include="UploadOrder.svc" />
+    <Content Include="UserInfo.svc" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="WMessage.svc" />
+    <Content Include="WxMessage.svc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseData.svc.cs">
+      <DependentUpon>BaseData.svc</DependentUpon>
+    </Compile>
+    <Compile Include="Evaluate.svc.cs">
+      <DependentUpon>Evaluate.svc</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="BUManagement.svc.cs">
+      <DependentUpon>BUManagement.svc</DependentUpon>
+    </Compile>
+    <Compile Include="Hospital.svc.cs">
+      <DependentUpon>Hospital.svc</DependentUpon>
+    </Compile>
+    <Compile Include="IBaseData.cs" />
+    <Compile Include="IEvaluate.cs" />
+    <Compile Include="IBUManagement.cs" />
+    <Compile Include="IHospital.cs" />
+    <Compile Include="IOrder.cs" />
+    <Compile Include="IPreApproval.cs" />
+    <Compile Include="IProvince.cs" />
+    <Compile Include="IUploadOrder.cs" />
+    <Compile Include="IUserInfo.cs" />
+    <Compile Include="IWMessage.cs" />
+    <Compile Include="IWxMessage.cs" />
+    <Compile Include="Order.svc.cs">
+      <DependentUpon>Order.svc</DependentUpon>
+    </Compile>
+    <Compile Include="PreApproval.svc.cs">
+      <DependentUpon>PreApproval.svc</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Province.svc.cs">
+      <DependentUpon>Province.svc</DependentUpon>
+    </Compile>
+    <Compile Include="UploadOrder.svc.cs">
+      <DependentUpon>UploadOrder.svc</DependentUpon>
+    </Compile>
+    <Compile Include="UserInfo.svc.cs">
+      <DependentUpon>UserInfo.svc</DependentUpon>
+    </Compile>
+    <Compile Include="WMessage.svc.cs">
+      <DependentUpon>WMessage.svc</DependentUpon>
+    </Compile>
+    <Compile Include="WMessageHandler.cs" />
+    <Compile Include="WxConfigManager.cs" />
+    <Compile Include="WxMessage.svc.cs">
+      <DependentUpon>WxMessage.svc</DependentUpon>
+    </Compile>
+    <Compile Include="WxMessageHandler.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="packages.config" />
+    <None Include="Properties\PublishProfiles\Release.pubxml" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MealAdmin.Dao\MealAdmin.Dao.csproj">
+      <Project>{27864ef5-d734-404a-b71b-11aa35341166}</Project>
+      <Name>MealAdmin.Dao</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MealAdmin.Entity\MealAdmin.Entity.csproj">
+      <Project>{62816afc-0b05-43ff-9fd8-4da38b8ad21f}</Project>
+      <Name>MealAdmin.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MealAdmin.Service\MealAdmin.Service.csproj">
+      <Project>{201c1d4f-f00d-47b8-96a7-bc6feb623454}</Project>
+      <Name>MealAdmin.Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MealAdmin.Util\MealAdmin.Util.csproj">
+      <Project>{2c06c2d1-e0cf-43e7-8e93-0bac326ff01e}</Project>
+      <Name>MealAdmin.Util</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>5160</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:5160/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,457 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+    <link rel="stylesheet" href="~/Content/plugin/pintuer/pintuer.css" />
+    <script type="text/javascript" src="~/Content/js/jquery.js"></script>
+    <script type="text/javascript" src="~/Content/js/jquery.form.js"></script>
+    <script type="text/javascript" src="~/Content/plugin/pintuer/pintuer.js"></script>
+    <script type="text/javascript" src="~/Content/plugin/pintuer/respond.js"></script>
+    <link rel="stylesheet" href="~/Content/plugin/iPath1/iPath.css" />
+    <script type="text/javascript" src="~/Content/plugin/iPath1/iPath.js"></script>
+    <script type="text/javascript" src="~/Content/js/time.js"></script>
+
+    <script type="text/javascript" src="~/Content/js/p/admin.js"></script>
+    <link rel="stylesheet" href="~/Content/css/p/admin.css" />
+    <title>订餐系统</title>
+    <link rel="icon" type="image/png" href="~/gsk-favicon.ico" />
+    <script type="text/javascript">
+        var contextUri = '@Href("~")';
+        contextUri = contextUri == '/' ? '' : contextUri;
+
+        function showLoading() {
+            iPath.LodingMask();
+        }
+
+        function hideLoading() {
+            iPath.UnLodingMask();
+        }
+    </script>
+    <script type="text/javascript">
+
+        $(function () {
+            $('#btnChangePwd').click(function () {
+                $showdialogForUrl(
+                    {
+                        title: '修改密码',
+                        width: '350px',
+                        height: '250px',
+                        url: contextUri + '/Admin/Home/ChangePwd',
+                        pageid: 'pwd',
+                        buttons: [
+                            {
+                                cls: 'button bg-green',
+                                txt: '保存',
+                                handler: function (e) { window.top.c_pwd.window.btnOKClick(e); }
+                            },
+                            {
+                                cls: 'button',
+                                txt: '取消',
+                                handler: function (e) { e.close(); }
+                            }
+                        ]
+
+                    }
+                );
+            });
+            var _src = $('#mainMenu .children a.menuname:eq(0)').addClass('checked').attr('href');
+            $('#main_frame').attr('src', _src);
+        });
+
+    </script>
+</head>
+<body>
+    <div class="layout">
+        <div class="layout_title">
+            <div class="logo"></div>
+            <div class="sysname">订餐系统</div>
+            <div class="systoolbar">
+                @{
+                    var CurrentAdminUser = Session[MealAdmin.Util.ConstantHelper.CurrentAdminUser] as IamPortal.AppLogin.AdminUser;
+                }
+                欢迎您： @CurrentAdminUser.Name
+                <label><a href="~/P/Home/Exit">退出</a></label>
+            </div>
+        </div>
+        <div id="mainMenu" class="layout_left" style="overflow-y:auto;">
+            @if (this.IsPermission("00000000-0000-0000-1000-000000000000"))
+            {
+                <ul class="menu">
+                    <li>
+                        <a class="menuname">HT预申请管理</a>
+                        <div class="children">
+                            <ul>
+                                @if (this.IsPermission("00000000-0000-0000-1000-000000000003"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/PreApproval/MMCoEApproval">预申请MMCoE审批</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-1000-000000000004"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/PreApproval/Records">预申请MMCoE审批记录</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-1000-000000000001"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/PreApproval/Index">预申请查询</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-1000-000000000002") || this.IsPermission("CCMGroupUser"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/PreApproval/CostCenter">预申请最高审批人</a>
+                                    </li>
+                                }
+
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            }
+            @if (this.IsPermission("00000000-0000-0000-2000-000000000000"))
+            {
+                <ul class="menu">
+                    <li>
+                        <a class="menuname">HT订单管理</a>
+                        <div class="children">
+                            <ul>
+                                @if (this.IsPermission("00000000-0000-0000-2000-000000000001"))
+    {
+                            <li>
+                                <a class="menuname" target="main_frame" href="~/P/OrderMnt/SearchList">订单查询</a>
+                            </li>
+}
+                                @if (this.IsPermission("00000000-0000-0000-2000-000000000002"))
+    {
+                            <li>
+                                <a class="menuname" target="main_frame" href="~/P/OrderMnt/EvaluateList">订单评价</a>
+                            </li>
+}
+                                @if (this.IsPermission("00000000-0000-0000-2000-000000000003"))
+    {
+                            <li>
+                                <a class="menuname" target="main_frame" href="~/P/Report/Cater">报表查询</a>
+                            </li>
+}
+                                @if (this.IsPermission("00000000-0000-0000-2000-000000000003"))
+    {
+                            <li>
+                                <a class="menuname" target="main_frame" href="~/P/Report/OldCater">历史报表查询</a>
+                            </li>
+}
+                                @if (this.IsPermission("00000000-0000-0000-2000-000000000001"))
+    {
+                            <li>
+                                <a class="menuname" target="main_frame" href="~/P/UploadFileManagement/UnFinishOrder">未完成订单查询</a>
+                            </li>
+}
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            }
+            @if (this.IsPermission("00000000-0000-0000-9000-000000000000"))
+            {
+                <ul class="menu">
+                    <li>
+                        <a class="menuname">Non-HT订单管理</a>
+                        <div class="children">
+                            <ul>
+                                @if (this.IsPermission("00000000-0000-0000-9000-000000000001"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/OrderMnt/NonSearchList">订单查询</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-9000-000000000002"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/OrderMnt/NonApproveList">订单审批</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-9000-000000000003"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/OrderMnt/NonEvaluateList">订单评价</a>
+                                    </li>
+                                }
+                                <li>
+                                    <a class="menuname" target="main_frame" href="~/P/Report/CaterForNonHT">报表查询</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            }
+            @if (this.IsPermission("00000000-0000-0000-3000-000000000000"))
+            {
+                <ul class="menu">
+                    <li>
+                        <a class="menuname">HT上传文件管理</a>
+                        <div class="children">
+                            <ul>
+                                @if (this.IsPermission("00000000-0000-0000-3000-000000000001"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/UploadFileManagement/UploadFileQuery">上传文件查询</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-3000-000000000002") || this.IsPermission("RSGroupUser"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/UploadFileManagement/Reassign">上传文件重新分配</a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            }
+            @if (this.IsPermission("00000000-0000-0000-4000-000000000000"))
+            {
+                <ul class="menu">
+                    <li>
+                        <a class="menuname">HT订单审批管理</a>
+                        <div class="children">
+                            <ul>
+                                @if (this.IsPermission("00000000-0000-0000-4000-000000000001"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/OrderApprovalManagement/ApprovalStatusQuery">审批状态查询</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-4000-000000000002") || this.IsPermission("ChangeAAGUser"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/OrderApprovalManagement/ChangeApprover">重新分配审批人</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-4000-000000000003"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/OrderApprovalManagement/ApproverAgent">审批代理人Ⅰ查询（包含：上传文件）</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-4000-000000000004"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/OrderApprovalManagement/SecoundApproverAgent">审批代理人Ⅱ查询（包含：预申请)</a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            }
+            @if (this.IsPermission("00000000-0000-0000-5000-000000000000"))
+            {
+                <ul class="menu">
+                    <li>
+                        <a class="menuname">HT医院管理</a>
+                        <div class="children">
+                            <ul>
+                                @if (this.IsPermission("00000000-0000-0000-5000-000000000003"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Province/Index">省份列表</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-5000-000000000002"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Hospital/Index">城市列表</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-5000-000000000006"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Hospital/HospitalSummary">医院数据</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-5000-000000000001"))
+                                {
+                                    <li>
+                                        @*<a class="menuname" target="main_frame" href="~/P/Hospital/Index">医院列表</a>*@
+                                        <a class="menuname" target="main_frame" href="~/P/Hospital/Index2">医院列表</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-5000-000000000007"))
+                                {
+                                    <li>
+                                        @*<a class="menuname" target="main_frame" href="~/P/Hospital/Index">医院列表</a>*@
+                                        <a class="menuname" target="main_frame" href="~/P/Hospital/Territory">区域关系查询</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-5000-000000000004"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Hospital/AddressApprove">地址审批查询</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-5000-000000000005"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Hospital/HospitalVariables">变量记录</a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            }
+            @if (this.IsPermission("00000000-0000-0000-6000-000000000000"))
+            {
+                <ul class="menu">
+                    <li>
+                        <a class="menuname">HT人员管理</a>
+                        <div class="children">
+                            <ul>
+                                @if (this.IsPermission("00000000-0000-0000-6000-000000000001"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Personnel/Index">人员列表</a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            }
+            @*@if (this.IsPermission("00000000-0000-0000-6000-000000000000"))
+                {
+                    <ul class="menu">
+                        <li>
+                            <a class="menuname">HT会议管理</a>
+                            <div class="children">
+                                <ul>
+                                    @if (this.IsPermission("00000000-0000-0000-6000-000000000001"))
+                                    {
+                                        <li>
+                                            <a class="menuname" target="main_frame" href="~/P/Meeting/Index">会议列表</a>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                }*@
+            @if (this.IsPermission("00000000-0000-0000-7000-000000000000"))
+            {
+                <ul class="menu">
+                    <li>
+                        <a class="menuname">系统组别管理</a>
+                        <div class="children">
+                            <ul>
+                                @if (this.IsPermission("00000000-0000-0000-7000-000000000001"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Group/Complaints">订单投诉组</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-7000-000000000002"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Group/MMCoE">MMCoE审批组</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-7000-000000000003"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Group/ServPause">HT暂停服务名单</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-7000-000000000004"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Group/OutSideHT">院外HT名单</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-7000-000000000005"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Group/BriefReport">简报发送组</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-7000-000000000006"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Group/ChangeAAg">变更审批人操作组</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-7000-000000000007"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Group/RSGroup">订单重新分配组</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-7000-000000000008"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Group/CCMGroup">成本中心管理组</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-7000-000000000009"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Group/NServPause">non-HT暂停服务名单</a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            }
+            @if (this.IsPermission("00000000-0000-0000-8000-000000000000"))
+            {
+                <ul class="menu">
+                    <li>
+                        <a class="menuname">系统参数配置</a>
+                        <div class="children">
+                            <ul>
+                                @if (this.IsPermission("00000000-0000-0000-8000-000000000001"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Config/Invoice">发票抬头</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-8000-000000000002"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Config/System">系统参数</a>
+                                    </li>
+                                }
+                                @*@if (this.IsPermission("00000000-0000-0000-8000-000000000004"))
+                                    {*@
+                                <li>
+                                    <a class="menuname" target="main_frame" href="~/P/City/Index">一二线城市</a>
+                                </li>
+                                @*}*@
+                                @if (this.IsPermission("00000000-0000-0000-8000-000000000003"))
+                                {
+                                    <li>
+                                       @* <a class="menuname" target="main_frame" href="~/P/Config/Audit">AuditSystem</a>*@
+                                        <a class="menuname" target="main_frame" href="~/P/Config/OperationRecords">系统审计</a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            }
+        </div>
+        <div class="layout_main" _current_panel_id="">
+            <iframe id="main_frame" name="main_frame" frameborder="no" border="0" marginwidth="0" marginheight="0"
+                    src=""></iframe>
+        </div>
+    </div>
+</body>
+</html>

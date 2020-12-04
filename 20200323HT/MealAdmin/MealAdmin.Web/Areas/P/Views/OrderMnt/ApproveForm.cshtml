@@ -1,0 +1,136 @@
+﻿@{
+    ViewBag.Title = "审批操作";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+
+        $(function () {
+        });
+
+        function btnOKClick(e, callback) {
+            if (eval(@ViewBag.CanApprove) == true)
+            {
+                var _isPass = $('#frmData .radio input:radio:checked').val();
+                if (_isPass) {
+                    var _comment = $('#txtComment').val();
+                    if (_isPass == '0' && _comment == '') {
+                        $showdialog({ body: '驳回时，请添写审批意见！' });
+                    }
+                    else {
+                        var _resultTxt;
+                        var _resultVal;
+                        if (_isPass == '1') {
+                            _resultTxt = '通过';
+                            _resultVal = true;
+                        }
+                        else {
+                            _resultTxt = '驳回';
+                            _resultVal = false;
+                        }
+                        $showdialogForConfim({
+                            title: '确认',
+                            body: '确认【' + _resultTxt + '】吗？',
+                            ok: function () {
+                                $.PintuerPost(contextUri + '/P/OrderMnt/ApproveOrder',
+                                                { OrderID: '@ViewBag.OrderID', IsPass: _resultVal, Comment: _comment },
+                                                function (result) {
+                                                    if (result.state != 1) {
+                                                        $showdialog({ body: result.txt });
+                                                    }
+                                                    else {
+                                                        $showdialog({ body: "审批操作已经成功提交！" });
+                                                    }
+
+                                                    if (callback != undefined) {
+                                                        callback();
+                                                    }
+                                                });
+                            }
+                        });
+                    }
+                }
+                else {
+                    $showdialog({ body: '请选择审批结果！' });
+                }
+                return false;
+            }
+            else
+            {
+                $showdialog({ body: '当前申请不可审批！' });
+            }
+        }
+
+    </script>
+    <style type="text/css">
+        #btnYes.active{
+            background-color:#5d8;
+            color:#fff;
+        }
+        #btnNo.active{
+            background-color:#e33;
+            color:#fff;
+        }
+        #frmData .field img{
+            width:100%;
+            border:1px solid #808080;
+            margin-bottom:5px;
+        }
+        #frmData .field textarea{
+            width:100%;
+        }
+    </style>
+}
+<div style="padding: 15px;">
+
+    <div id="frmData" class="padding-big" style="width:100%">
+        <div class="form-group">
+            <div class="label">
+                <label for="txtRx">MMCoE审批邮件截图</label>
+            </div>
+            <div class="field">
+                @foreach (var i in ViewBag.Evidences)
+                {
+                <img alt="" src="@i" />
+                }
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label">
+                <label for="txtRx">审批意见</label>
+            </div>
+            <div class="field">
+                <textarea id="txtComment" name="txtUserIDs" rows="3" cols="65" placeholder="驳回时需要添写审批意见">@ViewBag.MMCoEReason</textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label">
+                <label for="txtVx">审批</label>
+            </div>
+            <div class="field button-group radio">
+                @if (ViewBag.MMCoEApproveState == MealAdmin.Entity.Enum.MMCoEApproveState.WAITAPPROVE)
+                {
+                <label id="btnYes" class="button">
+                    <input name="radIsPass" value="1" type="radio"><span class="icon icon-check"></span> 通过
+                </label>
+                <label id="btnNo" class="button">
+                    <input name="radIsPass" value="0" type="radio"><span class="icon icon-times"></span> 驳回
+                </label>
+                }
+                else if (ViewBag.MMCoEApproveState == MealAdmin.Entity.Enum.MMCoEApproveState.APPROVESUCCESS)
+                {
+                <label id="btnYes" class="button active">
+                    <span class="icon icon-check"></span> 通过
+                </label>
+                }
+                else if (ViewBag.MMCoEApproveState == MealAdmin.Entity.Enum.MMCoEApproveState.APPROVEREJECT)
+                {
+                <label id="btnNo" class="button active">
+                    <span class="icon icon-times"></span> 驳回
+                </label>
+                }
+            </div>
+        </div>
+    </div>
+</div>

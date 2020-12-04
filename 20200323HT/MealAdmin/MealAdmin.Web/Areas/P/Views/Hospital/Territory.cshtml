@@ -1,0 +1,214 @@
+﻿@{
+    ViewBag.Title = "区域关系查询";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+<script type="text/javascript">
+        var pdg;
+        $(function () {
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/Hospital/LoadTerritory', paging: true });
+            pdg.QueryParams = function () {
+                return {
+                    srh_GskHospital: $('#txtHospitalCode').val(),
+                    srh_HospitalName: $('#txtHospitalName').val(),
+                    srh_MUDID: $('#txtMUDID').val(),
+                    srh_TerritoryCode: $('#txtTerritoryCode').val(),
+                    srh_HospitalMarket: $('#sltHospitalMarket option:selected').val(),
+                    srh_HospitalTA: $('#sltHospitalTA option:selected').val()
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+
+            $('#btnReportArea').bind('click', function () {
+                ReportAreaExcel();
+            });
+
+            $('#sltHospitalTA').bind('click', function () {
+                var num = $('#sltHospitalTA option').length;
+                if (num < 2) {
+                    alert('请先选择Market');
+                }
+            });
+
+            $('#btnExport').bind('click', function () {
+                $showdialogForUrl(
+                    {
+                        title: '导出区域关系',
+                        width: '450px',
+                        height: '100px',
+                        url: contextUri + '/P/Hospital/ExportTerritoryData?srh_GskHospital=' + encodeURIComponent($('#txtHospitalCode').val())
+                            + '&srh_HospitalName=' + encodeURIComponent($('#txtHospitalName').val())
+                            + '&srh_MUDID=' + encodeURIComponent($('#txtMUDID').val())
+                            + '&srh_TerritoryCode=' + encodeURIComponent($('#txtTerritoryCode').val())
+                            + '&srh_HospitalMarket=' + encodeURIComponent($('#sltHospitalMarket option:selected').val())
+                            + '&srh_HospitalTA=' + encodeURIComponent($('#sltHospitalTA option:selected').val()),
+                        pageid: 'manager',
+                        buttons: [
+                            {
+                                cls: 'button',
+                                txt: '关闭',
+                                handler: function (e) { e.close(); }
+                            }
+                        ]
+                    }
+                );
+            });
+        });
+
+        function Load() {
+            pdg.Load();
+        }
+
+        function ReportAreaExcel() {
+            $('#repor_Area').submit();
+        }
+
+        function selectMarket() {
+            var market = $('#sltHospitalMarket').val();
+            $.post(contextUri + '/P/PreApproval/LoadTa', {
+                marketName: market
+            }, function (data) {
+                var taList = data.data;
+                $('#sltHospitalTA').html('');
+                var html = '<option value="" selected="selected">全部Territory TA</option>';
+                if (taList.length > 0) {
+                    for (var i in taList) {
+                        html += '<option value="' + taList[i].Name + '">' + taList[i].Name + '</option>';
+                    }
+                }
+                $('#sltHospitalTA').html(html);
+            });
+        };
+
+</script>
+}
+<div class="tool_bar">
+    <label>医院列表</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;overflow:auto" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding" style="width:6000px; max-width:6000px;">
+            <div class="container margin-little-left">
+
+                <div class="line">
+                    <input type="text" class="input input-small" style="width:100px;" id="txtHospitalCode" name="txtHospitalCode" placeholder="医院ID" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtHospitalName" name="txtHospitalName" placeholder="医院名称" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtMUDID" name="txtMUDID" placeholder="MUDID" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtTerritoryCode" name="txtTerritoryCode" placeholder="Territory Code" />
+                    <select class="input input-small" style="width:100px;" id="sltHospitalMarket" name="sltHospitalMarket" onchange="selectMarket()">
+                        <option value="" selected="selected">全部Market</option>
+                        <option value="Rx">Rx</option>
+                        <option value="Vx">Vx</option>
+                        <option value="TSKF">TSKF</option>
+                        <option value="DDT">DDT</option>
+                    </select>
+                    <select class="input input-small" style="width:150px;" id="sltHospitalTA" name="sltHospitalTA">
+                        <option value="" selected="selected">全部Territory TA</option>
+                        @*<option value="Rx">Rx</option>
+                        <option value="Vx">Vx</option>
+                        <option value="TSKF">TSKF</option>
+                        <option value="DDT">DDT</option>*@
+                    </select>
+                    @*<select class="input input-small" style="width:100px;" id="sltOHHospitalType" name="sltOHHospitalType">
+                        <option value="" selected="selected">全部Type</option>
+                        <option value="院内">院内</option>
+                        <option value="院外">院外</option>
+                    </select>*@
+                    <button class="button button-small bg-main icon-search" id="btnLoad"> 搜索</button>
+                    <button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>
+                    @*<button class="button button-small bg-yellow icon-file-excel-o" id="btnReportArea" @@click="report()"> 导出</button>*@
+                </div>
+                <div style="display: none">
+                    <input id="fileUpload" type="file" name="file" onchange="fileChange('import', 'fileUpload')" />
+                </div>
+
+                <div style="display: none;">
+                    <form id="repor_HospitalRes" action="~/P/Restaurant/ReportHospitalResExcel" method="post" target="_blank"></form>
+                    <form id="repor_Area" action="~/P/Restaurant/ReportAreaExcel" method="post" target="_blank"></form>
+                    <form id="repor_Res" action="~/P/Restaurant/ReportResExcel" method="post" target="_blank"></form>
+                </div>
+            </div>
+        </div>
+        <table id="costcenter_dataTable" class="table table-hover" style="width:6000px; max-width:6000px;">
+            <thead>
+                <tr>
+                    @*<th style="text-align:center; width:50px;">
+                            <input type="checkbox" />
+                        </th>*@
+                    <th>医院代码</th>
+                    <th>省份</th>
+                    <th>城市</th>
+                    <th>医院名称</th>
+                    <th>医院地址</th>
+                    <th>是否为主地址</th>
+                    <th>Market</th>
+                    <th>经度</th>
+                    <th>纬度</th>
+                    <th>区县</th>
+                    <th>区县编码</th>
+                    <th>客户默认性质</th>
+                    <th>MUD_ID_MR</th>
+                    <th>TerritoryCode_MR</th>
+                    <th>MUD_ID_DM</th>
+                    <th>TerritoryCode_DM</th>
+                    <th>MUD_ID_RM</th>
+                    <th>TerritoryCode_RM</th>
+                    <th>MUD_ID_RD</th>
+                    <th>TerritoryCode_RD</th>
+                    <th>MUD_ID_TA</th>
+                    <th>TERRITORY_TA</th>
+                    @*<th style="width: 120px;">操作</th>*@
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    @*<td align="center"><input type="checkbox" name="id" value="${dr.HospitalCode}$" style="display:${dr.HospitalCode.substring(dr.HospitalCode.length-3,dr.HospitalCode.length)=='-OH'?'block':'none'}$"></td>*@
+                    @*<td align="center"><input class="HospitalCodeChx" type="checkbox" name="id" value="${dr.HospitalCode}$" _endstr="${dr.HospitalCode.substring(dr.HospitalCode.length-3,dr.HospitalCode.length)}$"></td>*@
+                    <td>${dr.HospitalCode}$</td>
+                    <td>${dr.Province}$</td>
+                    <td>${dr.City}$</td>
+                    <td>${dr.HospitalName}$</td>
+                    <td>${dr.Address}$</td>
+                    <td>${dr.MainAddress}$</td>
+                    <td>${dr.Market}$</td>
+                    <td>${dr.Longitude}$</td>
+                    <td>${dr.Latitude}$</td>
+                    <td>${dr.District}$</td>
+                    <td>${dr.DistrictCode}$</td>
+                    <td>${dr.CustomerType}$</td>
+                    <td>${dr.MUD_ID_MR}$</td>
+                    <td>${dr.TERRITORY_MR}$</td>
+                    <td>${dr.MUD_ID_DM}$</td>
+                    <td>${dr.TERRITORY_DM}$</td>
+                    <td>${dr.MUD_ID_RM}$</td>
+                    <td>${dr.TERRITORY_RM}$</td>
+                    <td>${dr.MUD_ID_RD}$</td>
+                    <td>${dr.TERRITORY_RD}$</td>
+                    <td>${dr.MUD_ID_TA}$</td>
+                    <td>${dr.TERRITORY_TA}$</td>
+                    @*<td><a href="javascript:;" class="button border-blue button-little icon-edit" onclick="ShowDetail('${dr.ID}$')"> 详情</a></td>*@
+                    @*<td>${getDateByDotNet(dr.CreateDate).pattern('yyyy-MM-dd HH:mm:ss')}$</td>*@
+                    @*<td style="white-space:nowrap;">
+                            <a href="javascript:;" class="button border-blue button-little icon-edit HospitalCodeChx" _endstr="${dr.HospitalCode.substring(dr.HospitalCode.length-3,dr.HospitalCode.length)}$" onclick="Edit('${dr.HospitalCode}$')" style="width:50px;"> 修改</a>
+                            <a href="javascript:;" class="button border-red button-little icon-trash-o HospitalCodeChx" _endstr="${dr.HospitalCode.substring(dr.HospitalCode.length-3,dr.HospitalCode.length)}$" onclick="Del('${dr.HospitalCode}$')" style="width:50px;"> 删除</a>
+                            <a href="javascript:;" class="button border-red button-little icon-trash-o AddressCheck" _endstr="${dr.HospitalCode.indexOf('_').toString()}$" onclick="DelAddress('${dr.ID}$')" style="width:50px;">删除</a>
+                        </td>*@
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="80" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+
+
+

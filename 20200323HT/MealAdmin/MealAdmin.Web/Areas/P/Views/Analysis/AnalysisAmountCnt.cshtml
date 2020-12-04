@@ -1,0 +1,860 @@
+﻿@{
+    ViewBag.Title = "HT订单分析";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap/bootstrap-select.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/bootstrap/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/fontawesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="~/Content/bootstrap/bootstrap-select.js"></script>
+    <script type="text/javascript" src="~/Content/bootstrap/bootstrap3.3.7.js"></script>
+    <script src="~/Content/echarts.min.js"></script>
+    <script type="text/javascript">
+        var TAlist = '@ViewBag.TAList';
+        $(function () {
+            //------------------订单分析1   HT订单金额、数量、参会人数相关数据------------------
+            var _option = {
+                dateFormat: "yy-mm-dd",
+                closeText: "关闭",
+                prevText: "&#x3C;上月",
+                nextText: "下月&#x3E;",
+                currentText: "今天",
+                monthNames: ["一月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                dayNames: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+                dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"],
+                weekHeader: "周",
+                dateFormat: "yy-mm-dd",
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: true,
+                yearSuffix: "年"
+
+            }
+
+            $('#sltRD').hide();
+            $('#sltRM').hide();
+            $('#sltDM').hide();
+
+            var _stBegin = $("#txtDeliverTimeBegin").datepicker(_option);
+            var _stEnd = $("#txtDeliverTimeEnd").datepicker(_option);
+
+            $('#sltTA_1').html('');
+            var taList = TAlist.split(',');
+            var html = '<option value="ALL" selected="selected" style="color:black">ALL</option>';
+            if (taList.length > 0) {
+                for (var i in taList) {
+                    html += '<option value="' + taList[i] + '">' + taList[i] + '</option>';
+                }
+            }
+            $('#sltTA_1').html(html);
+            //加载RD
+            $('#sltTA_1').change(function () {
+                if ($('#sltTA_1').val() != null) {
+                    var TAOption = $('#sltTA_1').val().toString();
+                    if (TAOption != "ALL") {
+                        $('#sltRD').show();
+                        LoadRD(TAOption);
+                    }
+                    else {
+                        $('#sltRD').hide();
+                        $('#sltRM').hide();
+                        $('#sltDM').hide();
+                        $('#sltRD').html('');
+                        $('#sltRM').html('');
+                        $('#sltDM').html('');
+                    }
+                } else {
+                    $('#sltRD').hide();
+                    $('#sltRM').hide();
+                    $('#sltDM').hide();
+                    $('#sltRD').html('');
+                    $('#sltRM').html('');
+                    $('#sltDM').html('');
+                }
+            });
+            //加载RM
+            $('#sltRD').change(function () {
+                var RDOption = $('#sltRD').val().toString();
+                if (RDOption != "ALL") {
+                    $('#sltRM').show();
+                    LoadRM(RDOption);
+                }
+                else {
+                    $('#sltRM').hide();
+                    $('#sltDM').hide();
+                    $('#sltRM').html('');
+                    $('#sltDM').html('');
+                }
+            });
+            //加载DM
+            $('#sltRM').change(function () {
+                var RMOption = $('#sltRM').val();
+                if (RMOption != "ALL") {
+                    $('#sltDM').show();
+                    LoadDM(RMOption);
+                }
+                else {
+                    $('#sltDM').hide();
+                    $('#sltDM').html('');
+                }
+            });
+            //加载RD
+            function LoadRD(TAOption) {
+                $('#sltRD').html('');
+                $('#sltRM').hide();
+                $('#sltDM').hide();
+                $('#sltRM').html('');
+                $('#sltDM').html('');
+                $.post(contextUri + '/P/Analysis/LoadRD', {
+                    TAOption: TAOption
+                }, function (data) {
+                    var RDList = data;
+                    var html = '<option value="ALL" selected="selected" >全部RD</option>';
+                    if (RDList.length > 0) {
+                        for (var i in RDList) {
+                            html += '<option value="' + RDList[i].RDTerritoryCode + '">' + RDList[i].RDTerritoryCode + '</option>';
+                        }
+                    }
+                    $('#sltRD').html(html);
+                });
+            }
+            //加载RM
+            function LoadRM(RDOption) {
+                $('#sltRM').html('');
+                $('#sltDM').hide();
+                $('#sltDM').html('');
+                $.post(contextUri + '/P/Analysis/LoadRM', {
+                    RDOption: RDOption
+                }, function (data) {
+                    var RMList = data;
+                    var html = '<option value="ALL" selected="selected" >全部RM</option>';
+                    if (RMList.length > 0) {
+                        for (var i in RMList) {
+                            html += '<option value="' + RMList[i].CostCenter + '">' + RMList[i].CostCenter + '</option>';
+                        }
+                    }
+                    $('#sltRM').html(html);
+                });
+            }
+
+            //加载DM
+            function LoadDM(RMOption) {
+                $('#sltDM').html('');
+                $.post(contextUri + '/P/Analysis/LoadDM', {
+                    RMOption: RMOption
+                }, function (data) {
+                    var DMList = data;
+                    var html = '<option value="ALL" selected="selected" >全部DM</option>';
+                    if (DMList.length > 0) {
+                        for (var i in DMList) {
+                            html += '<option value="' + DMList[i].DMTerritoryCode + '">' + DMList[i].DMTerritoryCode + '</option>';
+                        }
+                    }
+                    $('#sltDM').html(html);
+                });
+            }
+            $('#btnExportRefresh').bind('click', function () {
+                //送餐日期校验
+                if ($('#txtDeliverTimeBegin').val() == "") {
+                    $showdialog({ body: '请选择送餐日期开始时间！' });
+                    return;
+                }
+                if ($('#txtDeliverTimeEnd').val() == "") {
+                    $showdialog({ body: '请选择送餐日期结束时间！' });
+                    return;
+                }
+                if ($('#txtDeliverTimeEnd').val() < $('#txtDeliverTimeBegin').val()) {
+                    $showdialog({ body: '送餐日期结束时间不得早于开始时间！' });
+                    return;
+                }
+                //会议开始日期与结束日期不得早于2019.11.3
+                var dstart = $("#txtDeliverTimeBegin").val().replace(/-/g, "/");
+                var dend = $("#txtDeliverTimeEnd").val().replace(/-/g, "/");
+                var text = '2019/11/03';
+                if (dstart < text || dend < text) {
+                    $showdialog({ body: '所选择的送餐日期不得早于2019年11月3日！' });
+                    return;
+                }
+
+                window.location.href = contextUri + '/P/Analysis/ExportCntAmoAttData?DeliverTimeBegin=' + $('#txtDeliverTimeBegin').val().replace(/\s/g, "")
+                    + '&DeliverTimeEnd=' + $('#txtDeliverTimeEnd').val().replace(/\s/g, "")
+                    + '&HTType=' + $('#sltHTType_1').val()
+                    + '&OrderState=' + $('#sltOrderState').val()
+                    + '&TA=' + $('#sltTA_1').val()
+                    + '&RD=' + $('#sltRD').val()
+                    + '&RM=' + $('#sltRM').val()
+                    + '&DM=' + $('#sltDM').val();
+            });
+
+            $('#btnRefresh').bind('click', function () {
+                //送餐日期校验
+                if ($('#txtDeliverTimeBegin').val() == "") {
+                    $showdialog({ body: '请选择送餐日期开始时间！' });
+                    return;
+                }
+                if ($('#txtDeliverTimeEnd').val() == "") {
+                    $showdialog({ body: '请选择送餐日期结束时间！' });
+                    return;
+                }
+                if ($('#txtDeliverTimeEnd').val() < $('#txtDeliverTimeBegin').val()) {
+                    $showdialog({ body: '送餐日期结束时间不得早于开始时间！' });
+                    return;
+                }
+                //会议开始日期与结束日期不得早于2019.11.3
+                var dstart = $("#txtDeliverTimeBegin").val().replace(/-/g, "/");
+                var dend = $("#txtDeliverTimeEnd").val().replace(/-/g, "/");
+                var text = '2019/11/03';
+                if (dstart < text || dend < text) {
+                    $showdialog({ body: '所选择的送餐日期不得早于2019年11月3日！' });
+                    return;
+                }
+                
+                getJson();
+                //查询数据
+                function getJson() {
+                    document.getElementById('div_1').style.border = "solid 1px #ddd";
+                    window.top.showLoading();
+                    $.ajax({
+                        url: contextUri + "/P/Analysis/LoadOrderChart",
+                        type: 'post',
+                        data: {
+                            DeliverTimeBegin: $('#txtDeliverTimeBegin').val().replace(/\s/g, ""),
+                            DeliverTimeEnd: $('#txtDeliverTimeEnd').val().replace(/\s/g, ""),
+                            HTType: $('#sltHTType_1').val(),
+                            OrderState: $('#sltOrderState').val() == null ? "ALL" : $('#sltOrderState').val().toString(),
+                            TA: $('#sltTA_1').val() == null ? "ALL" : $('#sltTA_1').val().toString(),
+                            RD: $('#sltRD').val(),
+                            RM: $('#sltRM').val(),
+                            DM: $('#sltDM').val()
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.state == 1) {
+                                //订单数量
+                                var CountX = [];
+                                var CountY = [];
+                                var CountTotal = 0;
+                                var CountT = '';
+                                for (var i = 0; i < data.ChartCount.length; i++) {
+                                    CountX.push(data.ChartCount[i].CodeandNAME);
+                                    CountY.push(data.ChartCount[i].OrderCount);
+                                    CountTotal = CountTotal + data.ChartCount[i].OrderCount;
+                                }
+                                //数量加千分符
+                                var Countstr = CountTotal.toString();
+                                var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                                CountT = Countstr.replace(Countreg, "$1,") + "单";
+
+                                //订单金额
+                                var AmountX = [];
+                                var AmountY = [];
+                                var AmountTotal = 0.00;
+                                var AmountT = '';
+                                for (var j = 0; j < data.ChartAmount.length; j++) {
+                                    AmountX.push(data.ChartAmount[j].CodeandNAME);
+                                    AmountY.push(data.ChartAmount[j].OrderPrice);
+                                    AmountTotal = AmountTotal + data.ChartAmount[j].OrderAmount;
+                                }
+                                //金额加千分符
+                                var Amountstr = toDecimal2(AmountTotal).toString();
+                                var Amountreg = Amountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                                AmountT = "￥" + Amountstr.replace(Amountreg, "$1,");
+
+                                //参会人数
+                                var AttendX = [];
+                                var AttendY = [];
+                                var AttendTotal = 0.00;
+                                var AttendT = '';
+                                for (var i = 0; i < data.ChartAttend.length; i++) {
+                                    AttendX.push(data.ChartAttend[i].CodeandNAME);
+                                    AttendY.push(data.ChartAttend[i].PreAttendCount);
+                                    AttendTotal = AttendTotal + data.ChartAttend[i].PreAttendCount;
+                                }
+                                //参会人数
+                                var Attendstr = AttendTotal.toString();
+                                var Attendreg = Attendstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                                AttendT = Attendstr.replace(Attendreg, "$1,") + "人";
+
+
+
+                                var setWidth = data.ChartAmount.length * 90;
+                                var minWidth = Math.round(document.body.clientWidth * 0.96);
+                                if (setWidth < minWidth) {
+                                    document.getElementById("mainCount").style.width = minWidth - 2 + "px";
+                                    document.getElementById("mainAmount").style.width = minWidth - 2 + "px";
+                                    document.getElementById("mainAttendCount").style.width = minWidth - 2 + "px";
+                                    document.getElementById("div_1").style.width = minWidth + "px";
+                                } else {
+                                    document.getElementById("mainCount").style.width = setWidth - 2 + "px";
+                                    document.getElementById("mainAmount").style.width = setWidth - 2 + "px";
+                                    document.getElementById("mainAttendCount").style.width = setWidth - 2 + "px";
+                                    document.getElementById("div_1").style.width = setWidth + "px";
+                                }
+
+                                // 基于准备好的dom，初始化echarts实例
+                                var CountChart = echarts.init(document.getElementById('mainCount'));
+                                var AmountChart = echarts.init(document.getElementById('mainAmount'));
+                                var AttendChart = echarts.init(document.getElementById('mainAttendCount'));
+                                
+                                var option = DrawBar(CountX, CountY, CountT);
+                                if (option && typeof option === "object") {
+                                    CountChart.setOption(option, true);
+                                    CountChart.resize();
+                                }
+                                var Aoption = DrawAmountBar(AmountX, AmountY, AmountT);
+                                if (Aoption && typeof Aoption === "object") {
+                                    AmountChart.setOption(Aoption, true);
+                                    AmountChart.resize();
+                                }
+                                var Attendoption = DrawAttendBar(AttendX, AttendY, AttendT);
+                                if (Attendoption && typeof Attendoption === "object") {
+                                    AttendChart.setOption(Attendoption, true);
+                                    AttendChart.resize();
+                                }
+                            }
+                            window.top.hideLoading();
+                        }
+                    })
+                }
+
+                function DrawBar(XName, YCount, TCount) {
+                    var option = {
+                        color: ['#F66800', '#006774'],
+                        title: {
+                            text: 'HT订单数量 ' + TCount,
+                            left: 'center',
+                            bottom: '120',
+                            textStyle: {
+                                fontSize: 16,
+
+                            }
+                        },
+                        backgroundColor: 'rgb(255, 255, 255)',
+                        height: 300,
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            },
+                            trigger: 'item',
+                            //formatter: '{a} <br/>{b} : {c}单'
+                            formatter: function (data) {
+                                var result = [],
+                                    counter = 0,
+                                    num = data.value;
+                                num = (num || 0).toString().split('');
+                                for (var i = num.length - 1; i >= 0; i--) {
+                                    counter++;
+                                    result.unshift(num[i]);
+                                    //无小数部分
+                                    if (!(counter % 3) && i != 0) {
+                                        result.unshift(',');
+                                    }
+                                }
+                                result.push("单");
+                                result = result.join('');
+                                return data.seriesName + "<br/>" + data.name + " : " + result;
+                            }
+                        },
+
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        yAxis: {
+                            type: 'value',
+                            boundaryGap: [0, 0.01]
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: XName,
+                            axisLabel: {
+                                interval: 0,
+                                fontSize: 10,
+                                formatter: function (value) {
+                                    return value.split("-").join("\n\n");
+                                }
+                            }
+                        },
+                        series: [
+                            {
+                                name: 'HT订单数量',
+                                type: 'bar',
+                                barWidth: 30,//柱图宽度
+                                barGap: 0,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    //formatter: '{c}单'
+                                    formatter: function (a) {
+                                        var result = [],
+                                            counter = 0,
+                                            num = a.data;
+                                        num = (num || 0).toString().split('');
+                                        for (var i = num.length - 1; i >= 0; i--) {
+                                            counter++;
+                                            result.unshift(num[i]);
+                                            //无小数部分
+                                            if (!(counter % 3) && i != 0) {
+                                                result.unshift(',');
+                                            }
+                                        }
+                                        result.push("单");
+                                        result = result.join('');
+                                        return result;
+                                    }
+                                },
+                                data: YCount
+                            }
+                        ]
+                    };
+                    return option
+                }
+
+                function DrawAmountBar(XName, YAmount, TAmount) {
+                    var Aoption = {
+                        color: ['#F66800', '#006774'],
+                        title: {
+                            text: 'HT订单金额 ' + TAmount,
+                            left: 'center',
+                            bottom: '120',
+                            textStyle: {
+                                fontSize: 16,
+
+                            }
+                        },
+                        backgroundColor: 'rgb(255, 255, 255)',
+                        height: 300,
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            },
+                            trigger: 'item',
+                            //formatter: '{a} <br/>{b} : ￥{c}'
+                            formatter: function (data) {
+                                var result = [],
+                                    counter = 0,
+                                    num = data.value;
+                                num = (num || 0).toString().split('');
+                                for (var i = num.length - 1; i >= 0; i--) {
+                                    counter++;
+                                    result.unshift(num[i]);
+                                    //因为有小数点后两位所以多加了一项判断
+                                    if (!(counter % 3) && i != 0 && counter != 3) {
+                                        result.unshift(',');
+                                    }
+                                }
+                                result.unshift("¥");
+                                result = result.join('');
+                                return data.seriesName + "<br/>" + data.name + " : " + result;
+                            }
+                        },
+
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        yAxis: {
+                            type: 'value',
+                            boundaryGap: [0, 0.01]
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: XName,
+                            axisLabel: {
+                                interval: 0,
+                                fontSize: 10,
+                                formatter: function (value) {
+                                    return value.split("-").join("\n\n");
+                                }
+                            }
+                        },
+                        series: [
+                            {
+                                name: 'HT订单金额',
+                                type: 'bar',
+                                barWidth: 30,//柱图宽度
+                                barGap: 0,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    //formatter: '￥{c}'
+                                    formatter: function (a) {
+                                        var result = [],
+                                            counter = 0,
+                                            num = a.data;
+                                        num = (num || 0).toString().split('');
+                                        for (var i = num.length - 1; i >= 0; i--) {
+                                            counter++;
+                                            result.unshift(num[i]);
+                                            //因为有小数点后两位所以多加了一项判断
+                                            if (!(counter % 3) && i != 0 && counter != 3) {
+                                                result.unshift(',');
+                                            }
+                                        }
+                                        result.unshift("¥");
+                                        result = result.join('');
+                                        return result;
+                                    }
+
+                                },
+                                data: YAmount
+                            }
+                        ]
+                    };
+                    return Aoption
+                }
+
+                function DrawAttendBar(XName, YAttend, TAttend) {
+                    var Aoption = {
+                        color: ['#F66800', '#006774'],
+                        title: {
+                            text: 'HT参会人数 ' + TAttend,
+                            left: 'center',
+                            bottom: '120',
+                            textStyle: {
+                                fontSize: 16,
+
+                            }
+                        },
+                        backgroundColor: 'rgb(255, 255, 255)',
+                        height: 300,
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            },
+                            trigger: 'item',
+                            //formatter: '{a} <br/>{b} : ￥{c}'
+                            formatter: function (data) {
+                                var result = [],
+                                    counter = 0,
+                                    num = data.value;
+                                num = (num || 0).toString().split('');
+                                for (var i = num.length - 1; i >= 0; i--) {
+                                    counter++;
+                                    result.unshift(num[i]);
+                                    //因为有小数点后两位所以多加了一项判断
+                                    if (!(counter % 3) && i != 0 && counter != 3) {
+                                        result.unshift(',');
+                                    }
+                                }
+                                result.push("人");
+                                result = result.join('');
+                                return data.seriesName + "<br/>" + data.name + " : " + result;
+                            }
+                        },
+
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        yAxis: {
+                            type: 'value',
+                            boundaryGap: [0, 0.01]
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: XName,
+                            axisLabel: {
+                                interval: 0,
+                                fontSize: 10,
+                                formatter: function (value) {
+                                    return value.split("-").join("\n\n");
+                                }
+                            }
+                        },
+                        series: [
+                            {
+                                name: 'HT参会人数',
+                                type: 'bar',
+                                barWidth: 30,//柱图宽度
+                                barGap: 0,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    //formatter: '￥{c}'
+                                    formatter: function (a) {
+                                        var result = [],
+                                            counter = 0,
+                                            num = a.data;
+                                        num = (num || 0).toString().split('');
+                                        for (var i = num.length - 1; i >= 0; i--) {
+                                            counter++;
+                                            result.unshift(num[i]);
+                                            //因为有小数点后两位所以多加了一项判断
+                                            if (!(counter % 3) && i != 0 && counter != 3) {
+                                                result.unshift(',');
+                                            }
+                                        }
+                                        result.push("人");
+                                        result = result.join('');
+                                        return result;
+                                    }
+
+                                },
+                                data: YAttend
+                            }
+                        ]
+                    };
+                    return Aoption
+                }
+            });
+            function toDecimal2(x) {
+                var f = Math.round(x * 100) / 100;
+                var s = f.toString();
+                var rs = s.indexOf('.');
+                if (rs < 0) {
+                    rs = s.length;
+                    s += '.';
+                }
+                while (s.length <= rs + 2) {
+                    s += '0';
+                }
+                return s;
+            }
+            //------------------订单分析1   HT订单金额、数量、参会人数相关数据------------------
+
+            //------------------订单分析2   导出可选送餐医院数、产生订单医院数、可订餐代表等相关数据------------------
+            //年月
+            var startYear = 2019;
+            var myDate = new Date();
+            var endYear = myDate.getFullYear();
+            var endMonth = myDate.getMonth()+1;
+            var options = document.getElementById('sltMonth').options;
+            for (i = 0; i < options.length; i++) {
+                if (options[i].value == endMonth) {
+                    options[i].selected = true;
+                    break;
+                }
+            }
+            var html = '';
+            $('#sltYear').html('');
+            for (var i = startYear; i <= endYear; i++) {
+                if (i == endYear)
+                    html += '<option value="' + i + '" selected="selected">' + i + '</option>';
+                else
+                    html += '<option value="' + i + '">' + i + '</option>';
+            }
+            $('#sltYear').html(html);
+            //ta
+            $('#sltTA').html('');
+            var taList = TAlist.split(',');
+            var html = '<option value="ALL" selected="selected" style="color:black">ALL</option>';
+            if (taList.length > 0) {
+                for (var i in taList) {
+                    html += '<option value="' + taList[i] + '">' + taList[i] + '</option>';
+                }
+            }
+            $('#sltTA').html(html);
+            $('#btnExportData').bind('click', function () {
+                var year = $('#sltYear').val();
+                var month = $('#sltMonth').val();
+                var ta = $('#sltTA').val();
+                var htType = $('#sltHTType').val();
+
+                if (year <= 2019) {
+                    if (month < 11) {
+                        $showdialog({ body: '筛选年月需晚于2019年11月！' });
+                        return;
+                    }
+                }
+                window.location.href = contextUri + '/P/Analysis/ExportResOrderData?Year=' + year
+                    + '&Month=' + month
+                    + '&HTType=' + htType
+                    + '&TA=' + ta;
+            });
+            //------------------订单分析2   导出可选送餐医院数、产生订单医院数、可订餐代表等相关数据-------------------
+
+            //------------------订单排名------------------
+            $('#btnExportRanking').bind('click', function () {
+                if (chkUserRanking.checked == false && chkHosRanking.checked == false && chkResRanking.checked == false) {
+                    $showdialog({ body: '请勾选订单排名的数据维度！' });
+                    return;
+                }
+                //送餐日期校验
+                if ($('#txtDeliverTimeBegin').val() == "") {
+                    $showdialog({ body: '请选择送餐日期开始时间！' });
+                    return;
+                }
+                if ($('#txtDeliverTimeEnd').val() == "") {
+                    $showdialog({ body: '请选择送餐日期结束时间！' });
+                    return;
+                }
+                if ($('#txtDeliverTimeEnd').val() < $('#txtDeliverTimeBegin').val()) {
+                    $showdialog({ body: '送餐日期结束时间不得早于开始时间！' });
+                    return;
+                }
+                //会议开始日期与结束日期不得早于2019.11.3
+                var dstart = $("#txtDeliverTimeBegin").val().replace(/-/g, "/");
+                var dend = $("#txtDeliverTimeEnd").val().replace(/-/g, "/");
+                var text = '2019/11/03';
+                if (dstart < text || dend < text) {
+                    $showdialog({ body: '所选择的送餐日期不得早于2019年11月3日！' });
+                    return;
+                }
+                var _slTa = $('#sltOrderState').val() == null ? "ALL" : $('#sltOrderState').val().toString();
+                window.location.href = contextUri + '/P/Analysis/ExportOrderRanking?DeliverTimeBegin=' + $('#txtDeliverTimeBegin').val().replace(/\s/g, "")
+                    + '&DeliverTimeEnd=' + $('#txtDeliverTimeEnd').val().replace(/\s/g, "")
+                    + '&HTType=' + $('#sltHTType_1').val()
+                    + '&OrderState=' + _slTa
+                    + '&TA=' + $('#sltTA_1').val()
+                    + '&ChkApplier=' + $('#chkUserRanking')[0].checked
+                    + '&ChkHospital=' + $('#chkHosRanking')[0].checked
+                    + '&ChkRestaurant=' + $('#chkResRanking')[0].checked;
+            });
+            //------------------订单排名------------------
+        });
+
+    </script>
+}
+<div class="tool_bar">
+    <label>HT订单分析</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;border: solid 1px #ddd;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding" style="border-bottom:0px;">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <span><strong>可选送餐医院数、产生订单医院数、可订餐代表等相关数据</strong></span>
+                </div>
+                <div class="line" style="padding-top:10px;">
+                    <label class="border-small label-block">
+                        年月筛选
+                        <select id="sltYear" name="sltYear" class="input input-small" style="width:100px;"></select>
+                        <select id="sltMonth" name="sltMonth" class="input input-small" style="width:100px;">
+                            <option value="01" selected="selected">1月</option>
+                            <option value="02">2月</option>
+                            <option value="03">3月</option>
+                            <option value="04">4月</option>
+                            <option value="05">5月</option>
+                            <option value="06">6月</option>
+                            <option value="07">7月</option>
+                            <option value="08">8月</option>
+                            <option value="09">9月</option>
+                            <option value="10">10月</option>
+                            <option value="11">11月</option>
+                            <option value="12">12月</option>
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        HT类型
+                        <select class="input input-small" style="width:180px;" id="sltHTType" name="sltHTType">
+                            <option value="0" selected="selected">全部</option>
+                            <option value="1">院内HT</option>
+                            <option value="2">院外HT</option>
+
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        数据层级
+                        <select class="selectpicker bla bla bli" style="width:180px;" id="sltTA" name="sltTA" multiple></select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:35px;">
+                        <button class="button button-small bg-blue fa fa-file-excel-o" id="btnExportData">导出</button>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="margin: 20px; border: solid 1px #ddd;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <span><strong>HT订单金额、数量、参会人数相关数据</strong></span>
+                </div>
+                <div class="line">
+                    <label class="border-small label-block" style="">
+                        送餐日期
+                        <input type="text" class="input input-small" style="width:100px;" id="txtDeliverTimeBegin" name="txtDeliverTimeBegin" placeholder="开始时间" autocomplete="off" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtDeliverTimeEnd" name="txtDeliverTimeEnd" placeholder="结束时间" autocomplete="off" />
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        HT类型
+                        <select class="input input-small" style="width:180px;" id="sltHTType_1" name="sltHTType_1">
+                            <option value="all">全部</option>
+                            <option value="0">院内HT</option>
+                            <option value="1">院外HT</option>
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px; padding-right:50px;">
+                        订单状态
+                        <select class="selectpicker bla bla bli" style="width:180px;" id="sltOrderState" name="sltOrderState" multiple>
+                            <option value="ALL" selected="selected">ALL</option>
+                            <option value="订单完成">订单完成</option>
+                            <option value="退单成功">退单成功</option>
+                            <option value="退单失败">退单失败</option>
+                            <option value="预定失败">预定失败</option>
+                            <option value="未送达">未送达</option>
+                        </select>
+                    </label>
+                    <label class="border-small label-block">
+                        数据层级
+                        <select class="selectpicker bla bla bli" id="sltTA_1" name="sltTA_1" multiple></select>
+                    </label>
+                    <label class="border-small label-block">
+                        <select class="input input-small" style="width:120px;" id="sltRD" name="sltRD"></select>
+                    </label>
+                    <label class="border-small label-block">
+                        <select class="input input-small" style="width:120px;" id="sltRM" name="sltRM"></select>
+                    </label>
+                    <label class="border-small label-block">
+                        <select class="input input-small" style="width:120px;" id="sltDM" name="sltDM"></select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:30px;">
+                        <button class="button button-small bg-blue fa fa-file-excel-o" id="btnExportRefresh">导出</button>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        <button class="button button-small bg-yellow  fa fa-pie-chart" id="btnRefresh" aria-hidden="true">刷新</button>
+                    </label>
+                </div>
+                <div class="line">
+                    <label>
+                        订单排名
+                    </label>
+                    <label style="padding-left:10px;">
+                        <input type="checkbox" id="chkUserRanking" name="chkUserRanking" />代表
+                    </label>
+                    <label style="padding-left:10px;">
+                        <input type="checkbox" id="chkHosRanking" name="chkHosRanking" />医院
+                    </label>
+                    <label style="padding-left:10px;">
+                        <input type="checkbox" id="chkResRanking" name="chkResRanking" />餐厅
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        <button class="button button-small bg-blue fa fa-bar-chart" id="btnExportRanking">导出排名</button>
+                    </label>
+                </div>
+                <div>
+                    <label style="font-size:12px; color:darkgray;">
+                        *代表/医院排名按'TA'层级统计排序
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="div_1" style="margin: 20px;" class="panel admin-panel">
+        <div id="mainCount" style="height:550px;"></div>
+        <div id="mainAmount" style="width: auto;height:550px;"></div>
+        <div id="mainAttendCount" style="width: auto;height:550px;"></div>
+    </div>
+</div>
+
+
+

@@ -1,0 +1,458 @@
+﻿
+@{
+    //ViewBag.Title = "预算金额>=1200元审批";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+@*<link rel="stylesheet" href="~/Content/css/food_order.css?v=javaScriptVersion" />*@
+<style type="text/css">
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 60px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+        background-color: white;
+    }
+
+    .weui-btn + .weui-btn {
+        margin-top: 3px;
+    }
+
+    .choosedwximage:before, .choosedwximage:after {
+        content: none;
+    }
+
+    .my_weui-cells {
+        margin-top: 0px;
+    }
+
+    .weui-label {
+        width: 160px !important;
+    }
+</style>
+
+<script type="text/html" id="tmpl_preApproval">
+    @*{{if AttendCount>=60}}
+        <div class="weui-cells__title" id="dvMMCoEInfo">MMCoE支持文件</div>
+        <div class="weui-cells my_weui-cells">
+            <div class="weui-uploader__bd">
+                <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="mmCoEImages">
+                    {{each items}}
+                    <img class="weui-uploader__input-box choosedwximage" src="{{$value}}" style="margin:10px 0 16px 10px;" />
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+        {{/if}}*@
+    {{if IsFreeSpeaker==true}}
+    <div class="weui-cells__title" id="dvMMCoEInfo">演讲服务协议</div>
+    <div class="weui-cells my_weui-cells">
+        <div class="weui-uploader__bd">
+            <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="serviceImages">
+                {{each serviceItems}}
+                <img class="weui-uploader__input-box choosedwximage" src="{{$value}}" style="margin:10px 0 16px 10px;" />
+                {{/each}}
+            </div>
+        </div>
+    </div>
+    <div class="weui-cells__title" id="dvMMCoEInfo">利益冲突声明</div>
+    <div class="weui-cells my_weui-cells">
+        <div class="weui-uploader__bd">
+            <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="benefitsImages">
+                {{each benefitsItems}}
+                <img class="weui-uploader__input-box choosedwximage" src="{{$value}}" style="margin:10px 0 16px 10px;" />
+                {{/each}}
+            </div>
+        </div>
+    </div>
+    {{/if}}
+    <div class="weui-cells__title">预申请详情<p style="float:right;">{{State}}</p></div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">HT编号</label></div>
+            <div class="weui-cell__bd">
+                {{HTCode}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">申请人姓名</label></div>
+            <div class="weui-cell__bd">
+                {{ApplierName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">MUDID</label></div>
+            <div class="weui-cell__bd">
+                {{ApplierMUDID}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">Market</label></div>
+            <div class="weui-cell__bd">
+                {{Market}}
+            </div>
+        </div>
+        @*20190115*@
+        {{if Market=='Rx'||Market=='Vx'}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">VeevaMeetingID</label></div>
+            <div class="weui-cell__bd">
+                {{VeevaMeetingID}}
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">TA</label></div>
+            <div class="weui-cell__bd">
+                {{TA}}
+            </div>
+        </div>
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">省份</label></div>
+            <div class="weui-cell__bd">
+                {{Province}}
+            </div>
+        </div>
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">城市</label></div>
+            <div class="weui-cell__bd">
+                {{City}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">医院名称</label></div>
+            <div class="weui-cell__bd">
+                {{HospitalName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">医院编码</label></div>
+            <div class="weui-cell__bd">
+                {{HospitalCode}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">医院地址</label></div>
+            <div class="weui-cell__bd">
+                {{HospitalAddress}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">会议名称</label></div>
+            <div class="weui-cell__bd">
+                {{MeetingName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">会议时间</label></div>
+            <div class="weui-cell__bd" id="meetingDate">
+                {{MeetingDate.pattern('yyyy-MM-dd HH:mm')}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">参会人数</label></div>
+            <div class="weui-cell__bd">
+                {{AttendCount}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">大区区域代码</label></div>
+            <div class="weui-cell__bd">
+                {{CostCenter}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">预算金额</label></div>
+            <div class="weui-cell__bd" id="budgetTotal">
+                {{BudgetTotal}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">直线经理是否随访</label></div>
+            <div class="weui-cell__bd">
+                {{IsDMFollow==false?'否':'是'}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">外部免费讲者来讲</label></div>
+            <div class="weui-cell__bd">
+                {{IsFreeSpeaker==false?'否':'是'}}
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/javascript">
+    var render;
+    var preApprovalId = '@ViewBag.preApprovalId';
+    var from = '@ViewBag.From';
+    var imageUrls = new Array();
+    var serviceImageUrls = new Array();
+    var benefitsImageUrls = new Array();
+    var awsUrl = '@MealH5.Handler.WebConfigHandler.AWSService';
+    var currentUserId = '@((Session[MealH5.Util.ConstantHelper.CURRENTWXUSER] as MealAdmin.Entity.P_USERINFO).UserId)';
+    function ApprovalDetails() {
+        post('/P/PreApproval/CheckApproveStepByPreID', { PID: preApprovalId },
+        function (d) {
+            if (d.txt != null && d.txt == "success") {
+                location.href = contextUri + '/P/PreApproval/ApprovalDetails/' + preApprovalId;
+            }
+        }, 'json');
+    }
+    $(function () {
+        LoadInfo();
+    });
+    function LoadInfo() {
+        render = template('tmpl_preApproval');
+        post('/P/PreApproval/LoadPreApprovalInfo', { id: preApprovalId },
+            function (d) {
+                if (d.data.State == 10) {
+                    showDlg('当前预申请已取消', '确认', function () {
+                        WeixinJSBridge.call('closeWindow');
+                    }, 'success');
+                }
+                d.data.MeetingDate = getDateByDotNet(d.data.MeetingDate);
+                if (d.data.BudgetTotal >= 1500) {
+                    $(".page-body").css("margin-bottom", "30px");
+                    $(".page-foot").css("height", "90px");
+                    $('#btnApprovalDetails').show();
+                }
+                else {
+                    $(".page-body").css("margin-bottom", "0px");
+                    $(".page-foot").css("height", "60px");
+                    $('#btnApprovalDetails').hide();
+                }
+                d.data.BudgetTotal = "RMB " + format(d.data.BudgetTotal);
+                var hosCode = d.data.HospitalAddressCode;
+                var hosAddress = d.data.HospitalAddress;
+                post('/P/PreApproval/FindHospital', { hospitalCode: hosCode },
+                    function (dd) {
+
+                        if (dd.data == null) {
+                            //showDlg('医院地址已删除，当前预申请已失效。', '确定', function () {
+                            //    WeixinJSBridge.call('closeWindow');
+                                showDlg('医院地址已删除，当前预申请已失效。', '确认', function () {
+                                    WeixinJSBridge.call('closeWindow');
+                                }, 'success');
+                             //   return;
+
+                        }
+                        //var _hos = dd.data;
+                        //var _hosAddress = _hos.GskHospital == _hos.HospitalCode ? _hos.Address : _hos.MainAddress + ':' + _hos.Address;
+                        //if (hosAddress != _hosAddress) {
+                        //    showDlg('当前医院地址已自动更新为：' + _hosAddress + '。', '确定', function () {
+                        //        var preApprovalId = d.data.ID;
+                        //        post('/P/PreApproval/UpDateAddress', { preApprovalId: preApprovalId, hospitalAddress: _hosAddress },
+                        //         function (dd) {
+                        //             LoadInfo();
+
+                        //         }, 'json');
+                        //    });
+                        //}
+                    }, 'json');
+                //if (d.data.AttendCount >= 60) {
+                //    //MMCoE支持文件
+                //    var images = d.data.MMCoEImage.split(',');
+                //    for (var i in images) {
+                //        images[i] = awsUrl + images[i];
+                //    }
+                //    d.data.items = images;
+                //    var http = location.protocol + '//' + location.host;
+                //    for (var i in images) {
+                //        var _url = images[i];
+                //        imageUrls.push(_url);
+                //    }
+                //}
+                if (d.data.IsFreeSpeaker == true) {
+                    //演讲服务协议
+                    var serviceImages = d.data.SpeakerServiceImage.split(',');
+                    for (var i in serviceImages) {
+                        serviceImages[i] = awsUrl + serviceImages[i];
+                    }
+                    d.data.serviceItems = serviceImages;
+                    var http = location.protocol + '//' + location.host;
+                    for (var i in serviceImages) {
+                        var _url = serviceImages[i];
+                        serviceImageUrls.push(_url);
+                    }
+
+                    //利益冲突声明
+                    var benefitsImages = d.data.SpeakerBenefitImage.split(',');
+                    for (var i in benefitsImages) {
+                        benefitsImages[i] = awsUrl + benefitsImages[i];
+                    }
+                    d.data.benefitsItems = benefitsImages;
+                    var http = location.protocol + '//' + location.host;
+                    for (var i in benefitsImages) {
+                        var _url = benefitsImages[i];
+                        benefitsImageUrls.push(_url);
+                    }
+                }
+                //&& ((d.data.BUHeadMUDID.toUpperCase() == currentUserId.toUpperCase() && d.data.IsReAssign == 0) || (d.data.ReAssignBUHeadMUDID.toUpperCase() == currentUserId.toUpperCase() && d.data.IsReAssign==1))
+                if (d.data.State == 3 && d.data.CurrentApproverMUDID.toUpperCase() == currentUserId.toUpperCase()) {
+                    $("#dvReason").show();
+                    $("#dvReview").hide();
+                    post('/P/PreApproval/LoadApproveHistoryRefused', { id: preApprovalId, Type: 2, UserId: currentUserId },
+                        function (dd) {
+                            if (dd.data != null) {
+                                if (dd.data.ActionType == 2) {
+                                    $("#dvComments").show();
+                                    $("#txtComments").html(dd.data.Comments);
+                                }
+                            }
+                        }, 'json');
+                }
+                else if (d.data.State == 7 && ((d.data.CurrentApproverMUDID.toUpperCase() == currentUserId.toUpperCase() && d.data.IsReAssign == 0) || (d.data.ReAssignBUHeadMUDID.toUpperCase() == currentUserId.toUpperCase() && d.data.IsReAssign == 1))) {
+                    $("#dvReason").show();
+                    $("#dvReview").hide();
+                    post('/P/PreApproval/LoadApproveHistoryRefused', { id: preApprovalId, Type: 2, UserId: currentUserId },
+                        function (dd) {
+                            if (dd.data != null) {
+                                if (dd.data.ActionType == 2) {
+                                    $("#dvComments").show();
+                                    $("#txtComments").html(dd.data.Comments);
+                                }
+                            }
+                        }, 'json');
+                }
+                else {
+                    $("#dvApprove").hide();
+                }
+                switch (d.data.State) {
+                    case "3": d.data.State = "预申请待审批"; break;
+                    case "4": d.data.State = "预申请审批驳回"; break;
+                    case "5": d.data.State = "预申请审批通过"; break;
+                    case "6": d.data.State = "预申请审批通过"; break;
+                    case "7": d.data.State = "预申请待审批"; break;
+                    case "8": d.data.State = "预申请审批驳回"; break;
+                    case "9": d.data.State = "预申请审批通过"; break;
+                    case "10": d.data.State = "预申请已取消"; break;
+                }
+                var html = render(d.data);
+                $('#preApprovalInfo').html(html);
+
+                //MMCoE支持文件
+                //$('#mmCoEImages img').each(function (i, e) {
+                //    $(this).click(function () {
+                //        WeixinJSBridge.invoke('imagePreview', {
+                //            'current': imageUrls[i],
+                //            'urls': imageUrls
+                //        });
+                //    });
+                //});
+
+                //演讲服务协议
+                $('#serviceImages img').each(function (i, e) {
+                    $(this).click(function () {
+                        WeixinJSBridge.invoke('imagePreview', {
+                            'current': serviceImageUrls[i],
+                            'urls': serviceImageUrls
+                        });
+                    });
+                });
+
+                //利益冲突声明
+                $('#benefitsImages img').each(function (i, e) {
+                    $(this).click(function () {
+                        WeixinJSBridge.invoke('imagePreview', {
+                            'current': benefitsImageUrls[i],
+                            'urls': benefitsImageUrls
+                        });
+                    });
+                });
+            }, 'json');
+    }
+
+    function save(state) {
+        var reason = '';
+        //var budgetTotal = $('#budgetTotal').text().toString().trim();
+        if (state == 2) {
+            if ($('#comments').val() == '' || $('#comments').val().length<8) {
+                showTopMsg('请填写驳回理由，至少八个字以上');
+                return;
+            }
+            reason = $('#comments').val();
+        }
+
+        var timeNow = getTimeNow().getTime();
+        var meetingDate = $('#meetingDate').text().toString().trim();
+        var meetingTime = new Date(meetingDate.replace(/-/g, '/')).getTime();
+        if (timeNow > meetingTime) {
+            showDlg('该预申请已失效', '确认', function () {
+                WeixinJSBridge.call('closeWindow');
+            }, 'success');
+        }
+        else {
+            post('/P/PreApprovalState/PreApprovalApprove',
+               {
+                   id: preApprovalId,
+                   state: state,
+                   reason: reason,
+               },
+               function (d) {
+                   showDlg(d.txt, '确定', function () {
+                       if (from == '0') {
+                           WeixinJSBridge.call('closeWindow');
+                       }
+                       else if (from == '1') {
+                           location.href = contextUri + '/P/PreApprovalState/Index';
+                       }
+                   }, 'success');
+               }, 'json');
+        }
+    }
+
+    function closeWindow() {
+        if (from == '0') {
+            WeixinJSBridge.call('closeWindow');
+        }
+        else if (from == '1') {
+            location.href = contextUri + '/P/PreApprovalState/Index';
+        }
+    }
+</script>
+
+<div class="page-main" id="index">
+    <div class="page-body" style="shape-margin:30px">
+        <div id="dvReason" style="display:none;">
+            <div class="weui-cells__title">驳回理由（若驳回预申请则必须填写）</div>
+            <div class="weui-cells">
+                <div class="weui-cell__bd">
+                    <textarea class="weui-textarea" placeholder="请输入驳回理由，至少八个字以上" rows="3" style="padding-left:15px;" id="comments"></textarea>
+                </div>
+            </div>
+            <div id="dvComments" style="display:none;">
+                <div class="weui-cells__title">审批驳回理由</div>
+                <div class="weui-cells">
+                    <div class="weui-cell__bd">
+                        <span id="txtComments" style="padding-left:15px;"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="preApprovalInfo">
+        </div>
+    </div>
+    <div class="page-foot" id="dvApprove">
+        <button type="button" class="weui-btn weui-btn_orange" id="btnRebut" style="width:49%;float:right;margin-top:3px;" onclick="save(2)">审批驳回</button>
+        <button type="button" class="weui-btn weui-btn_orange" id="btnConsent" style="width:49%;float:left;" onclick="save(3)">审批通过</button>
+        <button type="button" class="weui-btn weui-btn_plain-primary" id="btnApprovalDetails" style="float:left;color: orangered;border-color: orangered;" onclick="ApprovalDetails()">查看审批详情</button>
+    </div>
+    <div class="page-foot" id="dvReview">
+        <button type="button" class="weui-btn weui-btn_orange" onclick="closeWindow()">返回</button>
+    </div>
+</div>

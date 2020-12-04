@@ -1,0 +1,165 @@
+﻿
+@{
+    if (ViewBag.fromuri == "1")
+    {
+        ViewBag.Title = "订单状态";
+    }
+    else if (ViewBag.fromuri == "2")
+    {
+        ViewBag.Title = "确认收餐";
+    }
+    else if (ViewBag.fromuri == "3")
+    {
+        ViewBag.Title = "评价投诉";
+    }
+    else if (ViewBag.fromuri == "4")
+    {
+        ViewBag.Title = "评价投诉";
+    }
+
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<link rel="stylesheet" href="~/Content/css/order_list.css?v=javaScriptVersion" />
+
+<style>
+    .weui-tabbar__label {
+        line-height: 2.3;
+    }
+</style>
+<script type="text/html" id="tmpl_orderlist">
+    {{each rows}}
+    <li _id="{{$value.ID}}" _supplier="{{$value.Channel}}" _code="{{$value.CN}}">
+        <div class="title">
+            <div class="state">{{$value.StateName}}</div>
+            {{$value.RestaurantName}}
+        </div>
+        <div class="_body">
+            <div class="cover" style="background-image: url({{$value.RestaurantLogo}})"></div>
+            <div class="info">
+                <div style="float:right;">
+                    {{if $value.Channel=='xms'}}
+                    <img src="../../Content/image/xms.png" style="width:80px;height:30px;" />
+                    {{else}}
+                    <img src="../../Content/image/bds.png" style="width:70px;height:30px;" />
+                    {{/if}}
+                </div>
+                <div>{{$value.CN}}</div>
+                <div>{{$value.DeliverTime}}</div>
+                {{if $value.IsTransfer==1}}<div><strong>原订单申请人：{{$value.Consignee}}</strong></div>{{/if}}
+
+                <div class="btntool">
+                    {{if ($value.State==2)}}
+                    <button type="button" class="weui-btn weui-btn_mini weui-btn_orange" onclick="btntool1(); event.stopPropagation();">修改订单</button>
+                    {{/if}}
+
+                    {{if ($value.State==4)}}
+                    {{if $value.FoodLost==1}}
+                    <button type="button" class="weui-btn weui-btn_mini weui-btn_orange" onclick="btntool2('{{$value.ID}}','{{$value.RestaurantId}}','{{$value.CN}}','{{$value.Channel}}'); event.stopPropagation();">未送达</button>
+                    {{else}}
+                    <button type="button" class="weui-btn weui-btn_mini weui-tabbar__label" onclick="event.stopPropagation();">未送达</button>
+                    {{/if}}
+                    {{if $value.FoodConfirm==1}}
+                    <button type="button" class="weui-btn weui-btn_mini weui-btn_orange" onclick="footbar1('{{$value.ID}}','{{$value.CN}}','{{$value.Channel}}','{{$value.XmsTotalPrice}}','{{$value.Detail}}'); event.stopPropagation();">确认收餐</button>
+                    {{else}}
+                    <button type="button" class="weui-btn weui-btn_mini weui-tabbar__label" onclick="event.stopPropagation();">确认收餐</button>
+                    {{/if}}
+                    {{/if}}
+
+                    {{if ($value.State==6)||($value.State==7)}}
+                    <button type="button" class="weui-btn weui-btn_mini weui-btn_orange" onclick="btntool4('{{$value.ID}}','{{$value.RestaurantId}}'); event.stopPropagation();">评价投诉</button>
+                    {{/if}}
+
+                    {{if ($value.State==9)||($value.State==8)}}
+                    <button type="button" class="weui-btn weui-btn_mini weui-tabbar__label" onclick="event.stopPropagation();">评价投诉</button>
+                    {{/if}}
+
+                    {{if ($value.State==12)}}
+                    @*{{if $value.FoodLost==1}}
+            <button type="button" class="weui-btn weui-btn_mini weui-btn_orange" onclick="btntool2('{{$value.ID}}','{{$value.RestaurantId}}','{{$value.CN}}','{{$value.Channel}}'); event.stopPropagation();">未送达</button>
+            {{else}}
+
+            {{/if}}*@
+                    <button type="button" class="weui-btn weui-btn_mini weui-tabbar__label" onclick="event.stopPropagation();">未送达</button>
+                    {{if $value.FoodConfirm==1}}
+                    <button type="button" class="weui-btn weui-btn_mini weui-btn_orange" onclick="footbar1('{{$value.ID}}','{{$value.CN}}','{{$value.Channel}}','{{$value.XmsTotalPrice}}'); event.stopPropagation();">确认收餐</button>
+                    {{else}}
+                    <button type="button" class="weui-btn weui-btn_mini weui-tabbar__label" onclick="event.stopPropagation();">确认收餐</button>
+                    {{/if}}
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </li>
+    {{/each}}
+</script>
+
+<style type="text/css">
+
+    body {
+        height: auto;
+    }
+</style>
+
+<script type="text/javascript">
+    var fromuri = '@ViewBag.fromuri';
+    var listyear=[];  //年份列表
+    var listmonth = ['All']; //月份列表
+    var months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    var yearNow;      //当前年份
+    var monthNow;     //当前月份
+
+    $(function () {
+        var dateNow = new Date();
+        yearNow = dateNow.getFullYear();
+        monthNow = dateNow.getMonth() + 1;
+
+        //设置默认时间
+        //默认选择当前年
+        for (var i = 2017; i <= yearNow; i++) {
+            listyear.push(i);
+        }
+        $.each(listyear, function (i, n) {
+            var _content = "<option value='" + n + "'>" + n + "</option>";
+            $("#years").append(_content);
+        });
+        document.getElementById("years").value = yearNow;
+        //默认选择当前月
+        for (var i = 1; i <= monthNow; i++) {
+            listmonth.push(i);
+        }
+        $.each(listmonth, function (i, n) {
+            var _content = "<option value='" + n + "'>" + n + "</option>";
+            $("#months").append(_content);
+        });
+        document.getElementById("months").value = 'All';
+
+    });
+
+</script>
+
+<script type="text/javascript" src="~/Content/js/order_list.js?v=javaScriptVersion"></script>
+
+<div id="orderlist2">
+    <div class="weui-cell__bd">
+        <div style="width:50%;float:left;height:45px;padding:0px 10px;background-color:#ffffff;">
+            <div style="width:50px;float:left;line-height:45px;"><label>年份：</label></div>
+            <div style="float:left;width:60%;">
+                <select class="" style="width:100%;float:left;height:32px;padding:6px 6px;margin-top:5px;margin-right:4px;margin-left:4px;" id="years"></select>
+            </div>
+        </div>
+
+        <div style="width:50%;float:left;height:45px;padding:0px 10px;background-color:#ffffff;">
+            <div style="width:50px;float:left;line-height:45px;"><label>月份：</label></div>
+            <div style="float:left;width:60%;">
+                <select class="" style="width:100%;float:left;height:32px;padding:6px 6px;margin-top:5px;margin-right:4px;margin-left:4px;" id="months">
+                    @*<option value="0">全部</option>*@
+                </select>
+            </div>
+        </div>
+
+    </div>
+
+    <ul class="orderlist" id="orderlist"></ul>
+</div>
+

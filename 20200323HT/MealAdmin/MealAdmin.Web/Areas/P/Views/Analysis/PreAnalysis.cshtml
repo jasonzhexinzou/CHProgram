@@ -1,0 +1,704 @@
+﻿@{
+    ViewBag.Title = "HT预申请分析";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap/bootstrap-select.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/bootstrap/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/fontawesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="~/Content/bootstrap/bootstrap-select.js"></script>
+    <script type="text/javascript" src="~/Content/bootstrap/bootstrap3.3.7.js"></script>
+    <script src="~/Content/echarts.min.js"></script>
+    <script type="text/javascript">
+        var TAlist = '@ViewBag.TAlist';
+        $(function () {
+            var _option = {
+                dateFormat: "yy-mm-dd",
+                closeText: "关闭",
+                prevText: "&#x3C;上月",
+                nextText: "下月&#x3E;",
+                currentText: "今天",
+                monthNames: ["一月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                dayNames: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+                dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"],
+                weekHeader: "周",
+                dateFormat: "yy-mm-dd",
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: true,
+                yearSuffix: "年"
+
+            }
+
+            $('#sltRD').hide();
+            $('#sltRM').hide();
+            $('#sltDM').hide();
+            var _stBegin = $("#txtMeetingTimeBegin").datepicker(_option);
+            var _stEnd = $("#txtMeetingTimeEnd").datepicker(_option);
+
+            var startYear = 2019;
+            var myDate = new Date();
+            var endYear = myDate.getFullYear();
+            var startmonth = myDate.getMonth() + 1;
+            var htmlstart;
+            var htmlmonth;
+            $('#sltYear').html('');
+            for (var i = startYear; i <= endYear; i++) {
+                if (i == endYear)
+                    htmlstart += '<option value="' + i + '" selected="selected">' + i + "年" + '</option>';
+                else
+                    htmlstart += '<option value="' + i + '">' + i + "年" + '</option>';
+            }
+            $('#sltYear').html(htmlstart);
+
+            $('#sltMonth').html('');
+            for (var i = 1; i <= 12; i++) {
+                if (i == startmonth)
+                    htmlmonth += '<option value="' + i + '" selected="selected">' + i + "月" + '</option>';
+                else
+                    htmlmonth += '<option value="' + i + '">' + i + "月" + '</option>';
+            }
+            $('#sltMonth').html(htmlmonth);
+
+            $('#sltTA').html('');
+            var taList = TAlist.split(',');
+            var html = '<option value="ALL" selected="selected" >ALL</option>';
+            if (taList.length > 0) {
+                for (var i in taList) {
+                    html += '<option value="' + taList[i] + '">' + taList[i] + '</option>';
+                }
+            }
+            $('#sltTA').html(html);
+
+            $('#sltta').html('');
+            var talist = TAlist.split(',');
+            var html = '<option value="ALL" selected="selected" >ALL</option>';
+            if (talist.length > 0) {
+                for (var i in talist) {
+                    html += '<option value="' + talist[i] + '">' + talist[i] + '</option>';
+                }
+            }
+            $('#sltta').html(html);
+
+            //加载RD
+            $('#sltTA').change(function () {
+                if ($('#sltTA').val() != null) {
+                    var TAOption = $('#sltTA').val().toString();
+                    if (TAOption != "ALL") {
+                        $('#sltRD').show();
+                        LoadRD(TAOption);
+                    }
+                    else {
+                        $('#sltRD').hide();
+                        $('#sltRM').hide();
+                        $('#sltDM').hide();
+                        $('#sltRD').html('');
+                        $('#sltRM').html('');
+                        $('#sltDM').html('');
+                    }
+                } else {
+                    $('#sltRD').hide();
+                    $('#sltRM').hide();
+                    $('#sltDM').hide();
+                    $('#sltRD').html('');
+                    $('#sltRM').html('');
+                    $('#sltDM').html('');
+                }
+            });
+            //加载RM
+            $('#sltRD').change(function () {
+                var RDOption = $('#sltRD').val().toString();
+                if (RDOption != "ALL") {
+                    $('#sltRM').show();
+                    LoadRM(RDOption);
+                }
+                else {
+                    $('#sltRM').hide();
+                    $('#sltDM').hide();
+                    $('#sltRM').html('');
+                    $('#sltDM').html('');
+                }
+            });
+            //加载DM
+            $('#sltRM').change(function () {
+                var RMOption = $('#sltRM').val();
+                if (RMOption != "ALL") {
+                    $('#sltDM').show();
+                    LoadDM(RMOption);
+                }
+                else {
+                    $('#sltDM').hide();
+                    $('#sltDM').html('');
+                }
+            });
+            $('#btnRefresh').bind('click', function () {
+                //会议日期校验
+                if ($('#txtMeetingTimeBegin').val() == "") {
+                    alert('请选择会议日期开始时间');
+                    return;
+                }
+                if ($('#txtMeetingTimeEnd').val() == "") {
+                    alert('请选择会议日期结束时间');
+                    return;
+                }
+                if ($('#txtMeetingTimeEnd').val() < $('#txtMeetingTimeBegin').val()) {
+                    alert('会议日期结束时间不得早于开始时间');
+                    return;
+                }
+                //会议开始日期与结束日期不得早于2019.11.3
+                var dstart = $("#txtMeetingTimeBegin").val().replace(/-/g, "/");
+                var dend = $("#txtMeetingTimeEnd").val().replace(/-/g, "/");
+                var text = '2019/11/03';
+                if (dstart < text || dend < text) {
+                    alert('所选择的会议日期不得早于2019年11月3日');
+                    return;
+                }
+              
+                // 基于准备好的dom，初始化echarts实例
+                var myChart = echarts.init(document.getElementById('mainCount'));
+                var AmountChart = echarts.init(document.getElementById('mainAmount'));
+                getJson();
+                //查询数据
+                function getJson() {
+                    document.getElementById('div1').style.border = "solid 1px #ddd";
+                    window.top.showLoading();
+                    $.ajax({
+                        url: contextUri + "/P/Analysis/LoadCountChart",
+                        type: 'post',
+                        data: {
+                            MeetingTimeBegin: $('#txtMeetingTimeBegin').val().replace(/\s/g, ""),
+                            MeetingTimeEnd: $('#txtMeetingTimeEnd').val().replace(/\s/g, ""),
+                            PreAmount: $('#sltPreAmount').val(),
+                            PreState: $('#sltPreState').val(),
+                            TA: $('#sltTA').val() == null ? "ALL" : $('#sltTA').val().toString(),
+                            htType: $('#sltHTType').val(),
+                            RD: $('#sltRD').val(),
+                            RM: $('#sltRM').val(),
+                            DM: $('#sltDM').val()
+                        },
+                        dataType: "json",
+                        success: function (data) {                          
+                            if (data.state == 1) {                              
+                                var CountX = [];
+                                var CountY = [];
+                                var CountTotal = 0;
+                                var CountT = '';
+                                var AmountX = [];
+                                var AmountY = [];
+                                var AmountTotal = 0.00;
+                                var AmountT = '';
+                                for (var i = 0; i < data.ChartCount.length; i++) {
+                                    CountX.push(data.ChartCount[i].CodeandNAME);
+                                    CountY.push(data.ChartCount[i].PreCount);
+                                    CountTotal = CountTotal + data.ChartCount[i].PreCount;
+                                }
+                                for (var j = 0; j < data.ChartAmount.length; j++) {
+                                    AmountX.push(data.ChartAmount[j].CodeandNAME);
+                                    AmountY.push(data.ChartAmount[j].PrePrice);
+                                    AmountTotal = AmountTotal + data.ChartAmount[j].PreAmount;
+                                }
+                                //数量加千分符
+                                var Countstr = CountTotal.toString();
+                                var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                                CountT = Countstr.replace(Countreg, "$1,") + "单";
+
+                                //金额加千分符
+                                var str = toDecimal2(AmountTotal).toString();
+                                var reg = str.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                                AmountT = "¥" + str.replace(reg, "$1,");
+
+                                var setWidth = data.ChartAmount.length * 90;
+                                var minWidth = Math.round(document.body.clientWidth * 0.96);
+                                if (setWidth < minWidth) {
+                                    document.getElementById("mainCount").style.width = minWidth - 2 + "px";
+                                    document.getElementById("mainAmount").style.width = minWidth - 2 + "px";
+                                    document.getElementById("div1").style.width = minWidth + "px";
+                                } else {
+                                    document.getElementById("mainCount").style.width = setWidth - 2 + "px";
+                                    document.getElementById("mainAmount").style.width = setWidth - 2 + "px";
+                                    document.getElementById("div1").style.width = setWidth + "px";
+                                }
+
+                                var option = DrawBar(CountX, CountY, CountT);
+                                if (option && typeof option === "object") {
+                                    // 使用刚指定的配置项和数据显示图表。
+                                    myChart.setOption(option, true);
+                                    myChart.resize();
+                                }
+                                var Aoption = DrawAmountBar(AmountX, AmountY, AmountT);
+                                if (Aoption && typeof Aoption === "object") {
+                                    // 使用刚指定的配置项和数据显示图表。
+                                    AmountChart.setOption(Aoption, true);
+                                    AmountChart.resize();
+                                }
+                            }
+                            window.top.hideLoading();
+                        }
+                    })
+                }
+
+                // 指定图表的配置项和数据
+                function DrawBar(XName, YCount, TCount) {
+                    var option = {
+                        color: ['#F66800', '#006774'],
+                        title: {
+                            text: 'HT预申请数量 ' + TCount,
+                            left: 'center',
+                            bottom: '120',
+                            textStyle: {
+                                fontSize: 16,
+
+                            }
+                        },
+                        backgroundColor: 'rgb(255, 255, 255)',
+                        height: 300,
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            },
+                            trigger: 'item',
+                            //formatter: '{a} <br/>{b} : {c}单'
+                            formatter: function (data) {
+                                var result = [],
+                                    counter = 0,
+                                    num = data.value;
+                                num = (num || 0).toString().split('');
+                                for (var i = num.length - 1; i >= 0; i--) {
+                                    counter++;
+                                    result.unshift(num[i]);
+                                    //无小数部分
+                                    if (!(counter % 3) && i != 0) {
+                                        result.unshift(',');
+                                    }
+                                }
+                                result.push("单");
+                                result = result.join('');
+                                return data.seriesName + "<br/>" + data.name + " : " + result;
+                            }
+                        },
+
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        yAxis: {
+                            type: 'value',
+                            boundaryGap: [0, 0.01]
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: XName,
+                            axisLabel: {
+                                interval: 0,
+                                fontSize: 10,
+                                formatter: function (value) {
+                                    return value.split("-").join("\n\n");
+                                }
+                            }
+                        },
+                        series: [
+                            {
+                                name: 'HT预申请数量',
+                                type: 'bar',
+                                barWidth: 30,//柱图宽度
+                                barGap: 0,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    //formatter: '{c}单'
+                                    formatter: function (a) {
+                                        var result = [],
+                                            counter = 0,
+                                            num = a.data;
+                                        num = (num || 0).toString().split('');
+                                        for (var i = num.length - 1; i >= 0; i--) {
+                                            counter++;
+                                            result.unshift(num[i]);
+                                            //无小数部分
+                                            if (!(counter % 3) && i != 0) {
+                                                result.unshift(',');
+                                            }
+                                        }
+                                        result.push("单");
+                                        result = result.join('');
+                                        return result;
+                                    }
+                                },
+                                data: YCount
+                            }
+                        ]
+                    };
+                    return option
+                }
+
+                function DrawAmountBar(XName, YAmount, TAmount) {
+                    var Aoption = {
+                        color: ['#F66800', '#006774'],
+                        title: {
+                            text: 'HT预算金额 ' + TAmount,
+                            left: 'center',
+                            bottom: '120',
+                            textStyle: {
+                                fontSize: 16,
+
+                            }
+                        },
+                        backgroundColor: 'rgb(255, 255, 255)',
+                        height: 300,
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            },
+                            trigger: 'item',
+                            //formatter: '{a} <br/>{b} : ￥{c}'
+                            formatter: function (data) {
+                                var result = [],
+                                    counter = 0,
+                                    num = data.value;
+                                num = (num || 0).toString().split('');
+                                for (var i = num.length - 1; i >= 0; i--) {
+                                    counter++;
+                                    result.unshift(num[i]);
+                                    //因为有小数点后两位所以多加了一项判断
+                                    if (!(counter % 3) && i != 0 && counter != 3) {
+                                        result.unshift(',');
+                                    }
+                                }
+                                result.unshift("¥");
+                                result = result.join('');
+                                return data.seriesName + "<br/>" + data.name + " : " + result;
+                            }
+                        },
+
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        yAxis: {
+                            type: 'value',
+                            boundaryGap: [0, 0.01]
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: XName,
+                            axisLabel: {
+                                interval: 0,
+                                fontSize: 10,
+                                formatter: function (value) {
+                                    return value.split("-").join("\n\n");
+                                }
+                            }
+                        },
+                        series: [
+                            {
+                                name: 'HT预算金额',
+                                type: 'bar',
+                                barWidth: 30,//柱图宽度
+                                barGap: 0,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    //formatter: '￥{c}'
+                                    formatter: function (a) {
+                                        var result = [],
+                                            counter = 0,
+                                            num = a.data;
+                                        num = (num || 0).toString().split('');
+                                        for (var i = num.length - 1; i >= 0; i--) {
+                                            counter++;
+                                            result.unshift(num[i]);
+                                            //因为有小数点后两位所以多加了一项判断
+                                            if (!(counter % 3) && i != 0 && counter != 3) {
+                                                result.unshift(',');
+                                            }
+                                        }
+                                        result.unshift("¥");
+                                        result = result.join('');
+                                        return result;
+                                    }
+
+                                },
+                                data: YAmount
+                            }
+                        ]
+                    };
+                    return Aoption
+                }
+
+            });
+
+            $('#btnExport').bind('click', function () {
+                //会议日期校验
+                if ($('#txtMeetingTimeBegin').val() == "") {
+                    alert('请选择会议日期开始时间');
+                    return;
+                }
+                if ($('#txtMeetingTimeEnd').val() == "") {
+                    alert('请选择会议日期结束时间');
+                    return;
+                }
+                if ($('#txtMeetingTimeEnd').val() < $('#txtMeetingTimeBegin').val()) {
+                    alert('会议日期结束时间不得早于开始时间');
+                    return;
+                }
+                //会议开始日期与结束日期不得早于2019.11.3
+                var dstart = $("#txtMeetingTimeBegin").val().replace(/-/g, "/");
+                var dend = $("#txtMeetingTimeEnd").val().replace(/-/g, "/");
+                var text = '2019/11/03';
+                if (dstart < text || dend < text) {
+                    alert('所选择的会议日期不得早于2019年11月3日');
+                    return;
+                }
+                var MeetingTimeBegin = $('#txtMeetingTimeBegin').val().replace(/\s/g, "");
+                var MeetingTimeEnd = $('#txtMeetingTimeEnd').val().replace(/\s/g, "");
+                var PreAmount = $('#sltPreAmount').val();
+                var PreState = $('#sltPreState').val();
+                var TA = $('#sltTA').val() == null ? "ALL" : $('#sltTA').val().toString();
+                var htType = $('#sltHTType').val();
+                var RD = $('#sltRD').val();
+                var RM = $('#sltRM').val();
+                var DM = $('#sltDM').val();
+                window.location.href = contextUri + '/P/Analysis/ExportPreApprovalAnalysis?'
+                    + 'MeetingTimeBegin=' + MeetingTimeBegin
+                    + '&MeetingTimeEnd=' + MeetingTimeEnd
+                    + '&HTType=' + htType
+                    + '&PreAmount=' + PreAmount
+                    + '&PreState=' + PreState
+                    + '&TA=' + TA
+                    + '&RD=' + RD
+                    + '&RM=' + RM
+                    + '&DM=' + DM;
+            });
+
+            $('#btnExportReport').bind('click', function () {
+                //会议日期不得早于2019.11
+                var dyear = $("#sltYear").val();
+                var dmonth = $("#sltMonth").val();
+                if (dyear == "2019" && dmonth < 11) {
+                    alert('所选择的会议日期不得早于2019年11月');
+                    return;
+                }
+                var httype = $('#slthttype').val();
+                var preamount = $('#sltpreamount').val();
+                var prestate = $('#sltprestate').val();
+                var ta = $('#sltta').val() == null ? "ALL" : $('#sltta').val().toString();
+                window.location.href = contextUri + '/P/Analysis/ExportPreAnalysisReport?'
+                    + 'Year=' + dyear
+                    + '&Month=' + dmonth
+                    + '&HTType=' + httype
+                    + '&PreAmount=' + preamount
+                    + '&PreState=' + prestate
+                    + '&TA=' + ta;
+            });
+
+        });
+
+        //加载RD
+        function LoadRD(TAOption) {
+            $('#sltRD').html('');
+            $('#sltRM').hide();
+            $('#sltDM').hide();
+            $('#sltRM').html('');
+            $('#sltDM').html('');
+            $.post(contextUri + '/P/Analysis/LoadRD', {
+                TAOption: TAOption
+            }, function (data) {
+                var RDList = data;
+                var html = '<option value="ALL" selected="selected" >全部RD</option>';
+                if (RDList.length > 0) {
+                    for (var i in RDList) {
+                        html += '<option value="' + RDList[i].RDTerritoryCode + '">' + RDList[i].RDTerritoryCode + '</option>';
+                    }
+                }
+                $('#sltRD').html(html);
+            });
+        }
+        //加载RM
+        function LoadRM(RDOption) {
+            $('#sltRM').html('');
+            $('#sltDM').hide();
+            $('#sltDM').html('');
+            $.post(contextUri + '/P/Analysis/LoadRM', {
+                RDOption: RDOption
+            }, function (data) {
+                var RMList = data;
+                var html = '<option value="ALL" selected="selected" >全部RM</option>';
+                if (RMList.length > 0) {
+                    for (var i in RMList) {
+                        html += '<option value="' + RMList[i].CostCenter + '">' + RMList[i].CostCenter + '</option>';
+                    }
+                }
+                $('#sltRM').html(html);
+            });
+        }
+
+        //加载DM
+        function LoadDM(RMOption) {
+            $('#sltDM').html('');
+            $.post(contextUri + '/P/Analysis/LoadDM', {
+                RMOption: RMOption
+            }, function (data) {
+                var DMList = data;
+                var html = '<option value="ALL" selected="selected" >全部DM</option>';
+                if (DMList.length > 0) {
+                    for (var i in DMList) {
+                        html += '<option value="' + DMList[i].DMTerritoryCode + '">' + DMList[i].DMTerritoryCode + '</option>';
+                    }
+                }
+                $('#sltDM').html(html);
+            });
+        }
+        function toDecimal2(x) {
+            var f = Math.round(x * 100) / 100;
+            var s = f.toString();
+            var rs = s.indexOf('.');
+            if (rs < 0) {
+                rs = s.length;
+                s += '.';
+            }
+            while (s.length <= rs + 2) {
+                s += '0';
+            }
+            return s;
+        }
+
+    </script>
+}
+<div class="tool_bar">
+    <label>HT预申请分析</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;border: solid 1px #ddd;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <span><strong>HT预申请总数、目标医院数、预申请医院数、代表数等相关数据</strong></span>
+                </div>
+                <div class="line" style="padding-top:10px;">
+                    <label class="border-small label-block">
+                        年月筛选
+                        <select id="sltYear" name="sltYear" class="input input-small" style="width:100px;"></select>
+                        <select id="sltMonth" name="sltMonth" class="input input-small" style="width:100px;"></select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        HT类型
+                        <select class="input input-small" style="width:100px;" id="slthttype" name="slthttype">
+                            <option value="all">全部</option>
+                            <option value="0">院内HT</option>
+                            <option value="1">院外HT</option>
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        预申请金额
+                        <select class="input input-small" style="width:100px;" id="sltpreamount" name="sltpreamount">
+                            <option value="all">全部</option>
+                            <option value="1">非0元</option>
+                            <option value="0">0元</option>
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        审批状态
+                        <select class="input input-small" style="width:100px;" id="sltprestate" name="sltprestate">
+                            <option value="all">全部</option>
+                            <option value="0">待审批</option>
+                            <option value="1">审批通过</option>
+                            <option value="2">审批驳回</option>
+                            <option value="3">已取消</option>
+                        </select>
+                    </label>
+                    <br />
+                    <label class="border-small label-block">
+                        数据层级
+                        <select class="selectpicker bla bla bli" id="sltta" name="sltta" multiple></select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:40px;">
+                        <button class="button button-small bg-blue fa fa-file-excel-o" id="btnExportReport">导出</button>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <span><strong>HT预申请金额、数量相关数据</strong></span>
+                </div>
+                <div class="line">
+                    <label class="border-small label-block">
+                        会议日期
+                        <input type="text" class="input input-small" style="width:100px;" id="txtMeetingTimeBegin" name="txtMeetingTimeBegin" placeholder="开始时间" autocomplete="off" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtMeetingTimeEnd" name="txtMeetingTimeEnd" placeholder="结束时间" autocomplete="off" />
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        HT类型
+                        <select class="input input-small" style="width:100px;" id="sltHTType" name="sltHTType">
+                            <option value="all">全部</option>
+                            <option value="0">院内HT</option>
+                            <option value="1">院外HT</option>
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        预申请金额
+                        <select class="input input-small" style="width:100px;" id="sltPreAmount" name="sltPreAmount">
+                            <option value="all">全部</option>
+                            <option value="1">非0元</option>
+                            <option value="0">0元</option>
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        审批状态
+                        <select class="input input-small" style="width:100px;" id="sltPreState" name="sltPreState">
+                            <option value="all">全部</option>
+                            <option value="0">待审批</option>
+                            <option value="1">审批通过</option>
+                            <option value="2">审批驳回</option>
+                            <option value="3">已取消</option>
+                        </select>
+                    </label>
+                    <br />
+                    <label class="border-small label-block">
+                        数据层级
+                        <select class="selectpicker bla bla bli" id="sltTA" name="sltTA" multiple></select>
+                    </label>
+                    <label class="border-small label-block">
+                        <select class="input input-small" style="width:120px;" id="sltRD" name="sltRD"></select>
+                    </label>
+                    <label class="border-small label-block">
+                        <select class="input input-small" style="width:120px;" id="sltRM" name="sltRM"></select>
+                    </label>
+                    <label class="border-small label-block">
+                        <select class="input input-small" style="width:120px;" id="sltDM" name="sltDM"></select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:30px;">
+                        <button class="button button-small bg-blue fa fa-file-excel-o" id="btnExport">导出</button>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:5px;">
+                        <button class="button button-small bg-yellow fa fa-pie-chart" id="btnRefresh" aria-hidden="true">刷新</button>
+                    </label>
+                </div>
+            </div>
+        </div>      
+    </div>
+
+    <div id="div1" style="margin: 20px;" class="panel admin-panel">
+        <div id="mainCount" style="width: auto;height:550px;"></div>
+        <div id="mainAmount" style="width: auto;height:550px;"></div>
+    </div>
+</div>
+
+
+
+

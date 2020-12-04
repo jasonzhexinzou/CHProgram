@@ -1,0 +1,112 @@
+﻿
+@{
+    Layout = null;
+}
+
+<div id="submitorder">
+    <div class="body">
+        <div class="consignee rigtharrow">
+            <div>
+                <span id="username">申请人：</span>
+                <input id="phone" type="text" value="13800138000" />
+            </div>
+            <div>
+                <div id="hospitalname">-</div>
+                <input type="text" id="address" value="" placeholder="(选填)可以补充详细地址" />
+            </div>
+        </div>
+        <div class="separates"></div>
+        <div class="deliverytime">
+            <div class="rigtharrow">
+                送达时间
+                <span id="deliver_times">
+                    <select>
+                        <option value="${item.id}$">${item.name}$</option>
+                    </select>
+                </span>
+            </div>
+            <div class="rigtharrow">
+                备注
+                <span id="_description" class="lab_input">(选填)可输入特殊要求</span>
+            </div>
+        </div>
+        <div class="description" id="inputdialog">
+            <div>
+                请输入备注：
+            </div>
+            <div>
+                <textarea id="description"></textarea>
+            </div>
+            <div>
+                确认
+            </div>
+        </div>
+        <div class="foodinfo">
+            <div class="supplier">
+                <span>KFC(淮海中路)</span>
+                <span>@*本单由 商家 配送*@</span>
+            </div>
+            <div class="details">
+                <div>
+                    <span>￥${item.price * item.quantity}$</span>
+                    <span>x${item.quantity}$</span>
+                    <div>
+                        ${item.name}$
+                    </div>
+
+                </div>
+            </div>
+            <div class="other">
+                <div>
+                    <span>￥${item.price}$</span>
+                    <div>
+                        ${item.name}$
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="approveinfo">
+            <div class="rigtharrow">
+                成本归属
+                <span>
+                    <select id="costcenter">
+                        @*@foreach (var item in ViewBag.listCostCenter)
+                        {
+                            <option value="@item.ID">@item.Name</option>
+                        }*@
+                        <option value="@Guid.NewGuid()">销售一组</option>
+                            <option value="@Guid.NewGuid()">销售二组</option>
+                            <option value="@Guid.NewGuid()">销售三组</option>
+                    </select>
+                </span>
+            </div>
+            <div class="rigtharrow">
+                用餐原因
+                <span>
+                    <select id="meetingcenter">
+                        @*@foreach (var item in ViewBag.listMeetingCenter)
+                        {
+                            <option value="@item.ID">@item.Name</option>
+                        }*@
+                        <option value="@Guid.NewGuid()">会议用餐</option>
+                            <option value="@Guid.NewGuid()">年会用餐</option>
+                            <option value="@Guid.NewGuid()">发布会用餐</option>
+                    </select>
+                </span>
+            </div>
+            <div class="rigtharrow">
+                用餐说明
+                <span id="eat_description" class="lab_input">(选填)</span>
+            </div>
+        </div>
+    </div>
+    <div class="foottools">
+        <div class="choosed" id="btnSubmit">
+            确认提交
+        </div>
+        <div class="orders">
+            合计：
+            <span id="confirmtotalmoney">￥</span>
+        </div>
+    </div>
+</div>

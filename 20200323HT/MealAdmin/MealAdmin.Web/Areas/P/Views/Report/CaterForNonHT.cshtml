@@ -1,0 +1,423 @@
+﻿
+@{
+    ViewBag.Title = ViewBag.PageTitle;
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+
+    <script type="text/javascript">
+        var pdg;
+
+        function MyFormateDateTime(Data, fmt) {
+            if (Data) {
+                return getDateByDotNet(Data).pattern(fmt);
+            }
+            else {
+                return '';
+            }
+        }
+        function MyComNullVal(Data) {
+            if (Data) {
+                return Data;
+            }
+            else {
+                return '';
+            }
+        }
+        // 评价是否
+        function MyESF(Data) {
+            if (Data) {
+                if (Data == 1) {
+                    return '是';
+                }
+                else {
+                    return '否';
+                }
+            }
+            else {
+                return '';
+            }
+        }
+        // 评价好中差
+        function MyEHZC(Data) {
+            if (Data) {
+                if (Data == 1) {
+                    return '好';
+                }
+                else if (Data == 2) {
+                    return '中';
+                }
+                else if (Data == 3) {
+                    return '差';
+                }
+                else {
+                    return '';
+                }
+            }
+            else {
+                return '';
+            }
+        }
+        function MyEOnTime(Data) {
+            if (Data) {
+                if (Data == 1) {
+                    return '迟到60分钟以上';
+                }
+                else if (Data == 2) {
+                    return '迟到60分钟以内';
+                }
+                else if (Data == 3) {
+                    return '早到';
+                }
+                else if (Data == 4) {
+                    return '准点';
+                }
+                else if (Data == 5) {
+                    return '迟到60分及以上';
+                }
+                else if (Data == 6) {
+                    return '迟到30-60分钟';
+                }
+                else if (Data == 7) {
+                    return '迟到30分钟以内';
+                }
+                else if (Data == 8) {
+                    return '早到30分钟及以上';
+                }
+                else if (Data == 9) {
+                    return '早到30分钟以内';
+                }
+                else if (Data == 10) {
+                    return '准点';
+                }
+                else {
+                    return '';
+                }
+            }
+            else {
+                return '';
+            }
+        }
+        $(function () {
+            var _option = {
+                dateFormat: "yy-mm-dd",
+                closeText: "关闭",
+                prevText: "&#x3C;上月",
+                nextText: "下月&#x3E;",
+                currentText: "今天",
+                monthNames: ["一月", "二月", "三月", "四月", "五月", "六月",
+                "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月",
+                "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                dayNames: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+                dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"],
+                weekHeader: "周",
+                dateFormat: "yy-mm-dd",
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: true,
+                yearSuffix: "年"
+
+            }
+            var _stBegin = $("#txtSendTimeBegin").datepicker(_option);
+            var _stEnd = $("#txtSendTimeEnd").datepicker(_option);
+
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/Report/LoadCaterForNonHT', paging: true });
+            pdg.QueryParams = function () {
+                return {
+                    CN: $('#txtCN').val(),
+                    MUID: $('#txtMudId').val(),
+                    HospitalCode: $('#txtHospitalCode').val(),//医院编码
+                    RestaurantId: $('#txtRestaurantId').val(),//餐厅编码
+                    startDate: $('#txtSendTimeBegin').val(),
+                    endDate: $('#txtSendTimeEnd').val(),
+                    isOrderSuccess: $('#isOrderSuccess').val(),
+                    isReceived: $('#isReceived').val(),
+                    isReturn: $('#isReturn').val(),
+                    isReturnSuccess: $('#isReturnSuccess').val(),
+                    Supplier:$("#dpSupplier").val()
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+
+            $('#btnEdit').bind('click', function () {
+                Import();
+            });
+
+            $('#btnClear').bind('click', function () {
+                Clear();
+            });
+
+            $('#btnExport').bind('click', function () {
+                var p = {
+                    CN: $('#txtCN').val(),
+                    MUID: $('#txtMudId').val(),
+                    HospitalCode: $('#txtHospitalCode').val(),//医院编码
+                    RestaurantId: $('#txtRestaurantId').val(),//餐厅编码
+                    startDate: $('#txtSendTimeBegin').val(),
+                    endDate: $('#txtSendTimeEnd').val(),
+                    isOrderSuccess: $('#isOrderSuccess').val(),
+                    isReceived: $('#isReceived').val(),
+                    isReturn: $('#isReturn').val(),
+                    isReturnSuccess: $('#isReturnSuccess').val(),
+                    Supplier: $('#dpSupplier').val()
+                };
+
+                $('#form1 input[name="CN"]').val(p.CN);
+                $('#form1 input[name="MUID"]').val(p.MUID);
+                $('#form1 input[name="HospitalCode"]').val(p.HospitalCode);//医院编码
+                $('#form1 input[name="RestaurantId"]').val(p.RestaurantId);//餐厅编码
+                $('#form1 input[name="startDate"]').val(p.startDate);
+                $('#form1 input[name="endDate"]').val(p.endDate);
+                $('#form1 input[name="isOrderSuccess"]').val(p.isOrderSuccess);
+                $('#form1 input[name="isReceived"]').val(p.isReceived);
+                $('#form1 input[name="isReturn"]').val(p.isReturn);
+                $('#form1 input[name="isReturnSuccess"]').val(p.isReturnSuccess);
+                $('#form1 input[name="Supplier"]').val(p.Supplier);
+
+                $('#form1')[0].submit();
+            });
+
+        });
+
+
+        // 弹出选择企业成员对话框
+        function Detail(OrderID) {
+            $showdialogForUrl(
+                {
+                    title: '评价详情',
+                    width: '550px',
+                    height: '580px',
+                    url: contextUri + '/P/OrderMnt/EvaluateDetail?OrderID=' + OrderID,
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button',
+                            txt: '关闭',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+                }
+            );
+        }
+    </script>
+}
+
+
+<div class="tool_bar">
+    <label>@ViewBag.PageTitle</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <div>
+                        <input type="text" class="input input-small" style="width:100px;" id="txtCN" name="txtCN" placeholder="PO No." />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtMudId" name="txtMudId" placeholder="MUDID" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtHospitalCode" name="txtHospitalCode" placeholder="医院编码" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtRestaurantId" name="txtRestaurantId" placeholder="餐厅编码" />   
+                        <label class="border-small label-block">
+                            送餐日期
+                            <input type="text" class="input input-small" style="width:100px;" id="txtSendTimeBegin" name="txtSendTimeBegin" placeholder="开始时间" />
+                            <input type="text" class="input input-small" style="width:100px;" id="txtSendTimeEnd" name="txtSendTimeEnd" placeholder="结束时间" />
+                        </label>
+                    </div>
+                    <div style="padding-top: 15px;">
+                        <label>预定状态</label>
+                        <select class="input" id="isOrderSuccess">
+                            <option value="">请选择</option>
+                            <option value="是">预定成功</option>
+                            <option value="否">预定失败</option>
+                        </select>
+
+                        <label>收餐状态</label>
+                        <select class="input" id="isReceived">
+                            <option value="">请选择</option>
+                            <option value="是">收餐成功</option>
+                            <option value="否">收餐失败</option>
+                        </select>
+
+                        <label>退单状态</label>
+                        <select class="input" id="isReturn">
+                            <option value="">请选择</option>
+                            <option value="是">发起退单</option>
+                            <option value="否">未退单</option>
+                        </select>
+
+                        <label>退单结果</label>
+                        <select class="input" id="isReturnSuccess">
+                            <option value="">请选择</option>
+                            <option value="是">退单成功</option>
+                            <option value="否">退单失败</option>
+                        </select>
+                        <label>供应商</label>
+                        <select class="input" id="dpSupplier">
+                            <option value="">请选择</option>
+                            <option value="XMS">XMS</option>
+                        </select>
+
+                        <button class="button button-small bg-main icon-search" id="btnLoad"> 搜索</button>
+                        <button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>
+                    </div>
+                    <div style="display:none">
+                        <form id="form1" action="~/P/Report/ExcelCaterForNonHT" method="post" target="_blank">
+                            <input type="hidden" name="CN" />
+                            <input type="hidden" name="MUID" />
+                            <input type="hidden" name="startDate" />
+                            <input type="hidden" name="endDate" />
+                            <input type="hidden" name="isOrderSuccess" />
+                            <input type="hidden" name="isReceived" />
+                            <input type="hidden" name="isReturn" />
+                            <input type="hidden" name="isReturnSuccess" />
+                            <input type="hidden" name="Supplier" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="panel-body" style="overflow-x:auto;">
+
+            <table id="costcenter_dataTable" class="table table-hover" style="width:10000px; max-width:10000px;">
+                <thead class="text-unbreak">
+                    <tr>
+                        <th style="text-align:center; width:50px;">
+                            <input type="checkbox" />
+                        </th>
+                        <th>订餐人姓名</th>
+                        <th>订餐人手机号</th>
+                        <th>订餐人MUDID</th>
+                        <th>用餐人Market</th>
+                        <th>用餐人TA</th>
+                        <th>Meeting Code</th>
+                        <th>会议名称</th>
+                        <th>PO No.</th>
+                        <th>WBS</th>
+                        <th>供应商</th>
+                        <th>订单号</th>
+                        <th>下单日期</th>
+                        <th>下单时间</th>
+                        <th>送餐日期</th>
+                        <th>送餐时间</th>
+                        <th>餐厅编码</th>
+                        <th>预订餐厅</th>
+                        <th>参会人数</th>
+                        <th>总份数</th>
+                        <th>预订金额</th>
+                        <th>实际金额</th>
+                        <th>金额调整原因</th>
+                        <th>省份</th>
+                        <th>城市</th>
+                        <th>医院编码</th>
+                        <th>医院名称</th>
+                        <th>医院地址</th>
+                        <th>送餐地址</th>
+                        <th>收餐人姓名</th>
+                        <th>收餐人电话</th>
+                        <th>下单备注</th>
+                        <th>是否预定成功</th>
+                        <th>预定成功日期</th>
+                        <th>预定成功时间</th>
+                        <th>是否收餐/未送达</th>
+                        <th>未送达描述</th>
+                        <th>准点率</th>
+                        <th>准点率描述</th>
+                        <th>食品安全存在问题</th>
+                        <th>食品安全问题描述</th>
+                        <th>餐品卫生及新鲜</th>
+                        <th>餐品卫生描述</th>
+                        <th>餐品包装</th>
+                        <th>餐品包装描述</th>
+                        <th>餐品性价比</th>
+                        <th>餐品性价比描述</th>
+                        <th>其他评价</th>
+                        <th>在线评分</th>
+                        <th>评论日期</th>
+                        <th>评论时间</th>
+                        <th>是否申请退单</th>
+                        <th>是否退单成功</th>
+                        <th>退单失败平台发起配送需求</th>
+                        <th>退单失败线下反馈配送需求</th>
+                        <th>预订/退单失败原因</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td align="center"><input type="checkbox" name="id" value="${dr.ID}$"></td>
+                        <td>${dr.c0}$</td>
+                        <td>${dr.c1}$</td>
+                        <td>${dr.c2}$</td>
+                        <td>${dr.c3}$</td>
+                        <td>${dr.c4}$</td>
+                        <td>${dr.c5}$</td>
+                        <td>${dr.c6}$</td>
+                        <td>${dr.c7}$</td>
+                        <td>${dr.c8}$</td>
+                        <td>${dr.c9}$</td>
+                        <td>${dr.c10}$</td>
+                        <td>${dr.c11}$</td>
+                        <td>${dr.c12}$</td>
+                        <td>${dr.c13}$</td>
+                        <td>${dr.c14}$</td>
+                        <td>${dr.c55}$</td>
+                        <td>${dr.c15}$</td>
+                        <td>${dr.c16}$</td>
+                        <td>${dr.c17}$</td>
+                        <td>${dr.c18}$</td>
+                        <td>${dr.c19}$</td>
+                        <td>${dr.c20}$</td>
+                        <td>${dr.c21}$</td>
+                        <td>${dr.c22}$</td>
+                        <td>${dr.c23}$</td>
+                        <td>${dr.c24}$</td>
+                        <td>${dr.c25}$</td>
+                        <td>${dr.c26}$</td>
+                        <td>${dr.c27}$</td>
+                        <td>${dr.c28}$</td>
+                        <td>${dr.c56}$</td>
+                        <td>${dr.c29}$</td>
+                        <td>${dr.c30}$</td>
+                        <td>${dr.c31}$</td>
+                        <td>${dr.c32}$</td>
+                        <td>${dr.c33}$</td>
+                        <td>${dr.c34}$</td>
+                        <td>${dr.c35}$</td>
+                        <td>${dr.c36}$</td>
+                        <td>${dr.c37}$</td>
+                        <td>${dr.c38}$</td>
+                        <td>${dr.c39}$</td>
+                        <td>${dr.c40}$</td>
+                        <td>${dr.c41}$</td>
+                        <td>${dr.c42}$</td>
+                        <td>${dr.c43}$</td>
+                        <td>${dr.c44}$</td>
+                        <td>${dr.c45}$</td>
+                        <td>${dr.c46}$</td>
+                        <td>${dr.c47}$</td>
+                        <td>${dr.c48}$</td>
+                        <td>${dr.c49}$</td>
+                        <td>${dr.c50}$</td>
+                        <td>${dr.c51}$</td>
+                        <td>${dr.c52}$</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="60" class="paging"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>

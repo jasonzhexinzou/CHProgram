@@ -1,0 +1,57 @@
+﻿@{
+    ViewBag.Title = "转交订单状态";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<script type="text/html" id="tmpl_myApproval">
+    {{each rows}}
+    <li _id="{{$value.ID}}" _index="{{$value.Index}}" style="border-bottom: 1px solid silver;width:100%;float:left;margin-top:10px;background-color: #FFFFFF;">
+        <div style="width:100%;float:left;">
+            <div class="title"><span style="font-size:12px;padding-left:10px;"><strong>{{$value.HospitalName}}</strong></span></div>
+            <div class="title">
+                <span style="font-size:10px;padding-left:10px;opacity:0.7;">{{$value.DeliverTime}}</span>
+            </div>
+            <div class="title">
+                <span style="font-size:10px;padding-left:10px;opacity:0.7;">{{$value.HTCode}}</span>
+            </div>
+            <div class="title">
+                <span style="font-size:10px;padding-left:10px;opacity:0.7;"><strong>原订单申请人：{{$value.ApplierName}}</strong></span>
+            </div>
+        </div>
+    </li>
+    {{/each}}
+</script>
+
+<style type="text/css">
+
+    body {
+        height: auto;
+    }
+
+    .stateBtn {
+        font-size: 10px;
+        width: 70% !important;
+    }
+
+    .stateDP {
+        height: 30px;
+        line-height: 30px;
+        font-size: 12px;
+    }
+</style>
+
+<script type="text/javascript">
+    $(function () {
+        var dateNow = new Date();
+    });
+</script>
+
+<script type="text/javascript" src="~/Content/js/AutoTransferState.js?v=javaScriptVersion"></script>
+
+<div class="page-main">
+    <div id="content">
+        <div id="MyApproval">
+            <ul id="myPreApprovalList" style="width:100%;overflow:hidden"></ul>
+        </div>
+    </div>
+</div>

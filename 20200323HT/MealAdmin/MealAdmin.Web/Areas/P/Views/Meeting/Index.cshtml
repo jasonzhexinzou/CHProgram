@@ -1,0 +1,150 @@
+﻿@{
+    ViewBag.Title = "会议列表";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+
+    <script type="text/javascript">
+        var pdg;
+
+        var srhParam;
+        function GetSrhParam() {
+            var _srhParam = new Object();
+            _srhParam.CN = '';
+            _srhParam.MUDID = '';
+            _srhParam.SubmitTimeBegin = '';
+            _srhParam.SubmitTimeEnd = '';
+            _srhParam.ApprovedTimeBegin = '';
+            _srhParam.ApprovedTimeEnd = '';
+            return _srhParam;
+        }
+        $(function () {
+            var _option = {
+                dateFormat: "yy-mm-dd",
+                closeText: "关闭",
+                prevText: "&#x3C;上月",
+                nextText: "下月&#x3E;",
+                currentText: "今天",
+                monthNames: ["一月", "二月", "三月", "四月", "五月", "六月",
+                "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月",
+                "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                dayNames: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+                dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"],
+                weekHeader: "周",
+                dateFormat: "yy-mm-dd",
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: true,
+                yearSuffix: "年"
+
+            }
+
+            var _ctBehin = $("#txtSubmitTimeBegin").datepicker(_option);
+            var _ctEnd = $("#txtSubmitTimeEnd").datepicker(_option);
+
+            var _stBegin = $("#txtApprovedTimeBegin").datepicker(_option);
+            var _stEnd = $("#txtApprovedTimeEnd").datepicker(_option);
+
+            srhParam = GetSrhParam();
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/Meeting/Load', paging: true });
+            pdg.QueryParams = function () {
+
+                return {
+                    CN: srhParam.CN,
+                    MUDID: srhParam.MUDID,
+                    SubmitTimeBegin: srhParam.SubmitTimeBegin,
+                    SubmitTimeEnd: srhParam.SubmitTimeEnd,
+                    ApprovedTimeBegin: srhParam.ApprovedTimeBegin,
+                    ApprovedTimeEnd: srhParam.ApprovedTimeEnd,
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                srhParam.CN = $('#txtCN').val();
+                srhParam.MUDID = $('#txtMudId').val();
+                srhParam.SubmitTimeBegin = $('#txtSubmitTimeBegin').val();
+                srhParam.SubmitTimeEnd = $('#txtSubmitTimeEnd').val();
+                srhParam.ApprovedTimeBegin = $('#txtApprovedTimeBegin').val();
+                srhParam.ApprovedTimeEnd = $('#txtApprovedTimeEnd').val();
+                pdg.Load();
+            });
+        });
+    </script>
+}
+<div class="tool_bar">
+    <label>会议列表</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+
+                <div class="line">
+                    <div class="x10">
+                        <input type="text" class="input input-small" style="width:100px;" id="txtCN" name="txtCN" placeholder="CN号" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtMudId" name="txtMudId" placeholder="MUDID" />
+                        <label class="border-small label-block">
+                            提交日期
+                            <input type="text" class="input input-small" style="width:100px;" id="txtSubmitTimeBegin" name="txtSubmitTimeBegin" placeholder="开始时间" />
+                            <input type="text" class="input input-small" style="width:100px;" id="txtSubmitTimeEnd" name="txtSubmitTimeEnd" placeholder="结束时间" />
+                        </label>
+                        <label class="border-small label-block">
+                            审批日期
+                            <input type="text" class="input input-small" style="width:100px;" id="txtApprovedTimeBegin" name="txtApprovedTimeBegin" placeholder="开始时间" />
+                            <input type="text" class="input input-small" style="width:100px;" id="txtApprovedTimeEnd" name="txtApprovedTimeEnd" placeholder="结束时间" />
+                        </label>
+                        <button class="button button-small bg-main icon-search" id="btnLoad"> 搜索</button>
+                    </div>
+                    @*<div class="x2">
+                            <button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>
+                        </div>*@
+                </div>
+            </div>
+        </div>
+        <table id="costcenter_dataTable" class="table table-hover">
+            <thead>
+                <tr>
+                    <th style="text-align:center; width:50px;">
+                        <input type="checkbox" />
+                    </th>
+                    <th>CN号</th>
+                    <th>申请人MUDID</th>
+                    <th>会议名称</th>
+                    <th>总预算</th>
+                    <th>提交日期</th>
+                    <th>审批日期</th>
+                    <th>使用状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td align="center"><input type="checkbox" name="id" value="${dr.ID}$"></td>
+                    <td>${dr.Code}$</td>
+                    <td>${dr.UserId}$</td>
+                    <td>${dr.Title}$</td>
+                    <td>${dr.BudgetTotal}$</td>
+                    <td>${getDateByDotNet(dr.SubmittedDate).pattern('yyyy-MM-dd HH:mm:ss')}$</td>
+                    <td>${getDateByDotNet(dr.ApprovedDate).pattern('yyyy-MM-dd HH:mm:ss')}$</td>
+                    <td>${dr.IsUsed==0?'未使用':'已使用'}$</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="8" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+
+
+

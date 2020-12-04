@@ -1,0 +1,225 @@
+﻿
+@{
+    ViewBag.Title = "上传文件重新分配";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+
+    <script type="text/javascript">
+        var pdg;
+        $(function () {
+
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/UploadFileManagement/LoadPreApproval', paging: true });
+
+            pdg.QueryParams = function () {
+                return {
+                    MUID: $('#txtApplierMUDID').val(),
+                    htCode: $('#txtHTCode').val()
+                };
+            }
+
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+
+            $('#btnChange').bind('click', function () {
+                var id_array = [];
+                var ht_array = [];
+                $('input[name="id"]:checked').each(function () {
+                    id_array.push($(this).val());
+                    ht_array.push($(this).parents('tr').find('td:eq(5)').text());
+                });
+
+                if (id_array.length < 1) {
+                    alert("请选择后再操作");
+                    return;
+                }
+
+                $showdialogForUrl(
+                {
+                    title: '上传文件重新分配',
+                    width: '500px',
+                    height: '200px',
+                    url: contextUri + '/P/UploadFileManagement/Pops?ids=' + id_array+'&hts=' + ht_array,
+                    pageid: 'uploadfilemanagementpops',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '确定',
+                            handler: function (e) {
+                                window.top.c_uploadfilemanagementpops.window.btnOKClick(e, function () {
+                                    pdg.LoadPage(pdg.page);
+                                    e.close();
+                                });
+                            }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+                }
+            );
+
+            });
+
+        });
+
+
+        function MyFormateDateTime(Data, fmt) {
+            if (Data) {
+                return getDateByDotNet(Data).pattern(fmt);
+            }
+            else {
+                return '';
+            }
+        }
+
+        function ShowDetail(id) {
+            $showdialogForUrl(
+                {
+                    title: '上传文件重新分配',
+                    width: '500px',
+                    height: '200px',
+                    url: contextUri + '/P/UploadFileManagement/Pop?id=' + id,
+                    pageid: 'uploadfilemanagementpop',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '确定',
+                            handler: function (e) {
+                                window.top.c_uploadfilemanagementpop.window.btnOKClick(e, function () {
+                                    pdg.LoadPage(pdg.page);
+                                    e.close();
+                                });
+                            }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+                }
+            );
+        }
+
+    </script>
+}
+<div class="tool_bar">
+    <label>上传文件重新分配</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;overflow:auto" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+
+                <div class="line">
+                    <input type="text" class="input input-small" style="width:100px;" id="txtHTCode" name="txtHTCode" placeholder="HT编号" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtApplierMUDID" name="txtApplierMUDID" placeholder="申请人MUDID" />
+                    <button class="button button-small bg-main icon-search" id="btnLoad"> 查询</button>
+                    <button class="button button-small bg-main" id="btnChange"> 重新分配</button>
+                </div>
+
+            </div>
+        </div>
+        <div class="panel-body" style="overflow-x:auto;">
+
+            <table id="costcenter_dataTable" class="table table-hover" style="width:5000px;max-width:5000px;">
+                <thead class="text-unbreak">
+                    <tr>
+                        <th style="text-align:center; width:50px;">
+                        <input type="checkbox" />
+                        </th>
+                        <th>订单状态</th>
+                        <th>退单状态</th>
+                        <th>会议正常召开</th>
+                        <th>项目组特殊备注</th>                             
+                        <th>HT编号</th>
+                        <th>申请人姓名</th>
+                        <th>MUDID</th>
+                        <th>Market</th>
+                        <th>TA</th>
+                        <th>供应商</th>
+                        <th>呼叫中心</th>
+                        <th>用餐人数</th>
+                        <th>实际用餐人数</th>
+                        <th>用餐人数调整原因</th>
+                        <th>用餐人数调整备注</th>
+                        <th>预定金额</th>
+                        <th>实际金额</th>
+                        <th>实际金额调整原因</th>
+                        <th>用户确认金额</th>
+                        <th>确认金额调整原因</th>
+                        <th>确认金额调整备注</th>
+                        <th>医院名称</th>
+                        <th>医院编码</th>
+                        <th>送餐地址</th>
+                        <th>收餐人</th>
+                        <th>联系电话</th>
+                        <th>送餐时间</th>
+                        <th>备注</th>
+                        <th>上传文件是否重新分配</th>
+                        <th>上传文件重新分配操作人</th>
+                        <th>上传文件重新分配操作人MUDID</th>
+                        <th>上传文件被重新分配人姓名</th>
+                        <th>上传文件被重新分配人MUDID</th>
+                        <th>上传文件重新分配时间</th>
+                        @*<th>操作</th>*@
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td align="center">${dr.IsShowTransfer=="1" ?('<input type="checkbox" name="id" value="'+ dr.ID + '">'):''}$</td>
+                        <td>${dr.State}$</td>
+                        <td>${dr.Return}$</td>
+                        <td>${dr.IsNormal}$</td>
+                        <td>${dr.SpecialOrder}$</td>
+                        <td>${dr.HTCode}$</td>
+                        <td>${dr.UserName}$</td>
+                        <td>${dr.MUDID}$</td>
+                        <td>${dr.Market}$</td>
+                        <td>${dr.TA}$</td>
+                        <td>${dr.Channel}$</td>
+                        <td>${dr.CallCenter}$</td>
+                        <td>${dr.AttendCount}$</td>
+                        <td>${dr.RealCount}$</td>
+                        <td>${dr.RealCountChangeReason}$</td>
+                        <td>${dr.RealCountChangeRemrak}$</td>
+                        <td>${dr.TotalPrice}$</td>
+                        <td>${dr.RealityPrice}$</td>
+                        <td>${dr.ChangeTotalPriceReason}$</td>
+                        <td>${dr.RealPrice}$</td>
+                        <td>${dr.RealPriceChangeReason}$</td>
+                        <td>${dr.RealPriceChangeRemark}$</td>
+                        <td>${dr.HospitalName}$</td>
+                        <td>${dr.HospitalId}$</td>
+                        <td>${dr.Address}$</td>
+                        <td>${dr.Consignee}$</td>
+                        <td>@*${dr.Phone}$*@</td>
+                        <td></td>
+                        <td>${dr.DeliverTime}$</td>
+                        <td>${dr.Remark}$</td>
+                        <td>${dr.IsTransfer}$</td>
+                        <td>${dr.TransferOperatorName}$</td>
+                        <td>${dr.TransferOperatorMUDID}$</td>
+                        <td>${dr.TransferUserName}$</td>
+                        <td>${dr.TransferUserMUDID}$</td>
+                        <td>${dr.TransferOperateDate}$</td>
+                        @*<td><a href="javascript:;" class="button button-small bg-blue " onclick="ShowDetail('${dr.ID}$')"> 重新分配</a></td>*@
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="80" class="paging"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+    </div>
+</div>

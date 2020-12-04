@@ -1,0 +1,73 @@
+﻿
+@{
+    ViewBag.Title = "错误提示";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<style type="text/css">
+    html, body {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .info-icon {
+        text-align: center;
+        margin-top: 90px;
+    }
+
+    .info-message {
+        margin: 10px 15px;
+        text-align: center;
+        min-height: 150px;
+        font-size: 20px;
+    }
+
+    .info-button {
+        margin: 10px 15px;
+        padding: 25px;
+        text-align: center;
+    }
+
+
+</style>
+
+<div>
+
+    <div class="info-icon">
+        @if (ViewBag.msglevel == MealH5.Util.MsgLevelcs.success)
+        {
+            <i class="weui-icon-success weui-icon_msg" style="color: rgba(242, 106, 32, 1);"></i>
+        }
+        @if (ViewBag.msglevel == MealH5.Util.MsgLevelcs.info)
+        {
+            <i class="weui-icon-info weui-icon_msg" style="color: rgba(242, 106, 32, 1);"></i>
+        }
+        @if (ViewBag.msglevel == MealH5.Util.MsgLevelcs.warn)
+        {
+            <i class="weui-icon-warn weui-icon_msg-primary" style="color: rgba(242, 106, 32, 1);"></i>
+        }
+        @if (ViewBag.msglevel == MealH5.Util.MsgLevelcs.danger)
+        {
+            <i class="weui-icon-warn weui-icon_msg" style="color: rgba(242, 106, 32, 1);"></i>
+        }
+        @if (ViewBag.msglevel == MealH5.Util.MsgLevelcs.waiting)
+        {
+            <i class="weui-icon-waiting weui-icon_msg" style="color: rgba(242, 106, 32, 1);"></i>
+        }
+    </div>
+    <div class="info-message">
+         @ViewBag.info_message
+    </div>
+    <div class="info-button">
+        @if (ViewBag.needBackButton == null || ViewBag.needBackButton)
+        {
+            <a href="javascript:history.back();" class="weui-btn weui-btn_orange">返回</a>
+        }
+        @if (ViewBag.needCloseButton != null && ViewBag.needCloseButton)
+        {
+            <a href="javascript:WeixinJSBridge.call('closeWindow');" class="weui-btn weui-btn_orange">关闭</a>
+        }
+    </div>
+
+</div>
+

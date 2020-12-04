@@ -1,0 +1,117 @@
+﻿@{
+    ViewBag.Title = "医院详情";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+
+        $(function () {
+            $('#btnSaveNew').on('click', function () {
+                var _addr = $('#txtAddr').val();
+                $.PintuerPost(contextUri + '/P/Hospital/SaveNewHospitalAddr',
+                    { HospitalID: '@ViewBag.Hospital.ID', Addr: _addr },
+                    function (result) {
+                        if (result.state != 1) {
+                            $showdialog({ body: "保存失败，请重新进入界面后尝试！" });
+                        }
+                        else {
+                            $showdialog({
+                                body: "保存成功！", success: function () {
+                                    var _i = '<div id="' + result.data.ID + '"><span>医院详细地址</span><div>' + result.data.Address + '&nbsp;</div><a class="button button-little border-red icon-trash-o" href="javascript:;"  onclick="DelAddr(\'' + result.data.ID + '\')"> 删除</a></div>';
+                                    $('#divNewZone').before(_i);
+                                    $('#txtAddr').val('');
+                                }
+                            });
+                        }
+                    });
+            });
+        });
+
+        function DelAddr(AddrId) {
+            $.PintuerPost(contextUri + '/P/Hospital/DelHospitalAddr',
+                { AddrID: AddrId },
+                function (result) {
+                    if (result.state != 1) {
+                        $showdialog({ body: "删除失败，请重新进入界面后尝试！" });
+                    }
+                    else {
+                        $showdialog({
+                            body: "删除成功！", success: function () {
+                                $("div#" + AddrId).remove();
+                            }
+                        });
+                    }
+                });
+        }
+
+    </script>
+    <style type="text/css">
+        #btnYes.active {
+            background-color: #5d8;
+            color: #fff;
+        }
+
+        #btnNo.active {
+            background-color: #e33;
+            color: #fff;
+        }
+
+        #frmData .field img {
+            width: 100%;
+            border: 1px solid #808080;
+            margin-bottom: 5px;
+        }
+        
+        #frmData .field textarea {
+            width: 100%;
+        }
+        #frmData .field > div {
+            width: 99%;
+            /*border-bottom:1px solid #000;*/
+            display:block;
+            clear:left;
+        }
+        #frmData .field > div > span {
+            width: 24%;
+            font-weight:bold;
+            float:left;
+            display:block;
+        }
+        #frmData .field > div > div {
+            width: 55%;
+            display:block;
+            float:left;
+        }
+        #frmData .field > div > a {
+            width:auto;
+            display:block;
+            float:left;
+        }
+    </style>
+}
+<div style="padding: 15px;">
+    <div id="frmData" class="padding-big" style="width:100%">
+        <div class="form-group">
+            <div class="label">
+                <label for="txtRx">医院信息</label>
+            </div>
+            <div class="field">
+                <div><span>医院ID</span><div>@ViewBag.Hospital.GskHospital</div></div>
+            </div>
+            <div class="field">
+                <div><span>医院名称</span><div>@ViewBag.Hospital.Name</div></div>
+            </div>
+            <div class="field">
+                <div><span>医院地址</span><div>@ViewBag.Hospital.Address</div></div>
+            </div>
+            <div class="field margin-large-top">
+                @foreach (var i in ViewBag.HospitalAddr)
+                {
+                <div id="@i.ID"><span>医院详细地址</span><div>@i.Address &nbsp;</div><a class="button button-little border-red icon-trash-o" href="javascript:;"  onclick="DelAddr('@i.ID')"> 删除</a></div>
+                }
+                <div id="divNewZone"><span>医院详细地址</span><div><input id="txtAddr" type="text" class="input input-small" placeholder="新增详细地址 " /></div><a id="btnSaveNew" class="button button-small bg-green icon-plus-square-o" href="javascript:;"> 新增</a></div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,72 @@
+﻿
+@{
+    ViewBag.Title = "微信平台隐私声明";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<style type="text/css">
+    .body {
+        padding: 0 10px;
+    }
+
+        .body > div {
+            margin-top: 15px;
+        }
+
+            .body > div:last-child {
+                margin: 15px 0;
+            }
+
+    li {
+        margin-top: 5px;
+    }
+</style>
+
+<div class="body">
+
+    <div>
+        <ul>
+            <li>1. 该HT微信管理平台适用于企业员工院内会预申请, 订餐及上传支持文件服务. 超过1500元的会议需得到BU Head审批.</li>
+            <li>2.您将授权平台获取您的员工信息、手机号及地理位置信息（配送地址）等，该信息将仅用于平台的订餐及送餐服务.</li>
+            <li>3.我们可能会向您发送与会议预定有关的信息通知，包括但不限于微信推送、短信通知等.</li>
+            <li>4. 如果平台监测到您的以上范围的操作涉嫌违规、信息欺诈或非法目的时，平台有权利中止或终止提供任何产品或服务.</li>
+            <li>5.根据法律规定或行政机关、司法机构等有权机关要求，我们会向其提供您的相关信息.</li>
+        </ul>
+    </div>
+    <div>
+        <div class="weui-flex">
+            <div class="weui-flex__item">
+                <div class="placeholder">
+                    <form id="form2" action="~/P/Food/ChooseCN" method="get">
+                        <input type="hidden" name="restaurantId" value="" />
+                    </form>
+                    <a id="btnOk" class="weui-btn weui-btn_orange">同意</a>
+                </div>
+            </div>
+            <div class="weui-flex__item">
+                <div class="placeholder">
+                    <a id="btnRtn" class="weui-btn weui-btn_default">拒绝</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $(function () {
+        $('#btnRtn').click(function () {
+            WeixinJSBridge.call('closeWindow');
+        });
+
+        $('#btnOk').click(function () {
+            post('/P/Other/Statement', {}, function (d) {
+                location.href = contextUri + '/P/PreApproval/Submit';
+            }, 'json');
+
+        });
+    });
+
+</script>
+
+

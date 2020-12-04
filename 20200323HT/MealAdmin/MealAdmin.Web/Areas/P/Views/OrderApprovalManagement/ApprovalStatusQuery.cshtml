@@ -1,0 +1,152 @@
+﻿
+@{
+    ViewBag.Title = "ApprovalStatusQuery";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+@section scripts{
+    <style>
+        #costcenter_dataTable tr {
+           height:40px;
+           vertical-align:middle;
+        }
+        #costcenter_dataTable td {
+            vertical-align:middle;
+        }
+    </style>
+    <script type="text/javascript">
+        var pdg;
+        $(function () {
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/OrderApprovalManagement/QueryLoad', paging: true });
+            console.log(pdg);
+            pdg.QueryParams = function () {
+                return {
+                    srh_HTCode: $('#txtHTCode').val().replace(/\s/g, ""),
+                    srh_ApplierMUDID: $('#txtApplierMUDID').val().replace(/\s/g, ""),
+                    srh_BUHeadMUDID: $('#txtBUHeadMUDID').val().replace(/\s/g, ""),
+                    srh_Category: $('#sltCategory').val().replace(/\s/g, ""),
+                    srh_Type: $('#sltType').val().replace(/\s/g, "")
+                    
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+            $('#btnExport').bind('click', function () {
+                var p = {
+                    HTCode: $('#txtHTCode').val(),
+                    ApplierMUDID: $('#txtApplierMUDID').val().replace(/\s/g, ""),
+                    BUHeadMUDID: $('#txtBUHeadMUDID').val().replace(/\s/g, ""),
+                    srh_Category: $('#sltCategory').val().replace(/\s/g, ""),
+                    srh_Type: $('#sltType').val().replace(/\s/g, "")
+                };
+                
+                $('#form1 input[name="HTCode"]').val(p.HTCode);
+                $('#form1 input[name="ApplierMUDID"]').val(p.ApplierMUDID);
+                $('#form1 input[name="BUHeadMUDID"]').val(p.BUHeadMUDID);
+                $('#form1 input[name="Category"]').val(p.srh_Category);
+                $('#form1 input[name="Type"]').val(p.srh_Type);
+                $('#form1')[0].submit();
+            });
+        });
+        
+    </script>
+}
+<div class="tool_bar">
+    <label>审批状态查询</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;overflow:auto" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding" style="width:2500px;max-width:2500px;">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <input type="text" class="input input-small" style="width:100px;" id="txtHTCode" name="txtHTCode" placeholder="HT编号" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtApplierMUDID" name="txtApplierMUDID" placeholder="申请人MUDID" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtBUHeadMUDID" name="txtBUHeadMUDID" placeholder="审批人MUDID" />
+                    <span>审批类别</span>
+                    <select class="input input-small" style="width:100px;" id="sltCategory" name="sltCategory">
+                        <option value="" selected="selected"></option>
+                        <option value="预申请">预申请</option>
+                        <option value="上传文件">上传文件</option>
+                    </select>
+                    <span>审批状态</span>
+                    <select class="input input-small" style="width:100px;" id="sltType" name="sltType">
+                        <option value="" selected="selected"></option>
+                        <option value="待审批">待审批</option>
+                        <option value="审批通过">审批通过</option>
+                        <option value="审批驳回">审批驳回</option>
+                        <option value="已取消">已取消</option>
+                    </select>
+                    <button class="button button-small bg-main icon-search" id="btnLoad"> 查询</button>
+                    <button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>
+                </div>
+                <div style="display:none">
+                    <form id="form1" action="~/P/OrderApprovalManagement/ExportApproval" method="post" target="_blank">
+                        <input type="hidden" name="HTCode" />
+                        <input type="hidden" name="ApplierMUDID" />
+                        <input type="hidden" name="BUHeadMUDID" />
+                        <input type="hidden" name="Category" />
+                        <input type="hidden" name="Type" />                        
+                    </form>
+                </div>
+                <div style="display: none">
+                    <input id="fileUpload" type="file" name="file" onchange="fileChange('import', 'fileUpload')" />
+                </div>
+
+                <div style="display: none;">
+                    <form id="repor_HospitalRes" action="~/P/Restaurant/ReportHospitalResExcel" method="post" target="_blank"></form>
+                    <form id="repor_Res" action="~/P/Restaurant/ReportResExcel" method="post" target="_blank"></form>
+                </div>
+            </div>
+        </div>
+       
+        <table id="costcenter_dataTable" class="table table-hover" style="width:2500px;max-width:2500px;">
+            <thead>
+                <tr>
+                    <th>HT编号</th>
+                    <th>申请人姓名</th>
+                    <th>申请人MUDID</th>
+                    <th>审批类别</th>
+                    <th>审批状态</th>
+                    <th>提交日期</th>
+                    <th>提交时间</th>
+                    <th>审批人MUDID</th>
+                    <th>审批人姓名</th>
+                    <th>审批动作</th>
+                    <th>审批理由</th>
+                    <th>审批日期</th>
+                    <th>审批时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>${dr.c1}$</td>
+                    <td>${dr.c2}$</td>
+                    <td>${dr.c3}$</td>
+                    <td>${dr.c4}$</td>
+                    <td>${dr.c5}$</td>
+                    <td>${dr.c6}$ </td>
+                    <td>${dr.c7}$ </td>
+                    <td>${dr.c8}$ </td>
+                    <td>${dr.c9}$ </td>
+                    <td>${dr.c10}$ </td>
+                    <td>${dr.c11}$ </td>
+                    <td>${dr.c12}$ </td>
+                    <td>${dr.c13}$ </td>
+                    @*<td><a href="javascript:;" class="button border-blue button-little icon-edit" onclick="ShowDetail('${dr.ID}$')"> 详情</a></td>*@
+                    @*<td>${getDateByDotNet(dr.CreateDate).pattern('yyyy-MM-dd HH:mm:ss')}$</td>*@
+
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="80" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+            
+
+    </div>
+</div>
+

@@ -1,0 +1,258 @@
+﻿.page-body {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 60px;
+    overflow: auto;
+}
+
+.page-foot {
+    position: absolute;
+    /*height: 60px;*/
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    overflow: hidden;
+    padding: 10px;
+}
+
+.foodinfo {
+    margin-top: 15px;
+    background-color: #FFFFFF;
+}
+
+    .foodinfo .supplier {
+        color: #999999;
+        padding: 10px 15px 10px 45px;
+        background: url(../image/shangjia.png) no-repeat 15px 50%;
+        background-size: 25px;
+        border-bottom: solid 1px #f5f5f5;
+    }
+        /*.foodinfo .supplier span
+        {
+            float: right;
+        }*/
+        .foodinfo .supplier span:last-child {
+            float: right;
+        }
+
+    .foodinfo .details {
+        padding: 0px 15px;
+        border-bottom: solid 1px #f5f5f5;
+        overflow: hidden;
+    }
+
+        .foodinfo .details > div {
+            /*height: 35px;*/
+            line-height: 35px;
+            overflow: hidden;
+        }
+
+            .foodinfo .details > div > div {
+                /*height: 35px;*/
+                line-height: 35px;
+                margin-right: 80px;
+                overflow: hidden;
+            }
+
+            .foodinfo .details > div > span {
+                float: right;
+                display: inline-block;
+            }
+
+                .foodinfo .details > div > span:nth-child(2) {
+                    color: #999999;
+                }
+
+                .foodinfo .details > div > span:nth-child(1) {
+                    color: #333333;
+                    width: 60px;
+                    text-align: right;
+                }
+
+    .foodinfo .other {
+        padding: 0px 15px;
+        font-size: 15px;
+    }
+
+        .foodinfo .other > div {
+            height: 30px;
+            line-height: 30px;
+        }
+
+            .foodinfo .other > div > div {
+                margin-right: 70px;
+                overflow: hidden;
+            }
+
+            .foodinfo .other > div > span {
+                float: right;
+                color: #333333;
+            }
+
+#chooseDeliverTime {
+    background-color: #FFFFFF;
+}
+
+    #chooseDeliverTime .close {
+        width: 18px;
+        height: 18px;
+        background-image: url(../image/delete.png);
+        position: absolute;
+        top: 30px;
+        right: 2px;
+        z-index: 15;
+    }
+
+    #chooseDeliverTime .chooseDeliverBody {
+        position: absolute;
+        top: 40px;
+        left: 15px;
+        right: 15px;
+        bottom: 50px;
+        overflow: hidden;
+        background-color: #FFFFFF;
+    }
+
+    #chooseDeliverTime .title {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        height: 210px;
+        background-color: #FFFFFF;
+    }
+
+
+    #chooseDeliverTime .body {
+        position: absolute;
+        top: 180px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+    }
+
+    #chooseDeliverTime .hour_body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        bottom: 0px;
+        overflow: auto;
+        width: 100px;
+        border-right: solid 1px #c1c1c1;
+    }
+
+        #chooseDeliverTime .hour_body > div {
+            display: none;
+        }
+
+    #chooseDeliverTime .houritem {
+        line-height: 35px;
+        text-align: center;
+        background-color: #FEFEFE;
+        border-bottom: solid 1px #c1c1c1;
+    }
+
+        #chooseDeliverTime .houritem.checked {
+            background-color: #c1c1c1;
+            border-bottom: solid 1px #c1c1c1;
+        }
+
+    #chooseDeliverTime .time_body {
+        position: absolute;
+        top: 0px;
+        left: 100px;
+        right: 0px;
+        bottom: 0px;
+        overflow: auto;
+    }
+
+        #chooseDeliverTime .time_body > div {
+            display: none;
+        }
+
+        #chooseDeliverTime .time_body .weui-cells {
+            margin-top: 0px;
+        }
+
+.day_panel {
+    height: 100px;
+    border-bottom: solid 1px #cccccc;
+    padding: 10px;
+    overflow: scroll;
+}
+
+    .day_panel .days {
+        height: 100%;
+    }
+
+    .day_panel .day {
+        height: 80px;
+        width: 80px;
+        background-color: #C1C1C1;
+        text-align: center;
+        line-height: 80px;
+        font-size: 40px;
+        position: relative;
+        float: left;
+        margin-left: 10px;
+    }
+
+        .day_panel .day:first-child {
+            margin-left: 0px;
+        }
+
+        .day_panel .day.checked {
+            /*border: solid 5px #FFBB00;*/
+            background-color: rgba(242, 106, 32, 1);
+            color: #FFFFFF;
+        }
+
+        .day_panel .day .month {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 30px;
+            height: 15px;
+            font-size: 10px;
+            line-height: 10px;
+            color: #FFFFFF;
+            background-color: #FF4433;
+            line-height: 15px;
+            /*display: none;*/
+        }
+
+        .day_panel .day .week {
+            position: absolute;
+            bottom: 0px;
+            right: 0px;
+            width: 40px;
+            height: 20px;
+            font-size: 8px;
+            line-height: 20px;
+            color: #FFFFFF;
+            background-color: #57ABFF;
+            display: none;
+        }
+
+
+#dvUploadSpeakerFile .close {
+    width: 18px;
+    height: 18px;
+    background-image: url(../image/delete.png);
+    position: absolute;
+    top: 30px;
+    right: 2px;
+    z-index: 15;
+}
+
+#dvUploadSpeakerFile .UploadFileBody {
+    position: absolute;
+    top: 40px;
+    left: 15px;
+    right: 15px;
+    bottom: 10px;
+    overflow: hidden;
+    background-color: #FFFFFF;
+}

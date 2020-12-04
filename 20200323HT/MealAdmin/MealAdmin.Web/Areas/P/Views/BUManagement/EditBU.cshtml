@@ -1,0 +1,75 @@
+﻿@{
+    ViewBag.Title = "医院详情";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        var ID = '@ViewBag.ID';
+
+        function btnOKClick(e, callback) {
+            $ajaxSubmit('form0', contextUri + '/P/BUManagement/SaveBU'
+                , function (data) {
+                    $showdialog({ body: '操作成功' });
+                    callback();
+                    e.close();
+                });
+
+
+        }
+
+        $(function () {
+            if (ID != "") {
+                $.PintuerPost(contextUri + '/P/BUManagement/GetBUInfoByID', { ID: ID }, function (d) {
+                    var data = d.data;
+                    $('#ID').val(data.ID);
+                    $('#BUName').val(data.BUName);
+                    $('#BUHead').val(data.BUHead);
+                    $('#BUHeadMudid').val(data.BUHeadMudid);
+                });
+            }
+        });
+
+        function ShowUserName() {
+            var BUHeadMudid = $('#BUHeadMudid').val();//获取申请人MUDID
+            if (BUHeadMudid != null && BUHeadMudid != "") {
+                $.post(contextUri + '/P/BUManagement/ShowName', { Mudid: BUHeadMudid }, function (d) {
+                    if (d.ishave == 1) {
+                        $('#BUHead').val(d.res.Name);//如果MUDID存在自动添加姓名
+                    }
+                    if (d.ishave == 0) {
+                        $showdialog({ title: '提示', body: d.txt });
+                        $('#BUHead').val("");
+                    }
+                }, 'json')
+            }
+            return;
+
+        }
+    </script>
+    <style type="text/css">
+    </style>
+}
+<div style="padding: 15px;">
+    <form action="" id='form0' method="post">
+        <input name="ID" value="" type="hidden" id="ID" />
+        <div class="form-group">
+            <div class="label"><label>BU Name</label></div>
+            <div class="field">
+                <input type="text" class="input" id="BUName" name="BUName" value="" data-validate="required:必填" autocomplete="off" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label>BUHead Mudid</label></div>
+            <div class="field">
+                <input type="text" class="input" id="BUHeadMudid" name="BUHeadMudid" value="" data-validate="required:必填" autocomplete="off" onblur="ShowUserName()"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label>BUHead Name</label></div>
+            <div class="field">
+                <input type="text" class="input" id="BUHead" name="BUHead" value="" readonly="readonly" />
+            </div>
+        </div>
+    </form>
+</div>

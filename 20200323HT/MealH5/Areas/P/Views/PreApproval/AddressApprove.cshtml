@@ -1,0 +1,452 @@
+﻿@{
+    ViewBag.Title = "地址申请详情";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<style type="text/css">
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 60px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .weui-btn + .weui-btn {
+        margin-top: 3px;
+    }
+
+    .choosedwximage:before, .choosedwximage:after {
+        content: none;
+    }
+
+    .my_weui-cells {
+        margin-top: 0px;
+    }
+
+    .weui-label {
+        width: 160px !important;
+    }
+</style>
+
+<script type="text/html" id="tmpl_PreApprovalInfo">
+    <div class="weui-cells">
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd">
+                <label class="weui-label">
+                    <strong>DA编号</strong>
+                </label>
+            </div>
+            <div class="weui-cell__bd">
+                {{DACode}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>申请人姓名</strong></label></div>
+            <div class="weui-cell__bd">
+                {{ApplierName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>MUDID</strong></label></div>
+            <div class="weui-cell__bd">
+                {{ApplierMUDID}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>Market</strong></label></div>
+            <div class="weui-cell__bd">
+                {{Market}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>TA</strong></label></div>
+            <div class="weui-cell__bd">
+                {{TA}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>省份</strong></label></div>
+            <div class="weui-cell__bd">
+                {{Province}}
+            </div>
+        </div>
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>城市</strong></label></div>
+            <div class="weui-cell__bd">
+                {{City}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>医院名称</strong></label></div>
+            <div class="weui-cell__bd">
+                {{HospitalName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>医院编码</strong></label></div>
+            <div class="weui-cell__bd">
+                {{GskHospital}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>医院地址</strong></label></div>
+            <div class="weui-cell__bd">
+                {{MainHospitalAddress}}
+            </div>
+        </div>
+        {{if AddressList.length>0 }}
+        {{each AddressList as value i}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"></label></div>
+            <div class="weui-cell__bd">
+                {{value}}
+            </div>
+        </div>
+        {{/each}}
+        {{/if}}
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>新增地址</strong></label></div>
+            <div class="weui-cell__bd">
+                {{AddAddress}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>地址名称</strong></label></div>
+            <div class="weui-cell__bd">
+                {{AddressNameDisplay}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>距离</strong></label></div>
+            <div class="weui-cell__bd">
+                主地址 {{Distance}}米
+            </div>
+        </div>
+        {{if DistanceList.length>0 }}
+        {{each DistanceList as value i}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"></label></div>
+            <div class="weui-cell__bd">
+                {{value}}米
+            </div>
+        </div>
+        {{/each}}
+        {{/if}}
+        {{if RejectViewResult == '地址申请审批驳回' }}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>直线经理审批结果</strong></label></div>
+            <div class="weui-cell__bd">
+                {{RejectViewResult}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>驳回理由</strong></label></div>
+            <div class="weui-cell__bd">
+                {{RejectViewReason}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>审批人</strong></label></div>
+            <div class="weui-cell__bd">
+                {{RejectViewLinemanagerName}}（{{RejectViewLinemanagerMUDID}}）
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>审批时间</strong></label></div>
+            <div class="weui-cell__bd">
+                {{RejectViewDate}}
+            </div>
+        </div>
+        {{/if}}
+        {{if ApprovalStatus != '地址申请已取消' }}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>直线经理审批结果</strong></label></div>
+            <div class="weui-cell__bd">
+                {{ApprovalStatus}}
+            </div>
+        </div>
+        @*{{if ApprovalStatus == '地址申请审批驳回' }}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><strong>驳回理由</strong></label></div>
+            <div class="weui-cell__bd">
+                {{RejectReason}}
+            </div>
+        </div>
+        {{/if}}*@
+        {{/if}}
+    </div>
+</script>
+
+<script type="text/javascript">
+    var render;
+    var renderMMCoE;
+    var preApprovalId = '@ViewBag.preApprovalId';
+    var approvalStatus = '@ViewBag.ApprovalStatus';
+    var _TA = '@ViewBag.TA';
+    var _MARKET = '@ViewBag.Market';
+    var _GSKHOSPITAL = '@ViewBag.GskHospital';
+    var _HospitalName = '@ViewBag.HospitalName';
+    var _DACode = '@ViewBag.DACode';
+    var from = '@ViewBag.From';
+    var _IsDelUP = '@ViewBag.IsDelUp';
+    var _Distance = '@ViewBag.Distance';
+
+    var awsUrl = '@MealH5.Handler.WebConfigHandler.AWSService';
+    var IsUsed = '@ViewBag.IsUsed';
+    var IsFinished = '@ViewBag.IsFinished';
+    var IsCrossMonth = '@ViewBag.IsCrossMonth';
+    var OrderState = '@ViewBag.OrderState';
+    var imageUrls = new Array();
+    var serviceImageUrls = new Array();
+    var benefitsImageUrls = new Array();
+    $(function () {
+        if (approvalStatus == 0 || approvalStatus == 9 || approvalStatus == 10) {
+            if (_IsDelUP == 2) {
+                showDlg('该医院已被删除', '审批驳回', function () {
+                    post('/P/PreApprovalState/SendSpecialWxMessage',
+                        {
+                            id: preApprovalId
+                        },
+                        function (d) {
+                            if (d.state == 1) {
+                                if (from == '0') {
+                                    WeixinJSBridge.call('closeWindow');
+                                }
+                                else if (from == '1') {
+                                    location.href = contextUri + '/P/PreApprovalstate/Address';
+                                }
+                            } else {
+                                location.href = contextUri + '/P/PreApprovalstate/Address';
+                            }
+                        }, 'json');
+                }, 'info');
+            }
+            if (_IsDelUP == 3) {
+                showDlg('该医院主地址已被修改，请联系申请人重新提交外送地址申请', '审批驳回', function () {
+                    post('/P/PreApprovalState/AddressApprove',
+                        {
+                            id: preApprovalId,
+                            action: 2,
+                            reason: '该医院主地址已被修改'
+                        },
+                        function (d) {
+                            if (d.state == 1) {
+                                if (from == '0') {
+                                    WeixinJSBridge.call('closeWindow');
+                                }
+                                else if (from == '1') {
+                                    location.href = contextUri + '/P/PreApprovalstate/Address';
+                                }
+                            } else {
+                                location.href = contextUri + '/P/PreApprovalstate/Address';
+                            }
+                        }, 'json');
+                }, 'info');
+            }
+        }
+        LoadInfo();
+        if (approvalStatus == 4) {
+            document.getElementById('divBack').style.display = "block";
+            showDlg(_DACode + '该地址申请已取消', '确定', function () { }, 'info');
+            return;
+        }
+        if (approvalStatus == 0 || approvalStatus == 9 || approvalStatus == 10) {
+            document.getElementById('divFoot').style.display = "block";
+            document.getElementById('divReason').style.display = "block";
+        }
+        if (approvalStatus == 1 || approvalStatus == 5 || approvalStatus == 7 || approvalStatus == 2 || approvalStatus == 6 || approvalStatus == 8 || approvalStatus == 3) {
+            document.getElementById('divBack').style.display = "block";
+        }
+    });
+    function ApprovalDetails() {
+        location.href = contextUri + '/P/PreApproval/ApprovalDetails/' + preApprovalId;
+    }
+    function LoadInfo() {
+        render = template('tmpl_PreApprovalInfo');
+        post('/P/PreApproval/LoadAddressApprovalInfo', { id: preApprovalId },
+            function (d) {
+                d.data.CreateDate = getDateByDotNet(d.data.CreateDate);
+                ApplicantView(d.data);
+                    }, 'json');
+    }
+
+    function ApplicantView(preApprovalData) {
+        switch (preApprovalData.ApprovalStatus) {
+            case 0: preApprovalData.ApprovalStatus = "地址申请待审批"; break;
+            case 9: preApprovalData.ApprovalStatus = "地址申请待审批"; break;
+            case 10: preApprovalData.ApprovalStatus = "地址申请待审批"; break;
+            case 1: preApprovalData.ApprovalStatus = "地址申请审批通过"; break;
+            case 5: preApprovalData.ApprovalStatus = "地址申请审批通过"; break;
+            case 7: preApprovalData.ApprovalStatus = "地址申请审批通过"; break;
+            case 2: preApprovalData.ApprovalStatus = "地址申请审批驳回"; break;
+            case 6: preApprovalData.ApprovalStatus = "地址申请审批驳回"; break;
+            case 8: preApprovalData.ApprovalStatus = "地址申请审批驳回"; break;
+            case 3: preApprovalData.ApprovalStatus = "地址申请已失效"; break;
+            case 4: preApprovalData.ApprovalStatus = "地址申请已取消"; break;
+        }
+        if (preApprovalData.RejectViewResult == 2 || preApprovalData.RejectViewResult == 6 || preApprovalData.RejectViewResult == 8) {
+            preApprovalData.RejectViewResult = "地址申请审批驳回";
+            preApprovalData.RejectViewDate = getDateByDotNet(preApprovalData.RejectViewDate).pattern('yyyy-MM-dd HH:mm:ss');
+        }
+        var html = render(preApprovalData);
+        $('#preApprovalInfo').html(html);
+        ////MMCoE支持文件
+        //$('#mmCoEImages img').each(function (i, e) {
+        //    $(this).click(function () {
+        //        WeixinJSBridge.invoke('imagePreview', {
+        //            'current': imageUrls[i],
+        //            'urls': imageUrls
+        //        });
+        //    });
+        //});
+
+        ////演讲服务协议
+        //$('#serviceImages img').each(function (i, e) {
+        //    $(this).click(function () {
+        //        WeixinJSBridge.invoke('imagePreview', {
+        //            'current': serviceImageUrls[i],
+        //            'urls': serviceImageUrls
+        //        });
+        //    });
+        //});
+
+        ////利益冲突声明
+        //$('#benefitsImages img').each(function (i, e) {
+        //    $(this).click(function () {
+        //        WeixinJSBridge.invoke('imagePreview', {
+        //            'current': benefitsImageUrls[i],
+        //            'urls': benefitsImageUrls
+        //        });
+        //    });
+        //});
+    }
+
+    function delcommafy(num) {
+        num = num.replace(/,/gi, '');
+        return num;
+    }
+
+    function closeWindow() {
+        if (from == '0') {
+            WeixinJSBridge.call('closeWindow');
+        }
+        else if (from == '1') {
+            location.href = contextUri + '/P/PreApprovalstate/Address';
+        }
+    }
+
+    function approve(action) {
+        var rejectReason = '';
+        if (action == 2) {
+            if ($('#comments').val() == '' || $('#comments').val().length < 8) {
+                showTopMsg('请填写驳回理由，至少八个字以上');
+                return;
+            }
+            rejectReason = $('#comments').val();
+        }
+        
+        if (_Distance >= 3000 && action == 1) {
+            showConfimSub('新增地址距离医院主地址超过3公里，如确定是该医院的其他出入口，请点击继续，否则，请点击取消。', '', function () {
+                post('/P/PreApprovalState/AddressApprove',
+                    {
+                        id: preApprovalId,
+                        action: action,
+                        reason: rejectReason
+                    },
+                    function (d) {
+                        if (d.state == 1) {
+                            showDlg(d.txt, '确定', function () {
+                                if (from == '0') {
+                                    WeixinJSBridge.call('closeWindow');
+                                }
+                                else if (from == '1') {
+                                    location.href = contextUri + '/P/PreApprovalstate/Address';
+                                }
+                            }, 'success');
+                        } else {
+                            showDlg(d.txt, '返回', function () {
+                                location.href = contextUri + '/P/PreApprovalstate/Address';
+                            }, 'success');
+                        }
+                    }, 'json');
+            }, '继续', '取消', function () { return; }, 'info');
+        } else {
+            post('/P/PreApprovalState/AddressApprove',
+                {
+                    id: preApprovalId,
+                    action: action,
+                    reason: rejectReason
+                },
+                function (d) {
+                    if (d.state == 1) {
+                        showDlg(d.txt, '确定', function () {
+                            if (from == '0') {
+                                WeixinJSBridge.call('closeWindow');
+                            }
+                            else if (from == '1') {
+                                location.href = contextUri + '/P/PreApprovalstate/Address';
+                            }
+                        }, 'success');
+                    } else {
+                        showDlg(d.txt, '返回', function () {
+                            location.href = contextUri + '/P/PreApprovalstate/Address';
+                        }, 'success');
+                    }
+                }, 'json');
+        }
+    }
+    function back() {
+        if (from == '0') {
+            WeixinJSBridge.call('closeWindow');
+        }
+        else if (from == '1') {
+            location.href = contextUri + '/P/PreApprovalstate/Address';
+        }
+    }
+</script>
+
+<div class="page-main">
+    <div class="page-body">
+        <div id="divReason" style="display:none;">
+            <div class="weui-cells__title">驳回理由（若驳回预申请则必须填写）</div>
+            <div class="weui-cells">
+                <div class="weui-cell__bd">
+                    <textarea class="weui-textarea" placeholder="请输入驳回理由，至少八个字以上" rows="3" style="padding-left:15px;" id="comments"></textarea>
+                </div>
+            </div>
+        </div>
+        <div id="preApprovalInfo">
+
+        </div>
+    </div>
+    <div class="page-foot" id="divFoot" style="display:none;">
+        <button type="button" class="weui-btn weui-btn_orange" id="btnReject" style="width:49%;float:right;margin-top:3px;" onclick="approve(2)">审批驳回</button>
+        <button type="button" class="weui-btn weui-btn_orange" id="btnApprove" style="width:49%;float:left;" onclick="approve(1)">审批通过</button>
+        @*<button type="button" class="weui-btn weui-btn_plain-primary" id="btnApprovalDetails" style="float:left;color: orangered;border-color: orangered;" onclick="ApprovalDetails()">查看审批详情</button>*@
+    </div>
+    <div class="page-foot" id="divBack" style="display:none;">
+        <button type="button" class="weui-btn weui-btn_orange" id="btnBack" style="float:left;" onclick="back()">返回</button>
+    </div>
+    @*<div class="page-foot" id="divUpdate" style="display:none;">
+            <button type="button" class="weui-btn weui-btn_orange" id="btnUpdate" style="float:left;" onclick="edit()">修改申请</button>
+        </div>
+        <div class="page-foot" id="divResubmit" style="display:none;">
+            <button type="button" class="weui-btn weui-btn_orange" id="btnResubmit" style="float:left;" onclick="edit()">重新提交</button>
+        </div>*@
+</div>
+@*@Html.Partial("../Food/MapChooser")*@

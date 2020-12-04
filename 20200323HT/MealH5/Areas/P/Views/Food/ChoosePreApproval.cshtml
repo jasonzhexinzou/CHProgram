@@ -1,0 +1,481 @@
+﻿@{
+    ViewBag.Title = "选择预申请";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+
+<style type="text/css">
+    html, body {
+        width: 100%;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 60px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .weui-label {
+        width: 140px !important;
+    }
+
+    .placeholder {
+        padding-left: 7px;
+        padding-right: 7px;
+        padding-top: 2px;
+    }
+</style>
+<script type="text/javascript">
+
+    var nowOrderInfo;
+    var IsServPause = 1 == @ViewBag.IsServPause;
+    var hospitalInfo;
+    var hospitalCode;
+
+    $(function () {
+        pageInit();
+        $('#HTCode').change();
+    });
+
+    function pageInit() {
+        $('#HTCode').change(function () {
+            var htcode = $('#HTCode').val();
+            post('/P/Food/FindPreApproval', { HTCode: htcode }, function (d) {
+                var preApproval = d.data[0];
+                if (preApproval == undefined) {
+                    $("#preApprovalInfo").hide();
+                }
+                else {
+                    $('#Market').val(preApproval.Market);
+                    //20190115
+                    if (preApproval.Market=="Rx"|| preApproval.Market=="Vx") {
+                        $('#veevaid').css('display','');
+                        $('#VeevaMeetingID').val(preApproval.VeevaMeetingID);
+                    }
+                    else {
+                        $('#veevaid').css('display','none')
+                    }
+                    $('#TA').val(preApproval.TA);
+                    $('#Province').val(preApproval.Province);
+                    $('#City').val(preApproval.City);
+                    $('#HospitalName').val(preApproval.HospitalName);
+                    $('#HospitalCode').val(preApproval.HospitalCode);
+                    $('#HospitalAddress').html(preApproval.HospitalAddress);
+                    $('#MeetingTime').val(preApproval.MeetingTime);
+                    $('#AttendCount').val(preApproval.AttendCount);
+                    $('#CostCenter').val(preApproval.CostCenter);
+                    $('#BudgetTotal').val("RMB " + preApproval.BudgetTotal);
+                    $('#IsDMFollow').val(preApproval.IsDMFollow == "1" ? "是" : "否");
+                    $('#IsFreeSpeaker').val(preApproval.IsFreeSpeaker == "1" ? "是" : "否");
+                    $('#HospitalAddressCode').val(preApproval.HospitalAddressCode);
+                    $('#HTType').val(preApproval.HTType == 1 ? "线上HT" : preApproval.HTType == 0 ? "线下HT" : "");
+                    $('#ID').val(preApproval.ID);
+                }
+
+                hospitalCode=$('#HospitalAddressCode').val();
+                post('/P/PreApproval/FindHospital', { hospitalCode: hospitalCode },
+                     function (dd) {
+                         hospitalInfo=dd.data;
+                     }, 'json');
+            }, 'json');
+        });
+        $('#btnRestaurant').click(function () {
+            var cncode = $('#HTCode').val();
+            if (cncode == undefined || cncode == '') {
+                showTopMsg('请选择一个HT编号');
+                return;
+            }
+
+            //是否在订餐工作时间
+            if (!isInTimespan(getTimeNow(), timeConfig.workBegin, timeConfig.workEnd)) {
+                showDlg(MSG_NOWORKINGTIME, '确定', function () {
+                    //WeixinJSBridge.call('closeWindow');
+                }, 'info');
+                return;
+            }
+
+            //是否被暂停服务
+            if (IsServPause) {
+                showDlg(MSG_USERINBLACKNAMELIST, '确定', function () {
+                    //WeixinJSBridge.call('closeWindow');
+                }, 'cancel');
+                return;
+            }
+
+            if(hospitalInfo==null){
+                post('/P/PreApproval/FindHospital', { hospitalCode: $('#HospitalCode').val() },
+                    function (res) {
+                        if (res.data == null) {
+                            showDlg('医院已删除，当前预申请已失效，请修改预申请。', '确定', function () {
+                                return;
+                            });
+                        }else{
+                            showDlg('医院地址已删除，当前预申请已失效，请修改预申请。', '确定', function () {
+                                return;
+                            }); 
+                        }
+                    }, 'json');        
+            }
+            var hosAddress=$('#HospitalAddress').html();
+            var _hosAddress=hospitalInfo.GskHospital==hospitalInfo.HospitalCode?hospitalInfo.Address:hospitalInfo.MainAddress+':' + hospitalInfo.Address;
+            if (hosAddress != _hosAddress) {
+                if (hospitalInfo.GskHospital==hospitalInfo.HospitalCode) {
+                    showDlg('当前医院地址已自动更新为：' + _hosAddress + ',您无需修改预申请。', '确定', function () {
+                        var preApprovalId=$('#ID').val();
+                        post('/P/PreApproval/UpDateAddress', { preApprovalId: preApprovalId,hospitalAddress:_hosAddress },
+                         function (dd) {
+                             $('#HTCode').change();
+                         }, 'json');
+                    });
+                    return;
+                }else{
+                    post('/P/PreApproval/FindHospital', { hospitalCode: hospitalInfo.GskHospital },
+                    function (res) {
+                        if (res.data == null) {
+                            showDlg('医院已删除，当前预申请已失效，请修改预申请。', '确定', function () {
+                                return;
+                            });
+                        } else {
+                            showDlg('医院地址已删除，当前预申请已失效，请修改预申请。', '确定', function () {
+                                return;
+                            });
+                        }
+                    }, 'json');                                
+                }
+            }
+
+            var meetingTime=$('#MeetingTime').val().replace(/\-/g, "/");
+            var meetingDate = new Date(meetingTime).pattern('yyyy-MM-dd');
+
+            //是否在会议当天订餐
+            var timeNow = getTimeNow();
+            var dateNow = timeNow.pattern('yyyy-MM-dd');
+            if (dateNow == meetingDate) {
+                //var maxDate=(dateNow + ' 10:00:00').replace(/\-/g, "/");
+                //var maxTime=new Date(maxDate).getTime();
+                //if(timeNow.getTime() > maxTime)
+                //{
+                //    showDlg(MSG_PREAPPROVALMEETINGDATEERROR, '确定', function () {
+                //    }, 'cancel');
+                //    return;
+                //}
+                if (!isInTimespan(getTimeNow(), timeConfig.todayWorkBegin, timeConfig.todayWorkEnd)) {
+                    showDlg(MSG_TODAYORDERTIMEFAIL, '确定', function () {
+                        //WeixinJSBridge.call('closeWindow');
+                    }, 'info');
+                    return;
+                }
+            }
+
+            //判断是否可以订餐
+            post('/P/Food/LoadNextHoliday', {},
+                function (d) {
+                    var holiday = d.data.holiday;
+                    holiday.StartDay = getDateByDotNet(holiday.StartDay);
+                    holiday.EndDay = getDateByDotNet(holiday.EndDay);
+
+                    var startDay = getDateByDotNet(d.data.now);
+                    var endDay;
+                    // 判断今天在那个区间1.非最后一个工作日 2.最后一个工作日 3.休息日
+                    // 规则1.可以定到下一天 2、3.可以订到休假日后第一个工作日
+                    var rangeType = 0;
+                    if (holiday.StartDay.getTime() <= startDay.getTime() && startDay.getTime() <= holiday.EndDay.getTime()) {
+                        // 今天是休假日 判定为区间3
+                        rangeType = 3;
+                    } else {
+                        if ((startDay.getTime() + 24 * 60 * 60 * 1000) < holiday.StartDay.getTime()) {
+                            // 明天也是工作日 判定为区间1
+                            rangeType = 1;
+                        } else {
+                            // 明天是休息日，今天是最后一个工作日 判定为区间2
+                            rangeType = 2;
+                        }
+                    }
+
+                    var deliverRange = new Array();
+                    if (rangeType == 1) {
+                        deliverRange.push(startDay.pattern('yyyy-MM-dd'));
+                        deliverRange.push(new Date(startDay.getTime() + oneDay).pattern('yyyy-MM-dd'));
+                    } else {
+                        for (var i = startDay.getTime(); i <= (holiday.EndDay.getTime() + oneDay); i += oneDay) {
+                            deliverRange.push(new Date(i).pattern('yyyy-MM-dd'));
+                        }
+                    }
+                    if (deliverRange.indexOf(meetingDate) == -1) {
+                        showDlg(MSG_PREAPPROVALMEETINGDATEERROR, '确定', function () {
+                        }, 'info');
+                    }
+                    else {
+                        //医院没有上线
+                        var hospitalId = $('#HospitalCode').val();
+                        post('/P/Restaurant/LoadRestaurant', { hospitalId: hospitalCode }, function (d) {
+                            if (d.rows == undefined || d.rows == null || d.rows.length < 1) {
+                                showDlg(MSG_NORESTAURANT, '确定', function () {
+                                });
+                            }
+                            else {
+                                post('/P/PreApproval/SavePreApproval', { code: cncode },
+                                    function (d) {
+                                        $('#form1').submit();
+                                    }, 'json');
+                            }
+                        }, 'json');
+                    }
+                }, 'json');
+        });
+
+        $('#btnRestaurantInfo').click(function () {
+            var cncode = $('#HTCode').val();
+            if (cncode == undefined || cncode == '') {
+                showTopMsg('请选择一个HT编号');
+                return;
+            }
+
+            //是否被暂停服务
+            if (IsServPause) {
+                showDlg(MSG_USERINBLACKNAMELIST, '确定', function () {
+                    //WeixinJSBridge.call('closeWindow');
+                }, 'cancel');
+                return;
+            }
+
+            //post('/P/PreApproval/SavePreApproval', { code: cncode },
+            //    function (d) {
+            //        $('#form0').submit();
+            //    }, 'json');
+
+            if(hospitalInfo==null){
+                post('/P/PreApproval/FindHospital', { hospitalCode: $('#HospitalCode').val() },
+                    function (res) {
+                        if (res.data == null) {
+                            showDlg('医院已删除，当前预申请已失效，请修改预申请。', '确定', function () {
+                                return;
+                            });
+                        }else{
+                            showDlg('医院地址已删除，当前预申请已失效，请修改预申请。', '确定', function () {
+                                return;
+                            }); 
+                        }
+                    }, 'json');        
+            }
+            var hosAddress=$('#HospitalAddress').html();
+            var _hosAddress=hospitalInfo.GskHospital==hospitalInfo.HospitalCode?hospitalInfo.Address:hospitalInfo.MainAddress+':' + hospitalInfo.Address;
+            if (hosAddress != _hosAddress) {
+                if (hospitalInfo.GskHospital==hospitalInfo.HospitalCode) {
+                    showDlg('当前医院地址已自动更新为：' + _hosAddress + ',您无需修改预申请。', '确定', function () {
+                        var preApprovalId=$('#ID').val();
+                        post('/P/PreApproval/UpDateAddress', { preApprovalId: preApprovalId,hospitalAddress:_hosAddress },
+                         function (dd) {
+                             $('#HTCode').change();
+                         }, 'json');
+                    });
+                    return;
+                }else{
+                    post('/P/PreApproval/FindHospital', { hospitalCode: hospitalInfo.GskHospital },
+                    function (res) {
+                        if (res.data == null) {
+                            showDlg('医院已删除，当前预申请已失效，请修改预申请。', '确定', function () {
+                                return;
+                            });
+                        } else {
+                            showDlg('医院地址已删除，当前预申请已失效，请修改预申请。', '确定', function () {
+                                return;
+                            });
+                        }
+                    }, 'json');                                
+                }
+            }
+
+            var hospitalId = $('#HospitalCode').val();
+            var sendTime=""; //20200207以及LoadRestaurant传参加sendtime
+            post('/P/Restaurant/LoadRestaurant', { hospitalId: hospitalCode,sendTime: sendTime }, function (d) {
+                //医院没有上线
+                if (d.rows == undefined || d.rows == null || d.rows.length < 1) {
+                    showDlg(MSG_NORESTAURANT, '确定', function () {
+                    }, 'info');
+                }
+                else {
+                    post('/P/PreApproval/SavePreApproval', { code: cncode },
+                        function (d) {
+                            $('#form0').submit();
+                        }, 'json');
+                }
+            }, 'json');
+
+        });
+    }
+
+    function submitCheckData(state) {
+        var result = true;
+    }
+
+</script>
+<div class="page-main">
+    <div class="page-body">
+        @*<div class="weui-cells">
+            <div class="weui-cell" id="dvVeevaMeetingID">
+                <div class="weui-cell__hd">
+                    <label for="" class="weui-label">Veeva Meeting ID</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="number" id="txtVeevaMeetingID" name="VeevaMeetingID" value="" placeholder="请填写18/36位号码" pattern="[0-9]*" />
+                </div>
+            </div>
+        </div>*@
+        <input class="weui-input" id="ID" value="" type="hidden" />
+        <div class="weui-cells__title"><h3>请选择HT编号</h3></div>
+        <div class="weui-cells">
+            <div class="weui-cell weui-cell_select">
+                <div class="weui-cell__bd">
+                    <select class="weui-select" name="HTCode" id="HTCode">
+                        @foreach (var item in ViewBag.listHTCode)
+                        {
+                            <option value="@item.HTCode">@item.HTCode（@item.MeetingName）</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="preApprovalInfo">
+            <div class="weui-cells__title"><h3>预申请详情</h3></div>
+            <div class="weui-cells weui-cells_form">
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">Market</label></div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" readonly="readonly" id="Market" value="" />
+                    </div>
+                </div>
+                @*20190115*@
+                <div class="weui-cell" id="veevaid">
+                    <div class="weui-cell__hd"><label class="weui-label">VeevaMeetingID</label></div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" readonly="readonly" id="VeevaMeetingID" value="" />
+                    </div>
+                </div>
+                
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">TA</label></div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" readonly="readonly" id="TA" value="" />
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">省份</label></div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" readonly="readonly" id="Province" value="" />
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">城市</label></div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" readonly="readonly" id="City" value="" />
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">医院名称</label></div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" readonly="readonly" id="HospitalName" value="" />
+                        <span id="HospitalName"></span>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">医院编码</label></div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" readonly="readonly" id="HospitalCode" value="" />
+                        <input class="weui-input" id="HospitalAddressCode" value="" type="hidden"/>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">医院地址</label></div>
+                    <div class="weui-cell__bd">
+                        <span id="HospitalAddress"></span>
+                    </div>
+                </div>
+                <div class="weui-cells__title" style="color:red;">
+                    *医院地址为系统默认, 请在”填写订单详情“页面补充送餐详细地址
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">会议时间</label></div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" readonly="readonly" id="MeetingTime" value="" />
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">参会人数</label></div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" readonly="readonly" id="AttendCount" value="" />
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">大区区域代码</label></div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" readonly="readonly" id="CostCenter" value="" />
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">HT形式</label></div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" readonly="readonly" id="HTType" value="" />
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">预算金额</label></div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" readonly="readonly" id="BudgetTotal" value="" />
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">直线经理是否随访</label></div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" readonly="readonly" id="IsDMFollow" value="" style="padding-left:20px;" />
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">外部免费讲者来讲</label></div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" readonly="readonly" id="IsFreeSpeaker" value="" style="padding-left:20px;" />
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </div>
+    <div class="page-foot">
+        <form id="form1" action="~/P/Restaurant/SendTime" method="get">
+            <input type="hidden" name="formenu" value="1" />
+        </form>
+        <form id="form0" action="~/P/Restaurant/List" method="get">
+            <input type="hidden" name="formenu" value="2" />
+        </form>
+        <div class="page__bd page__bd_spacing">
+            <div class="weui-flex">
+                <div class="weui-flex__item">
+                    <div class="placeholder">
+                        <button id="btnRestaurant" class="weui-btn weui-btn_orange">我要订餐</button>
+                    </div>
+                </div>
+                <div class="weui-flex__item">
+                    <div class="placeholder">
+                        <button id="btnRestaurantInfo" class="weui-btn weui-btn_default">浏览餐厅信息</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

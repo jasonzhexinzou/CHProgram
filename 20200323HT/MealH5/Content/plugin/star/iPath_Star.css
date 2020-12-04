@@ -1,0 +1,61 @@
+﻿.star_panel
+{
+    display: inline-block;
+    width: 84px;
+    overflow: hidden;
+    position: relative;
+    top: 2px;
+}
+    .star_panel .star
+    {
+        width: 14px;
+        height: 14px;
+        display: inline-block;
+        position: relative;
+        float: left;
+        margin-top: 3px;
+        margin-left: 3px;
+    }
+        .star_panel .star:first-child
+        {
+            margin-left: 0px;
+        }
+        .star_panel .star > div
+        {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            bottom: 0px;
+        }
+            .star_panel .star > div:first-child
+            {
+                background: url(star.png) no-repeat 50% 50%;
+                background-size: 100% 100%;
+                z-index: 9;
+                right: 0px;
+            }
+            .star_panel .star > div:nth-child(2)
+            {
+                background-color: #FFA702;
+                z-index: 7;
+                width: 0%;
+            }
+            .star_panel .star > div:last-child
+            {
+                background-color: #999999;
+                z-index: 5;
+                right: 0px;
+            }
+
+
+.clickstar {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url(star1.png) no-repeat 50% 50%;
+    background-size: 100% 100%;
+}
+
+.clickstar_checked {
+    background-image: url(star0.png);
+}

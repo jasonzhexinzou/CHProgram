@@ -1,0 +1,756 @@
+﻿@{
+    ViewBag.Title = ViewBag.PageTitle;
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+
+
+    <script type="text/javascript">
+        var pdg;
+
+        var srhParam;
+        function GetSrhParam() {
+            var _srhParam = new Object();
+            _srhParam.CN = '';
+            _srhParam.MUDID = '';
+            _srhParam.TACode = '';
+            _srhParam.HospitalCode = '';
+            _srhParam.RestaurantId = '';
+            _srhParam.CostCenter = '';
+            _srhParam.CreateTimeBegin = new Date().pattern('yyyy-MM-dd');
+            _srhParam.CreateTimeEnd = new Date().pattern('yyyy-MM-dd');
+            _srhParam.DeliverTimeBegin = '';
+            _srhParam.DeliverTimeEnd = '';
+            _srhParam.State = '';
+            _srhParam.Supplier = '';
+            _srhParam.IsSpecialOrder = '';
+            _srhParam.srh_RD = '';
+            return _srhParam;
+        }
+        $(function () {
+            $("#txtCreateTimeBegin").val(new Date().pattern('yyyy-MM-dd'));
+            $("#txtCreateTimeEnd").val(new Date().pattern('yyyy-MM-dd'));
+            var _option = {
+                dateFormat: "yy-mm-dd",
+                closeText: "关闭",
+                prevText: "&#x3C;上月",
+                nextText: "下月&#x3E;",
+                currentText: "今天",
+                monthNames: ["一月", "二月", "三月", "四月", "五月", "六月",
+                "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月",
+                "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                dayNames: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+                dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"],
+                weekHeader: "周",
+                dateFormat: "yy-mm-dd",
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: true,
+                yearSuffix: "年"
+
+            }
+
+            var _ctBehin = $("#txtCreateTimeBegin").datepicker(_option);
+            var _ctEnd = $("#txtCreateTimeEnd").datepicker(_option);
+
+            var _stBegin = $("#txtSendTimeBegin").datepicker(_option);
+            var _stEnd = $("#txtSendTimeEnd").datepicker(_option);
+
+            srhParam = GetSrhParam();
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/OrderMnt/LoadSearchList', paging: true });
+            pdg.QueryParams = function () {
+
+                return {
+                    CN: srhParam.CN,
+                    MUDID: srhParam.MUDID,
+                    TACode: srhParam.TACode,
+                    HospitalCode: srhParam.HospitalCode,//医院编码
+                    RestaurantId: srhParam.RestaurantId,//餐厅编码
+                    CostCenter: srhParam.CostCenter,//成本中心
+                    CreateTimeBegin: srhParam.CreateTimeBegin,
+                    CreateTimeEnd: srhParam.CreateTimeEnd,
+                    DeliverTimeBegin: srhParam.DeliverTimeBegin,
+                    DeliverTimeEnd: srhParam.DeliverTimeEnd,
+                    State: srhParam.State,
+                    Supplier: srhParam.Supplier,
+                    IsSpecialOrder: srhParam.IsSpecialOrder,
+                    RD: srhParam.srh_RD
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                srhParam.CN = $('#txtHTCode').val();
+                srhParam.MUDID = $('#txtMudId').val();
+                srhParam.TACode = $('#txtApplierTerritory').val();
+                srhParam.HospitalCode = $('#txtHospitalCode').val();//医院编码
+                srhParam.RestaurantId = $('#txtRestaurantId').val();//餐厅编码
+                srhParam.CostCenter = $('#txtCostCenter').val();//成本中心
+                srhParam.CreateTimeBegin = $('#txtCreateTimeBegin').val();
+                srhParam.CreateTimeEnd = $('#txtCreateTimeEnd').val();
+                srhParam.DeliverTimeBegin = $('#txtSendTimeBegin').val();
+                srhParam.DeliverTimeEnd = $('#txtSendTimeEnd').val();
+                srhParam.State = $('#sltOrderState option:selected').val();
+                srhParam.Supplier = $('#dpSupplier option:selected').val();
+                srhParam.IsSpecialOrder = $('#IsSpecialOrder option:selected').val();
+                srhParam.srh_RD = $('#txtRD').val().replace(/\s/g, "");
+                pdg.Load();
+            });
+
+            $('#btnEdit').bind('click', function () {
+                Import();
+            });
+
+            $('#btnSyncXMS').bind('click', function () {
+                $showdialogForConfim(
+                    {
+                        title: '确认同步？',
+                        body: '同步会使用新数据覆盖原有数据操作？操作大概需要10分钟',
+                        ok: function () {
+                            $.PintuerPost(contextUri + '/P/OrderMnt/SyncXMSReport', {});
+                        }
+                    }
+                );
+            });
+
+            $('#btnSyncBDS').bind('click', function () {
+                $showdialogForConfim(
+                    {
+                        title: '确认同步？',
+                        body: '同步会使用新数据覆盖原有数据操作？操作大概需要10分钟',
+                        ok: function () {
+                            $.PintuerPost(contextUri + '/P/OrderMnt/SyncBDSReport', {});
+                        }
+                    }
+                );
+            });
+
+            $('#btnExport').bind('click', function () {
+
+                window.location.href = contextUri + '/P/OrderMnt/ExportSearchList?CN=' + encodeURIComponent(srhParam.CN)
+                            + '&MUDID=' + encodeURIComponent(srhParam.MUDID)
+                            + '&TACode=' + encodeURIComponent(srhParam.TACode)
+                            + '&HospitalCode=' + encodeURIComponent(srhParam.HospitalCode)
+                            + '&RestaurantId=' + encodeURIComponent(srhParam.RestaurantId)
+                            + '&CostCenter=' + encodeURIComponent(srhParam.CostCenter)
+                            + '&CreateTimeBegin=' + encodeURIComponent(srhParam.CreateTimeBegin)
+                            + '&CreateTimeEnd=' + encodeURIComponent(srhParam.CreateTimeEnd)
+                            + '&DeliverTimeBegin=' + encodeURIComponent(srhParam.DeliverTimeBegin)
+                            + '&DeliverTimeEnd=' + encodeURIComponent(srhParam.DeliverTimeEnd)
+                            + '&State=' + encodeURIComponent(srhParam.State)
+                            + '&IsSpecialOrder=' + encodeURIComponent(srhParam.IsSpecialOrder)
+                            + '&Supplier=' + encodeURIComponent(srhParam.Supplier)
+                            + '&RD=' + encodeURIComponent(srhParam.srh_RD);
+            });
+
+            $('#btnSendMail').bind('click', function () {
+                if ($('#txtHTCode').val() == "" && $('#txtMudId').val() == "" && $('#txtApplierTerritory').val() == "" && $('#txtHospitalCode').val() == "" && $('#txtRestaurantId').val() == "" &&
+                    $('#txtCostCenter').val() == "" && $('#txtCreateTimeBegin').val() == "" && $('#txtCreateTimeEnd').val() == "" && $('#txtSendTimeBegin').val() == "" && $('#txtSendTimeEnd').val() == ""
+                    && $('#sltOrderState option:selected').val() == "" && $('#IsSpecialOrder option:selected').val() == "" && $('#dpSupplier option:selected').val() == "" && $('#txtRD').val() == "") {
+                    $showdialog({ body: '请添加筛选条件！' });
+                    return;
+                }
+                if ($('#sltOrderState option:selected').val() == 5 || $('#sltOrderState option:selected').val() == 11) {
+                    $showdialog({ body: '无有效订单可发送！' });
+                    return;
+                } else {
+                    $.PintuerPost(contextUri + '/P/OrderMnt/GetOrderCount?CN=' + encodeURIComponent($('#txtHTCode').val())
+                        + '&MUDID=' + encodeURIComponent($('#txtMudId').val())
+                        + '&TACode=' + encodeURIComponent($('#txtApplierTerritory').val())
+                        + '&HospitalCode=' + encodeURIComponent($('#txtHospitalCode').val())
+                        + '&RestaurantId=' + encodeURIComponent($('#txtRestaurantId').val())
+                        + '&CostCenter=' + encodeURIComponent($('#txtCostCenter').val())
+                        + '&CreateTimeBegin=' + encodeURIComponent($('#txtCreateTimeBegin').val())
+                        + '&CreateTimeEnd=' + encodeURIComponent($('#txtCreateTimeEnd').val())
+                        + '&DeliverTimeBegin=' + encodeURIComponent($('#txtSendTimeBegin').val())
+                        + '&DeliverTimeEnd=' + encodeURIComponent($('#txtSendTimeEnd').val())
+                        + '&State=' + encodeURIComponent($('#sltOrderState option:selected').val())
+                        + '&IsSpecialOrder=' + encodeURIComponent($('#IsSpecialOrder option:selected').val())
+                        + '&Supplier=' + encodeURIComponent($('#dpSupplier option:selected').val())
+                        + '&RD=' + encodeURIComponent($('#txtRD').val().replace(/\s/g, "")),
+                        {},
+                        function (d) {
+                            if (d.txt == 0) {
+                                $showdialog({ body: '根据条件检索出0条记录，无数据可发送！' });
+                                return;
+                            } else {
+                                $showdialogForConfim(
+                                    {
+                                        title: '确认发送？',
+                                        body: "根据条件检索出" + d.txt + "条记录，请确认是否发送",
+                                        ok: function () {
+                                            if (d.state == 1) {
+                                                $showdialogForUrl(
+                                                    {
+                                                        title: '选择收件人',
+                                                        width: '310px',
+                                                        height: '310px',
+                                                        url: contextUri + '/P/OrderMnt/AddRecipientOrder?CN=' + encodeURIComponent($('#txtHTCode').val())
+                                                            + '&MUDID=' + encodeURIComponent($('#txtMudId').val())
+                                                            + '&TACode=' + encodeURIComponent($('#txtApplierTerritory').val())
+                                                            + '&HospitalCode=' + encodeURIComponent($('#txtHospitalCode').val())
+                                                            + '&RestaurantId=' + encodeURIComponent($('#txtRestaurantId').val())
+                                                            + '&CostCenter=' + encodeURIComponent($('#txtCostCenter').val())
+                                                            + '&CreateTimeBegin=' + encodeURIComponent($('#txtCreateTimeBegin').val())
+                                                            + '&CreateTimeEnd=' + encodeURIComponent($('#txtCreateTimeEnd').val())
+                                                            + '&DeliverTimeBegin=' + encodeURIComponent($('#txtSendTimeBegin').val())
+                                                            + '&DeliverTimeEnd=' + encodeURIComponent($('#txtSendTimeEnd').val())
+                                                            + '&State=' + encodeURIComponent($('#sltOrderState option:selected').val())
+                                                            + '&IsSpecialOrder=' + encodeURIComponent($('#IsSpecialOrder option:selected').val())
+                                                            + '&Supplier=' + encodeURIComponent($('#dpSupplier option:selected').val())
+                                                            + '&RD=' + encodeURIComponent($('#txtRD').val().replace(/\s/g, "")),
+                                                        pageid: 'manager',
+                                                        buttons: [
+                                                            {
+                                                                cls: 'button bg-green',
+                                                                txt: '发送',
+                                                                handler: function (e) {
+                                                                    window.top.c_manager.window.btnOKClick(e);
+                                                                    //window.location.href = contextUri + '/P/PreApproval/PdfExport?id=' + id;
+                                                                }
+                                                            },
+                                                            {
+                                                                cls: 'button',
+                                                                txt: '取消',
+                                                                handler: function (e) { e.close(); }
+                                                            }
+                                                        ]
+                                                    }
+                                                );
+                                            }
+                                            else {
+                                                $showdialog({ body: d.txt });
+                                                return;
+                                            }
+                                        }
+                                    }
+                                );
+                            }
+                        });
+
+                }
+
+
+            });
+
+            //导入HT数据
+            $('#btnImport').bind('click', function () {
+                $("#fileInput").click();
+            });
+        });
+
+        function Pop(htCode, state) {
+            $showdialogForUrl(
+                {
+                    title: '标识特殊订单 ',
+                    width: '340px',
+                    height: '220px',
+                    url: contextUri + '/P/OrderMnt/Pop?HTCode=' + htCode + '&State=' + state,
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '确认',
+                            handler: function (e) {
+                                top.c_manager.window.btnOKClick(e, function () {
+                                    pdg.Load();
+                                    e.close();
+                                });
+                            }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+
+                }
+            );
+        }
+
+        /**
+         * 上传文件
+         */
+        function fileChange() {
+
+            var fileName = $("#fileInput").val();
+
+            console.log(fileName);
+            var fileType = fileName.substr(fileName.length - 4, 4);
+            if (fileType != 'xlsx') {
+                $showdialog({ body: '请选择一个.xlsx格式Execl的文档！' });
+                $("#fileInput").val("");
+                return;
+            }
+
+            var qyAccountId = '';
+            $.ajaxFileUpload
+            (
+                {
+                    url: contextUri + '/P/OrderMnt/Import',
+                    secureuri: false,
+                    fileElementId: 'fileInput',
+                    dataType: 'json',
+                    success: function (data, status) {
+                        if (data.state == 1) {
+                            $showdialog({ body: '导入成功，请刷新页面查看' });
+                            $("#fileInput").val("");
+                        } else {
+                            if (data.data != undefined) {
+                                var txt = '';
+                                for (var i in data.data) {
+                                    var item = data.data[i];
+                                    txt += '<br />' + item;
+                                }
+                                var body = '<strong>' + data.txt + '</strong>: <br />' + '<div style="max-height: 150px; overflow:auto">' + txt + '</div>'
+                                $showdialog({ body: body });
+                                $("#fileInput").val("");
+                            } else {
+                                $showdialog({ body: data.txt });
+                                $("#fileInput").val("");
+                            }
+
+                        }
+                    },
+                    error: function (data, status, e) {
+                        console.log(data + '     ' + status);
+                        $showdialog({ body: '网络故障' });
+                        $("#fileInput").val("");
+                    }
+                }
+            )
+        }
+    </script>
+}
+<div class="tool_bar">
+    <label>HT订单查询</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <div class="x12">
+                        <input type="text" class="input input-small" style="width:100px;" id="txtHTCode" name="txtHTCode" placeholder="HT编号" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtMudId" name="txtMudId" placeholder="申请人MUDID" />
+                        <input type="text" class="input input-small" style="width:150px;" id="txtApplierTerritory" name="txtApplierTerritory" placeholder="申请人Territory Code" />
+                        <label class="border-small label-block">
+                            下单日期
+                            <input type="text" class="input input-small" style="width:100px;" id="txtCreateTimeBegin" name="txtCreateTimeBegin" placeholder="开始时间" />
+                            <input type="text" class="input input-small" style="width:100px;" id="txtCreateTimeEnd" name="txtCreateTimeEnd" placeholder="结束时间" />
+                        </label>
+                        <label class="border-small label-block">
+                            送餐日期
+                            <input type="text" class="input input-small" style="width:100px;" id="txtSendTimeBegin" name="txtSendTimeBegin" placeholder="开始时间" />
+                            <input type="text" class="input input-small" style="width:100px;" id="txtSendTimeEnd" name="txtSendTimeEnd" placeholder="结束时间" />
+                        </label>
+                        <br />
+                        <label>
+                            订单状态
+                            <select id="sltOrderState" name="sltOrderState" class="input input-small" style="width:100px;">
+                                <option value=""></option>
+                                <option value="3">订单提交成功</option>
+                                <option value="4">预订成功</option>
+                                <option value="5">预订失败</option>
+                                <option value="6">已收餐</option>
+                                <option value="7">系统已收餐</option>
+                                <option value="8">未送达</option>
+                                <option value="9">已评价</option>
+                                <option value="10">申请退订</option>
+                                <option value="11">退订成功</option>
+                                <option value="12">退订失败</option>
+                            </select>
+                        </label>
+                        <label>
+                            供应商
+                            <select id="dpSupplier" name="Supplier" class="input input-small" style="width:100px;">
+                                <option value=""></option>
+                                <option value="XMS">XMS</option>
+                                <option value="BDS">BDS</option>
+                            </select>
+                        </label>
+                        <label>
+                            项目组特殊备注
+                            <select id="IsSpecialOrder" name="IsSpecialOrder" class="input input-small" style="width:100px;">
+                                <option value=""></option>
+                                <option value="9">全部</option>
+                                <option value="1">呼叫中心操作退单</option>
+                                <option value="2">会议支持文件丢失</option>
+                            </select>
+                        </label>
+                        <input type="text" class="input input-small" style="width:100px;" id="txtHospitalCode" name="txtHospitalCode" placeholder="医院编码" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtRestaurantId" name="txtRestaurantId" placeholder="餐厅编码" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtCostCenter" name="txtCostCenter" placeholder="大区区域代码" />
+                        <input type="text" class="input input-small" style="width:110px;" id="txtRD" name="txtRD" placeholder="RD Territory Code" />
+                        <button class="button button-small bg-main icon-search" id="btnLoad"> 搜索</button>
+                        <button title="调用后台同步小秘书日报接口" class="button button-small bg-blue icon-refresh" id="btnSyncXMS"> 同步(XMS)</button>
+                        <button title="调用后台同步商宴通日报接口" class="button button-small bg-blue icon-refresh" id="btnSyncBDS"> 同步(BDS)</button>
+                        <button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>
+                        <button class="button button-small bg-blue icon-file-excel-o" id="btnImport"> 导入项目组确认金额</button>
+                        <button class="button button-small bg-blue icon-send-o" id="btnSendMail"> 发送报表</button>
+                    </div>
+                    <div style="display: none">
+                        <input id="fileInput" type="file" name="file" onchange="fileChange()" />
+                    </div>
+                    <div class="x2">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="panel-body" style="overflow-x:auto;">
+
+            <table id="costcenter_dataTable" class="table table-hover" style="width:25000px; max-width:25000px;">
+                <thead class="text-unbreak">
+                    <tr>
+                        @*<th style="text-align:center; width:50px;">
+                                <input type="checkbox" />
+                            </th>*@
+                        <th>申请人姓名</th>
+                        <th>申请人MUDID</th>
+                        <th>申请人Territory Code</th>
+                        <th>申请人职位</th>
+                        <th>申请人手机号码</th>
+                        <th>预申请申请日期</th>
+                        <th>预申请申请时间</th>
+                        <th>预申请修改日期</th>
+                        <th>预申请修改时间</th>
+                        <th>HT编号</th>
+                        <th>Market</th>
+                        <th>VeevaMeetingID</th>
+                        <th>TA</th>
+                        <th>省份</th>
+                        <th>城市</th>
+                        <th>医院编码</th>
+                        <th>医院名称</th>
+                        <th>医院地址</th>
+                        <th>会议名称</th>
+                        <th>会议日期</th>
+                        <th>会议时间</th>
+                        <th>参会人数</th>
+                        <th>大区区域代码</th>
+                        <th>预算金额</th>
+                        <th>直线经理是否随访</th>
+                        <th>是否由外部免费讲者来讲</th>
+                        @*<th>RD/SD 姓名</th>
+                        <th>RD/SD MUDID</th>*@
+                        <th>RD Territory Code</th>
+                        <th>预申请审批人姓名</th>
+                        <th>预申请审批人MUDID</th>
+                        <th>预申请审批日期</th>
+                        <th>预申请审批时间</th>
+                        <th>预申请审批状态</th>
+                        <th>预申请是否重新分配审批人</th>
+                        <th>预申请重新分配审批人-操作人</th>
+                        <th>预申请重新分配审批人-操作人MUDID</th>
+                        <th>预申请被重新分配审批人姓名</th>
+                        <th>预申请被重新分配审批人MUDID</th>
+                        <th>预申请重新分配审批人日期</th>
+                        <th>预申请重新分配审批人时间</th>
+                        <th>供应商</th>
+                        <th>订单号</th>
+                        <th>下单日期</th>
+                        <th>下单时间</th>
+                        <th>送餐日期</th>
+                        <th>送餐时间</th>
+                        <th>餐厅编码</th>
+                        <th>预订餐厅</th>
+                        <th>用餐人数</th>
+                        <th>总份数</th>
+                        <th>预订金额</th>
+                        <th>实际金额</th>
+                        <th>金额调整原因</th>
+                        <th>送餐地址</th>
+                        <th>收餐人姓名</th>
+                        <th>收餐人电话</th>
+                        <th>下单备注</th>
+                        <th>是否预定成功</th>
+                        <th>预定成功日期</th>
+                        <th>预定成功时间</th>
+                        <th>是否申请退单</th>
+                        <th>是否退单成功</th>
+                        <th>退单失败平台发起配送需求</th>
+                        <th>退单失败线下反馈配送需求</th>
+                        <th>预定/退单失败原因</th>
+                        <th>是否收餐/未送达</th>
+                        <th>确认收餐日期</th>
+                        <th>确认收餐时间</th>
+                        <th>用户确认金额</th>
+                        <th>是否与预定餐品一致</th>
+                        <th>用户确认金额调整原因</th>
+                        <th>用户确认金额调整备注</th>
+                        <th>实际用餐人数</th>
+                        <th>实际用餐人数调整原因</th>
+                        <th>实际用餐人数调整备注</th>
+                        <th>未送达描述</th>
+                        <th>准点率</th>
+                        <th>准点率描述</th>
+                        <th>食品安全存在问题</th>
+                        <th>食品安全问题描述</th>
+                        <th>餐品卫生及新鲜</th>
+                        <th>餐品卫生描述</th>
+                        <th>餐品包装</th>
+                        <th>餐品包装描述</th>
+                        <th>餐品性价比</th>
+                        <th>餐品性价比描述</th>
+                        <th>其他评价</th>
+                        <th>在线评分</th>
+                        <th>评论日期</th>
+                        <th>评论时间</th>
+                        <th>1=同一医院当日多场</th>
+                        <th>2=同一代表当日多场</th>
+                        <th>3=同一餐厅当日多场</th>
+                        <th>4=同一代表同一医院当日多场</th>
+                        <th>5=同一代表同一餐厅当日多场</th>
+                        <th>6=同一代表同一医院同一餐厅当日多场</th>
+                        <th>7=参会人数&gt;=60</th>
+                        <th>8=参会人数&lt;60,订单份数&gt;=60 </th>
+                        <th>9=代表自提</th>
+                        @*<th>直线经理姓名</th>
+                            <th>直线经理MUDID</th>
+                            <th>Level2 Manager 姓名</th>
+                            <th>Level2 Manager MUDID</th>
+                            <th>Level3 Manager 姓名</th>
+                            <th>Level3 Manager MUDID</th>*@
+                        <th>是否上传文件</th>
+                        <th>上传文件提交日期</th>
+                        <th>上传文件提交时间</th>
+                        <th>上传文件审批直线经理姓名</th>
+                        <th>上传文件审批直线经理MUDID</th>
+                        <th>上传文件审批日期</th>
+                        <th>上传文件审批时间</th>
+                        <th>上传文件审批状态</th>
+                        <th>签到人数是否等于实际用餐人数</th>
+                        @*<th>签到人数</th>*@
+                        <th>签到人数调整原因</th>
+                        <th>是否与会议信息一致</th>
+                        <th>会议信息不一致原因</th>
+                        <th>上传文件是否Re-Open</th>
+                        <th>上传文件Re-Open操作人</th>
+                        <th>上传文件Re-Open操作人MUDID</th>
+                        <th>上传文件Re-Open日期</th>
+                        <th>上传文件Re-Open时间</th>
+                        <th>上传文件Re-Open原因</th>
+                        <th>上传文件Re-Open审批状态</th>
+                        <th>上传文件是否重新分配</th>
+                        <th>上传文件重新分配操作人</th>
+                        <th>上传文件重新分配操作人MUDID</th>
+                        <th>上传文件被重新分配人姓名</th>
+                        <th>上传文件被重新分配人MUDID</th>
+                        <th>上传文件被重新分配日期</th>
+                        <th>上传文件被重新分配时间</th>
+                        <th>上传文件是否重新分配审批人</th>
+                        <th>上传文件重新分配审批人-操作人</th>
+                        <th>上传文件重新分配审批人-操作人MUDID</th>
+                        <th>上传文件被重新分配审批人姓名</th>
+                        <th>上传文件被重新分配审批人MUDID</th>
+                        <th>上传文件重新分配审批人日期</th>
+                        <th>上传文件重新分配审批人时间</th>
+                        <th>项目组特殊备注</th>
+
+                        <th>供应商特殊备注</th>
+                        <th>是否完成送餐</th>
+                        <th>与供应商确认订单金额</th>
+                        <th>GSK项目组确认金额</th>
+                        <th>GSK项目组确认金额调整原因</th>
+                        <th>餐费发票税点</th>
+                        <th>餐费付款金额</th>
+                        <th>餐费付款PO号码</th>
+                        <th>到账时间</th>
+                        <th>FFA 姓名</th>
+                        <th>FFA MUDUD</th>
+                        <th>SD助理</th>
+                        <th>SD助理MUDID</th>
+
+
+                        <th>订单状态</th>
+
+                        <th>标识特殊订单</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        @*<td align="center"><input type="checkbox" name="id" value="${dr.ID}$"></td>*@
+                        <td>${dr.ApplierName}$</td>
+                        <td>${dr.ApplierMUDID}$</td>
+                        <td>${dr.MRTerritoryCode}$</td>
+                        <td>${dr.Position}$</td>
+                        <td>${dr.ApplierMobile}$</td>
+                        <td>${dr.PRECreateDate}$</td>
+                        <td>${dr.PRECreateTime}$</td>
+                        <td>${dr.PREModifyDate}$ </td>
+                        <td>${dr.PREModifyTime}$ </td>
+                        <td>${dr.HTCode}$ </td>
+                        <td>${dr.Market}$ </td>
+                        <td>${dr.VeevaMeetingID==null?"":dr.VeevaMeetingID}$ </td>
+                        <td>${dr.TA}$ </td>
+                        <td>${dr.Province}$ </td>
+                        <td>${dr.City}$ </td>
+                        <td>${dr.HospitalCode}$ </td>
+                        <td>${dr.HospitalName}$ </td>
+                        <td>${dr.HospitalAddress}$ </td>
+                        <td>${dr.MeetingName}$ </td>
+                        <td>${dr.MeetingDate}$ </td>
+                        <td>${dr.MeetingTime}$ </td>
+                        <td>${dr.PREAttendCount}$ </td>
+                        <td>${dr.CostCenter}$ </td>
+                        <td>${dr.BudgetTotal}$ </td>
+                        <td>${dr.IsDMFollow}$ </td>
+                        <td>${dr.IsFreeSpeaker}$ </td>
+                        @*<td>${dr.RDSDName}$ </td>
+                        <td>${dr.RDSDMUDID}$ </td>*@
+                        <td>${dr.RDTerritoryCode}$ </td>
+                        <td>${dr.PREBUHeadName1}$ </td>
+                        <td>${dr.PREBUHeadMUDID1}$ </td>
+                        <td>${dr.PREBUHeadApproveDate}$ </td>
+                        <td>${dr.PREBUHeadApproveTime}$ </td>
+                        <td>${dr.PREState}$</td>
+                        <td>${dr.PREIsReAssign}$</td>
+                        <td>${dr.PREReAssignOperatorName}$</td>
+                        <td>${dr.PREReAssignOperatorMUDID}$</td>
+                        <td>${dr.PREReAssignBUHeadName}$</td>
+                        <td>${dr.PREReAssignBUHeadMUDID}$</td>
+                        <td>${dr.PREReAssignBUHeadApproveDate}$</td>
+                        <td>${dr.PREReAssignBUHeadApproveTime}$</td>
+                        <td>${dr.Channel}$</td>
+                        <td>${dr.EnterpriseOrderId}$</td>
+                        <td>${dr.ORDCreateDate}$</td>
+                        <td>${dr.ORDCreateTime}$</td>
+                        <td>${dr.ORDDeliverDate}$</td>
+                        <td>${dr.ORDDeliverTime}$</td>
+                        <td>${dr.RestaurantId}$</td>
+                        <td>${dr.RestaurantName}$</td>
+                        <td>${dr.ORDAttendCount}$</td>
+                        <td>${dr.FoodCount}$</td>
+                        <td>${dr.TotalPrice}$</td>
+                        <td>${dr.totalFee}$</td>
+                        <td>${dr.feeModifyReason}$</td>
+                        <td>${dr.DeliveryAddress}$</td>
+                        <td>${dr.Consignee}$</td>
+                        <td>${dr.Phone}$</td>
+                        <td>${dr.Remark}$</td>
+                        <td>${dr.bookState}$</td>
+                        <td>${dr.ORDReceiveDate}$</td>
+                        <td>${dr.ORDReceiveTime}$</td>
+                        <td>${dr.IsRetuen}$</td>
+                        <td>${dr.cancelState}$</td>
+                        <td>${dr.IsRetuenSuccess}$</td>
+                        <td>${dr.cancelFeedback}$</td>
+                        <td>${dr.cancelFailReason}$</td>
+                        <td>${dr.ReceiveState}$</td>
+                        <td>${dr.ReceiveDate}$</td>
+                        <td>${dr.ReceiveTime}$</td>
+                        <td>${dr.RealPrice}$</td>
+                        <td>${dr.IsMealSame}$</td>
+                        <td>${dr.RealPriceChangeReason}$</td>
+                        <td>${dr.RealPriceChangeRemark}$</td>
+                        <td>${dr.RealCount}$</td>
+                        <td>${dr.RealCountChangeReason}$</td>
+                        <td>${dr.RealCountChangeRemrak}$</td>
+                        <td>${dr.EUnTimeDesc}$</td>
+                        <td>${dr.EOnTime}$</td>
+                        <td>${dr.EOnTimeDesc}$</td>
+                        <td>${dr.EIsSafe}$</td>
+                        <td>${dr.EIsSafeDesc}$</td>
+                        <td>${dr.EHealth}$</td>
+                        <td>${dr.EHealthDesc}$</td>
+                        <td>${dr.EPack}$</td>
+                        <td>${dr.EPackDesc}$</td>
+                        <td>${dr.ECost}$</td>
+                        <td>${dr.ECostDesc}$</td>
+                        <td>${dr.EOtherDesc}$</td>
+                        <td>${dr.EStar}$</td>
+                        <td>${dr.ECreateDate}$</td>
+                        <td>${dr.ECreateTime}$</td>
+                        <td>${dr.TYYYDRDC}$</td>
+                        <td>${dr.TYDBDRDC}$</td>
+                        <td>${dr.TYCTDRDC}$</td>
+                        <td>${dr.TYDBTYYYDRDC}$</td>
+                        <td>${dr.TYDBTYCTDRDC}$</td>
+                        <td>${dr.TYDBTYYYTYCTDRDC}$</td>
+                        <td>${dr.CHRSDYLS}$</td>
+                        <td>${dr.CHRSXYLSDDFSDYLS}$</td>
+                        <td>${dr.customerPickup}$</td>
+                        @*<td>${dr.PREBUHeadName}$ </td>
+                            <td>${dr.PREBUHeadMUDID}$ </td>
+                            <td>${dr.Level2Name}$ </td>
+                            <td>${dr.Level2UserId}$ </td>
+                            <td>${dr.Level3Name}$ </td>
+                            <td>${dr.Level3UserId}$ </td>*@
+                        <td>${dr.IsOrderUpload}$</td>
+                        <td>${dr.PUOCreateDate}$</td>
+                        <td>${dr.PUOCreateTime}$</td>
+                        <td>${dr.PUOBUHeadName}$</td>
+                        <td>${dr.PUOBUHeadMUDID}$</td>
+                        <td>${dr.ApproveDate}$</td>
+                        <td>${dr.ApproveTime}$</td>
+                        <td>${dr.PUOState}$</td>
+                        <td>${dr.IsAttentSame}$</td>
+                        @*<td>${dr.RealCount}$</td>*@
+                        <td>${dr.AttentSameReason}$</td>
+                        <td>${dr.IsMeetingInfoSame}$</td>
+                        <td>${dr.MeetingInfoSameReason}$</td>
+                        <td>${dr.IsReopen}$</td>
+                        <td>${dr.ReopenOperatorName}$</td>
+                        <td>${dr.ReopenOperatorMUDID}$</td>
+                        <td>${dr.ReopenOperateDate}$</td>
+                        <td>${dr.ReopenOperateTime}$</td>
+                        <td>${dr.ReopenReason}$</td>
+                        <td>${dr.ReopenState}$</td>
+                        <td>${dr.IsTransfer}$</td>
+                        <td>${dr.TransferOperatorName}$</td>
+                        <td>${dr.TransferOperatorMUDID}$</td>
+                        <td>${dr.TransferUserName}$</td>
+                        <td>${dr.TransferUserMUDID}$</td>
+                        <td>${dr.TransferOperateDate}$</td>
+                        <td>${dr.TransferOperateTime}$</td>
+                        <td>${dr.IsReAssign}$</td>
+                        <td>${dr.ReAssignOperatorName}$</td>
+                        <td>${dr.ReAssignOperatorMUDID}$</td>
+                        <td>${dr.ReAssignBUHeadName}$</td>
+                        <td>${dr.ReAssignBUHeadMUDID}$</td>
+                        <td>${dr.ReAssignBUHeadApproveDate}$</td>
+                        <td>${dr.ReAssignBUHeadApproveTime}$</td>
+                        <td>${dr.SpecialReason}$</td>
+
+                        <td>${dr.SupplierSpecialRemark}$</td>
+                        <td>${dr.IsCompleteDelivery}$</td>
+                        <td>${dr.SupplierConfirmAmount}$</td>
+                        <td>${dr.GSKConfirmAmount}$</td>
+                        <td>${dr.GSKConAAReason}$</td>
+
+                        <td></td>
+
+                        <td>${dr.MealPaymentAmount}$</td>
+                        <td>${dr.MealPaymentPO}$</td>
+                        <td>${dr.AccountingTime}$</td>
+
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>${dr.ORDState}$</td>
+                        @* <td><a href="javascript:;" class="button button-small bg-blue " onclick="Pop('${dr.HTCode}$', '${dr.ORDState}$')"> 特殊订单</a></td>*@
+                        <td>${dr.HtmlOrder}$</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="150" class="paging"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+

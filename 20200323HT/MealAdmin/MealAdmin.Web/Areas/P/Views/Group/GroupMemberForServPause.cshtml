@@ -1,0 +1,180 @@
+﻿@{
+    ViewBag.Title = ViewBag.PageTitle;
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        var pdg;
+        $(function () {
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/Group/Load', paging: true });
+            pdg.QueryParams = function () {
+
+                return {
+                    GroupType: '@ViewBag.GroupType',
+                    UserId: $('#txtMudId').val(),
+                    UserName: $('#txtName').val()
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+
+            $('#btnEdit').bind('click', function () {
+                Import();
+            });
+
+            $('#btnClear').bind('click', function () {
+                Clear();
+            });
+
+            $('#btnSendBF').on('click', function(){
+                $showdialogForConfim(
+                    {
+                        title: '确认发送',
+                        body: '确认发送简报吗？',
+                        ok: function () {
+                            $.PintuerPost(contextUri + '/P/Group/SentBF', { }, function(result){
+                                if (result.state != 1) {
+                                    $showdialog({ body: "执行发送失败！ " + result.txt });
+                                }
+                                else {
+                                    $showdialog({ body: "执行发送成功！" });
+                                }
+                            });
+                        }
+                    }
+                );
+            });
+            $('#btnExport').bind('click', function () {
+
+                window.location.href=contextUri + '/P/Group/ExportGroupList?MUDID=' + encodeURIComponent($('#txtMudId').val())
+                                + '&Name=' + encodeURIComponent($('#txtName').val())
+                                + '&GroupType=' + encodeURIComponent( '@ViewBag.GroupType');
+
+            });
+
+        });
+
+        function Load() {
+            pdg.Load();
+        }
+
+        // 弹出选择企业成员对话框
+        function Import() {
+            $showdialogForUrl(
+                {
+                    title: '导入成员',
+                    width: '350px',
+                    height: '380px',
+                    url: contextUri + '/P/Group/InputGroupMember?GroupType=@ViewBag.GroupType',
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '保存',
+                            handler: function (e) {
+                                window.top.c_manager.window.btnOKClick(e, Load);
+                            }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+                }
+            );
+        }
+
+        function Delete(id,UserId) {
+            $showdialogForConfim(
+                {
+                    title: '确认删除',
+                    body: '删除后无法恢复，您确定要删除吗？',
+                    ok: function () {
+                        $.PintuerPost(contextUri + '/P/Group/DeleteMember', { MemberID: id,UserId:UserId,GroupType:@ViewBag.GroupType}, Load);
+                    }
+                }
+            );
+        }
+
+        function Clear() {
+            $showdialogForConfim(
+                {
+                    title: '确认清空',
+                    body: '清空后无法恢复，您确定要清空组内成员吗？',
+                    ok: function () {
+                        $.PintuerPost(contextUri + '/P/Group/ClearMembers', {GroupType:@ViewBag.GroupType}, Load);
+                    }
+                }
+            );
+        }
+
+    </script>
+}
+<div class="tool_bar">
+    <label>@ViewBag.PageTitle</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+
+                <div class="line">
+
+                    <input type="text" class="input input-small" style="width:100px;" id="txtMudId" name="txtMudId" placeholder="MUDID" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtName" name="txtName" placeholder="姓名" />
+                    <button class="button button-small bg-main icon-search" id="btnLoad"> 搜索</button>
+                    @if (ViewBag.GroupType == MealAdmin.Entity.GroupTypeEnum.BriefReport.ToString("D"))
+                    {
+                        <button class="button button-small bg-blue icon-envelope-o" id="btnSendBF"> 发送简报</button>
+                    }
+
+                    <button class="button button-small bg-blue icon-file-o" id="btnEdit"> 添加</button>
+                    <button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>
+                    <button class="button button-small bg-dot icon-trash-o" id="btnClear"> 清空</button>
+
+                </div>
+            </div>
+        </div>
+        <table id="costcenter_dataTable" class="table table-hover">
+            <thead>
+                <tr>
+                    <th style="text-align:center; width:50px;">
+                        <input type="checkbox" />
+                    </th>
+                    <th>MUDID</th>
+                    <th>姓名</th>
+                    <th>暂停服务原因</th>
+                    <th style="width:110px;">创建人</th>
+                    <th style="width:190px;">创建时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td align="center"><input type="checkbox" name="id" value="${dr.ID}$"></td>
+                    <td>${dr.UserId}$</td>
+                    <td>${dr.UserName}$</td>
+                    <td>${dr.ServPauseType}$</td>
+                    <td>${dr.CreateUserId}$</td>
+                    <td>${getDateByDotNet(dr.CreateDate).pattern('yyyy-MM-dd HH:mm:ss')}$</td>
+                    <td>
+                        <a href="javascript:;" class="button border-yellow button-little icon-trash-o" onclick="Delete('${dr.ID}$','${dr.UserId}$')"> 删除</a>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="6" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+
+
+

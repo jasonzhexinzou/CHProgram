@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<beans>
+  <bean name="sqlServerTemplFactory" type="XFramework.XDataBase.DbTemplateFactory" assembly="XFramework.XDataBase">
+    <property name="DataBase" value="SqlServer" beanid="" />
+    <property name="DbSetting" value="MealAdmin" beanid="" />
+  </bean>
+  <bean name="sqlServerTemplFactoryNonHT" type="XFramework.XDataBase.DbTemplateFactory" assembly="XFramework.XDataBase">
+    <property name="DataBase" value="SqlServer" beanid="" />
+    <property name="DbSetting" value="NonHTMealAdmin" beanid="" />
+  </bean>
+
+  <!-- 微信操作相关 -->
+  <bean name="wxConfigManager" type="MealAdminApi.WxConfigManager" assembly="MealAdminApi">
+    <property name="AgentId" value="1000013" beanid="" />
+    <property name="CorpID" value="wxea15d639e2155786" beanid="" />
+    <property name="Secret" value="9ayb6ctFrf_G37yCDW05BVkAkC3qk3fhCUSDexsdPwg" beanid="" />
+    <property name="Token" value="" beanid="" />
+  </bean>
+  <bean name="wxSessionManager" type="XFramework.WeChatAPI.SessionHandlers.WxSessionManager" assembly="XFramework.WeChatAPI" />
+  <bean name="qyApiHandler" type="XFramework.WeChatAPI.SessionHandlers.QyApiHandler" assembly="XFramework.WeChatAPI">
+    <property name="wxConfigManager" value="" beanid="wxConfigManager" />
+    <property name="wxSessionManager" value="" beanid="wxSessionManager" />
+  </bean>
+  <!-- 微信操作相关 -->
+  <bean name="wConfigManager" type="MealAdminApi.WxConfigManager" assembly="MealAdminApi">
+    <property name="AgentId" value="26" beanid="" />
+    <property name="CorpID" value="wxea15d639e2155786" beanid="" />
+    <property name="Secret" value="9ayb6ctFrf_G37yCDW05BVkAkC3qk3fhCUSDexsdPwg" beanid="" />
+    <property name="Token" value="" beanid="" />
+  </bean>
+  <bean name="wSessionManager" type="XFramework.WeChatAPI.SessionHandlers.WxSessionManager" assembly="XFramework.WeChatAPI" />
+  <bean name="wApiHandler" type="XFramework.WeChatAPI.SessionHandlers.QyApiHandler" assembly="XFramework.WeChatAPI">
+    <property name="wxConfigManager" value="" beanid="wConfigManager" />
+    <property name="wxSessionManager" value="" beanid="wSessionManager" />
+  </bean>
+  <!-- 成本中心 -->
+  <bean name="costCenterDao" type="MealAdmin.Dao.CostCenterDao" assembly="MealAdmin.Dao" />
+  <bean name="costCenterService" type="MealAdmin.Service.CostCenterService" assembly="MealAdmin.Service">
+    <property name="costCenterDao" value="" beanid="costCenterDao" />
+  </bean>
+  <!-- 成本中心审批人 -->
+  <bean name="costCenterManagerDao" type="MealAdmin.Dao.CostCenterManagerDao" assembly="MealAdmin.Dao" />
+  <bean name="costCenterManagerService" type="MealAdmin.Service.CostCenterManagerService" assembly="MealAdmin.Service">
+    <property name="costCenterManagerDao" value="" beanid="costCenterManagerDao" />
+  </bean>
+  
+  <!-- P流程 -->
+  <bean name="orderDao" type="MealAdmin.Dao.OrderDao" assembly="MealAdmin.Dao" />
+  <bean name="orderService" type="MealAdmin.Service.OrderService" assembly="MealAdmin.Service" />
+  <bean name="baseDataDao" type="MealAdmin.Dao.BaseDataDao" assembly="MealAdmin.Dao" />
+  <bean name="baseDataService" type="MealAdmin.Service.BaseDataService" assembly="MealAdmin.Service" />
+  <bean name="marketDao" type="MealAdmin.Dao.MarketDao" assembly="MealAdmin.Dao" />
+  <bean name="marketService" type="MealAdmin.Service.MarketService" assembly="MealAdmin.Service" />
+  <bean name="meetingDao" type="MealAdmin.Dao.MeetingDao" assembly="MealAdmin.Dao" />
+  <bean name="meetingService" type="MealAdmin.Service.MeetingService" assembly="MealAdmin.Service" />
+  <bean name="evaluateDao" type="MealAdmin.Dao.EvaluateDao" assembly="MealAdmin.Dao" />
+  <bean name="evaluateService" type="MealAdmin.Service.EvaluateService" assembly="MealAdmin.Service" />
+  <bean name="holidayDao" type="MealAdmin.Dao.HolidayDao" assembly="MealAdmin.Dao" />
+  <bean name="holidayService" type="MealAdmin.Service.HolidayService" assembly="MealAdmin.Service" />
+  <bean name="userInfoDao" type="MealAdmin.Dao.UserInfoDao" assembly="MealAdmin.Dao" />
+  <bean name="userInfoService" type="MealAdmin.Service.UserInfoService" assembly="MealAdmin.Service" />
+  <bean name="dCostCenterDao" type="MealAdmin.Dao.DCostCenterDao" assembly="MealAdmin.Dao" />
+  <bean name="dCostCenterService" type="MealAdmin.Service.DCostCenterService" assembly="MealAdmin.Service" />
+  <bean name="preApprovalDao" type="MealAdmin.Dao.PreApprovalDao" assembly="MealAdmin.Dao" />
+  <bean name="preApprovalService" type="MealAdmin.Service.PreApprovalService" assembly="MealAdmin.Service" />
+  <bean name="uploadOrderDao" type="MealAdmin.Dao.UploadOrderDao" assembly="MealAdmin.Dao" />
+  <bean name="uploadOrderService" type="MealAdmin.Service.UploadOrderService" assembly="MealAdmin.Service" />
+
+  <!-- fzd -->
+  <bean name="groupMemberDao" type="MealAdmin.Dao.GroupMemberDao" assembly="MealAdmin.Dao" />
+  <bean name="groupMemberService" type="MealAdmin.Service.GroupMemberService" assembly="MealAdmin.Service" />
+
+  <bean name="bizConfigDao" type="MealAdmin.Dao.BizConfigDao" assembly="MealAdmin.Dao" />
+  <bean name="bizConfigService" type="MealAdmin.Service.BizConfigService" assembly="MealAdmin.Service" />
+
+  <bean name="hospitalDao" type="MealAdmin.Dao.HospitalDao" assembly="MealAdmin.Dao" />
+  <bean name="hospitalService" type="MealAdmin.Service.HospitalService" assembly="MealAdmin.Service" />
+
+  <!-- hls -->
+  <bean name="provinceDao" type="MealAdmin.Dao.ProvinceDao" assembly="MealAdmin.Dao" />
+  <bean name="provinceService" type="MealAdmin.Service.ProvinceService" assembly="MealAdmin.Service" />
+  
+  <!-- 订餐接口相关-->
+  <!--<bean name="apiClient" type="iPathFeast.API.Client.ApiV1Client" assembly="iPathFeast.API.Client">
+    <property name="apiHost" value="http://localhost:2928/ApiV1" beanid="" />
+    <property name="customer" value="iPath_test" beanid="" />
+    <property name="apiKey" value="AreyouOK?" beanid="" />
+    <property name="log4netName" value="apiClient" beanid="" />
+  </bean>-->
+
+  <bean name="apiClient" type="iPathFeast.API.Client.ApiV1Client" assembly="iPathFeast.API.Client">
+    <property name="apiHost" value="http://localhost:2928/ApiV1" beanid="" />
+    <property name="customer" value="GSK_HT" beanid="" />
+    <property name="apiKey" value="GSK_HT" beanid="" />
+    <property name="log4netName" value="apiClient" beanid="" />
+  </bean>
+      
+  <!-- 费用分析 -->
+  <bean name="exportManagementService" type="MealAdmin.Service.ExportManagementService" assembly="MealAdmin.Service" />
+  <bean name="exportManagementDao" type="MealAdmin.Dao.ExportManagementDao" assembly="MealAdmin.Dao" />
+
+  <bean name="analysisService" type="MealAdmin.Service.AnalysisService" assembly="MealAdmin.Service" />
+  <bean name="analysisDao" type="MealAdmin.Dao.AnalysisDao" assembly="MealAdmin.Dao" />
+
+  <bean name="BUManagementDao" type="MealAdmin.Dao.BUManagementDao" assembly="MealAdmin.Dao" />
+  <bean name="BUManagementService" type="MealAdmin.Service.BUManagementService" assembly="MealAdmin.Service" />
+  
+</beans>

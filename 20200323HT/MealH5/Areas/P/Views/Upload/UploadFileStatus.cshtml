@@ -1,0 +1,204 @@
+﻿@{
+    ViewBag.Title = "上传文件状态";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<script type="text/html" id="tmpl_myApproval">
+    {{each rows}}
+    <li _id="{{$value.ID}}" _index="{{$value.Index}}" style="border-bottom: 1px solid silver;width:100%;float:left;margin-top:10px;background-color: #FFFFFF;">
+        <div style="width:100%;float:left;">
+            <div class="title"><span style="font-size:12px;padding-left:10px;"><strong>{{$value.HospitalName}}</strong></span></div>
+            <div class="title">
+                <span style="font-size:10px;padding-left:10px;opacity:0.7;">{{$value.MeetingDate}}</span>
+                {{if $value.State=='上传文件待审批'}}
+                <span style="font-size:1em;float:right;padding-right:1em"><strong>{{$value.State}}</strong></span>
+                {{/if}}
+                {{if $value.State=='上传文件审批被驳回'}}
+                <span style="font-size:1em;color:red;float:right;padding-right:1em"><strong>{{$value.State}}</strong></span>
+                {{/if}}
+                {{if $value.State=='上传文件审批通过'}}
+                <span style="font-size:1em;color:green;float:right;padding-right:1em"><strong>{{$value.State}}</strong></span>
+                {{/if}}
+            </div>
+            <div class="title">
+                <span style="font-size:10px;padding-left:10px;opacity:0.7;">{{$value.HTCode}}</span>
+                {{if $value.OrderState!='0'}}
+                <span style="font-size:1em;float:right;padding-right:1em;font-weight:bold;">{{$value.OrderState}}</span>
+                {{/if}}
+            </div>
+            {{if $value.IsTransfer==1}}
+            <div class="title">
+                <span style="font-size:10px;padding-left:10px;opacity:0.7;"><strong>原订单申请人：{{$value.ApplierName}}</strong></span>
+            </div>
+            {{/if}}
+        </div>
+    </li>
+    {{/each}}
+</script>
+
+<script type="text/html" id="tmpl_myApprove">
+    {{each rows}}
+    <li _id="{{$value.ID}}" style="border-bottom: 1px solid silver;width:100%;float:left;margin-top:10px;background-color: #FFFFFF;">
+        <table style="width:100%;float:left">
+            <tr>
+                <td style="width:58%;">
+                    <a class="pInfo" style="width:100%;" href="javascript:;" _val="{{$value.ID}}">
+                        <span style="font-size:12px;color:black;padding-left:5px;"><strong>{{$value.HospitalName}}</strong></span>
+                    </a>
+                </td>
+                <td rowspan="3" style="width:35%;">
+                    <a class="pInfo" style="width:100%;" href="javascript:;" _val="{{$value.ID}}">
+                        <span style="font-size:14px;color:black;"><strong>{{$value.State}}</strong></span>
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:58%;">
+                    <a class="pInfo" style="width:100%;" href="javascript:;" _val="{{$value.ID}}"><span style="color:black;font-size:12px;opacity:0.7;padding-left:5px;">{{$value.MeetingDate}}</span></a>
+                </td>
+            </tr>
+            <tr style="float:left;width:100%;">
+                <td style="width:58%;">
+                    <a class="pInfo" style="width:100%;" href="javascript:;" _val="{{$value.ID}}"><span style="color:black;font-size:12px;opacity:0.7;padding-left:5px;">{{$value.HTCode}}</span></a>
+                </td>
+            </tr>
+        </table>
+    </li>
+    {{/each}}
+</script>
+
+<style type="text/css">
+
+    body {
+        height: auto;
+    }
+
+    .stateBtn {
+        font-size: 10px;
+        width: 70% !important;
+    }
+
+    .stateDP {
+        height: 30px;
+        line-height: 30px;
+        font-size: 12px;
+    }
+</style>
+
+<script type="text/javascript">
+    var listyear = [];  //年份列表
+    var listmonth = ['All']; //月份列表
+    var months = ["All",1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    var yearNow;      //当前年份
+    var monthNow;     //当前月份
+    var hasRights = @ViewBag.HasApproveRights;
+    $(function () {
+        var dateNow = new Date();
+        yearNow = dateNow.getFullYear();
+        monthNow = dateNow.getMonth() + 1;
+
+        //设置默认时间
+        //默认选择当前年
+        for (var i = 2017; i <= yearNow; i++) {
+            listyear.push(i);
+        }
+        $.each(listyear, function (i, n) {
+            var _content = "<option value='" + n + "'>" + n + "年</option>";
+            $("#years").append(_content);
+            $("#approveYears").append(_content);
+        });
+        document.getElementById("years").value = yearNow;
+        document.getElementById("approveYears").value = yearNow;
+
+        //默认选择当前月
+        for (var i = 1; i <= monthNow; i++) {
+            listmonth.push(i);
+        }
+        $.each(listmonth, function (i, n) {
+            if (n == "All") {
+                var _content = "<option value='" + n + "'>" + n + "</option>";
+                $("#months").append(_content);
+                $("#approveMonths").append(_content);
+            }
+            else {
+                var _content = "<option value='" + n + "'>" + n + "月</option>";
+                $("#months").append(_content);
+                $("#approveMonths").append(_content);
+            }
+        });
+        document.getElementById("months").value = "All";
+        document.getElementById("approveMonths").value = "All";
+        if (hasRights) {
+            $("#dvApproveContent").show();
+            $("#btnApproveAll").show();
+            $("#btnApproveSelected").show();
+            $("#dvNoRights").hide();
+        }
+        else {
+            $("#dvApproveContent").hide();
+            $("#btnApproveAll").hide();
+            $("#btnApproveSelected").hide();
+            $("#dvNoRights").show();
+            $("#dvNoRightsBg").height(window.screen.height);
+        }
+    });
+</script>
+
+<script type="text/javascript" src="~/Content/js/Upload_UploadFileStatus.js?v=javaScriptVersion"></script>
+
+<div class="page-main">
+    <ul id="tabs">
+        <li><a href="#" title="MyApproval">我的上传文件</a></li>
+        <li><a href="#" title="MyApprove">上传文件审批</a></li>
+    </ul>
+    <div id="content">
+        <div id="MyApproval">
+            <div class="weui-cell__bd">
+                <div class="" style="width:100%;float:left;background-color: #FFFFFF;">
+                    <select class="stateDP" style="width:25%;float:left;height:32px;padding:6px 6px;" id="years"></select>
+                    <select class="stateDP" style="width:25%;float:left;height:32px;padding:6px 6px;" id="months"></select>
+                    <select class="stateDP" id="dpState" style="width:50%;float:left;height:32px;padding:6px 6px;">
+                        <option value="'1','2','3','4'">请选择上传文件审批状态</option>
+                        <option value="'1'">上传文件待审批</option>
+                        <option value="'4'">上传文件审批通过</option>
+                        <option value="'2','3'">上传文件审批被驳回</option>
+                    </select>
+                </div>
+            </div>
+            <ul id="myPreApprovalList" style="width:100%;overflow:hidden"></ul>
+        </div>
+        <div id="MyApprove">
+            <div id="dvApprove" class="page-body">
+                <div class="weui-cell__bd" style="width:100%;overflow:auto;">
+                    <div id="dvApproveContent" style="width:100%;float:left;">
+                        <div class="" style="width:100%;float:left;background-color: #FFFFFF;">
+                            <select class="stateDP" style="width:50%;float:left;height:32px;padding:6px 6px;" id="approveYears"></select>
+                            <select class="stateDP" style="width:50%;float:left;height:32px;padding:6px 6px;" id="approveMonths"></select>
+                            <input type="text" class="PreApproval-input" id="txtApplicant" name="Applicant" placeholder="申请人姓名或MUDID" />
+                            <select class="stateDP" id="dpApproveState" style="width:50%;float:left;height:32px;padding:6px 6px;">
+                                <option value="'1','2','3','4'">请选择上传文件审批状态</option>
+                                <option value="'1'" selected="selected">上传文件待审批</option>
+                                <option value="'4'">上传文件审批通过</option>
+                                <option value="'2','3'">上传文件审批驳回</option>
+                            </select>
+                        </div>
+                        <div>
+                            <div id="dvMyApproveList" style="width:100%;float:left;">
+                                <ul id="myApproveList" style="width:100%;overflow:hidden"></ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="dvNoRights">
+                        <div id="dvNoRightsBg" style="vertical-align: middle;text-align: center;">
+                            <img src="~/Content/image/nop.png" style="padding-top:30%">
+                            <br />
+                            <span style="font-size:1.25em;">
+                                您没有上传文件审批权限。
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

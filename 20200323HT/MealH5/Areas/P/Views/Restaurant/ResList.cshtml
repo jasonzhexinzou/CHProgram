@@ -1,0 +1,502 @@
+﻿
+@{
+    ViewBag.Title = "浏览餐厅";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+@{
+    bool isForMenu = ViewBag.isForMenu;
+    bool isChangeOrder = ViewBag.isChange;
+    string hospitalId = ViewBag.hospitalId;
+    string supplier = ViewBag.supplier;
+    string sendTime = ViewBag.sendTime;
+}
+
+<link rel="stylesheet" href="~/Content/css/restaurant_info.css?v=javaScriptVersion" />
+
+<style type="text/css">
+    html, body {
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .weui-cell {
+        padding: 0px;
+    }
+
+    .weui-cells {
+        margin-top: 0px;
+    }
+
+    .weui-cell__bd {
+        overflow: hidden;
+        min-height: 65px;
+    }
+
+        .weui-cell__bd .icon {
+            float: left;
+            width: 65px;
+            height: 65px;
+        }
+
+        .weui-cell__bd .body {
+            margin-left: 70px;
+            margin-right: 80px;
+        }
+
+        .weui-cell__bd .fee {
+            float: right;
+            width: 80px;
+            text-align: right;
+            color: #9B9B9B;
+            font-size: 16px;
+        }
+
+        .weui-cell__bd .icon img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .weui-cell__bd .fee span {
+            color: #F36633;
+            margin-right: 5px;
+        }
+
+        .weui-cell__bd .body .star_panel {
+            margin-top: 10px;
+        }
+
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 60px;
+        overflow: auto;
+    }
+
+    .page-body1 {
+        position: absolute;
+        top: 52px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .placeholder {
+        padding: 7px;
+    }
+
+    .resList li {
+        width: 100%;
+        margin-bottom: 10px;
+        background-color: #FFFFFF;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    #details {
+        background-color: #FFFFFF;
+    }
+</style>
+
+<script type="text/html" id="tmpl_resList">
+    {{each rows}}
+    <li _id="{{$value.resId}}" _channel="{{$value._Channel}}">
+        <div class="icon">
+            <img src="{{$value.imagePath}}" />
+        </div>
+        <div class="fee">
+            <div><span>￥{{$value.minAmount}}</span>起送</div>
+            {{if $value._Channel=='xms'}}
+            <img src="../../Content/image/xms.png" style="width:80px;height:30px;" />
+            {{else}}
+            <img src="../../Content/image/bds.png" style="width:70px;height:30px;" />
+            {{/if}}
+        </div>
+        <div class="body">
+            <div>{{$value.resName}}</div>
+            <div class="star_panel" data="{{$value.Star.Average}}">
+                @for (var i = 0; i < 5; i++)
+            {
+                    <div class="star">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                }
+            </div>
+        </div>
+    </li>
+    {{/each}}
+</script>
+
+<script type="text/html" id="temp_resDetail">
+
+    <div class="restaurant_info">
+        <h2>{{resName}}</h2>
+    </div>
+
+    <div class="promotion_baseinfos">
+        <ul>
+            <li><b>餐厅类型：</b>{{resType}}</li>
+            <li><b>外送时间：</b>{{worktime}}</li>
+            <li><b>外送条件：</b>{{#deliveryNotice}}</li>
+            {{if address}}
+            <li><b>餐厅电话：</b>{{resTel}}</li>
+            {{/if}}
+            {{if address}}
+            <li><b>餐厅地址：</b>{{address}}</li>
+            {{/if}}
+        </ul>
+        <ul>
+            {{each listMenu}}
+            {{include 'temp_resDetail_fooditem' $value}}
+            {{/each}}
+        </ul>
+    </div>
+
+</script>
+
+<script type="text/html" id="temp_resDetail_fooditem">
+    <li><strong>{{typeName}}:</strong></li>
+    {{each listFood}}
+    <li>{{$value.foodName}},{{$value.describe}} {{$value.price}}元</li>
+    {{/each}}
+</script>
+
+<script type="text/javascript">
+    var isForMenu = @isForMenu;
+    var hospitalId='@hospitalId';
+    var _supplier='@supplier';
+    var render;
+    var renderDetail;
+    var _resId;
+    var nowOrderInfo;
+    var resLists;
+    var sendTime='@sendTime';
+
+    // 餐厅列表
+    var listRes = new Array();
+
+    var iRoute;
+    var baseUri = contextUri + '/P/Restaurant/ResList' + location.search;
+    var detailsUri = baseUri + '#details';
+    $(function () {
+        iRoute = new iPathRoute();
+        iRoute.Init();
+
+        iRoute.AddListener(contextUri + '/P/Restaurant/ResList', function () {
+            $('#list').show();
+            $('#details').hide();
+        });
+
+        iRoute.AddListener(baseUri, function () {
+            $('#list').show();
+            $('#details').hide();
+        });
+
+        iRoute.AddListener(detailsUri, function () {
+            $('#list').hide();
+            $('#details').show();
+        });
+
+
+        //iPath.Star();
+        render = template('tmpl_resList');
+        renderDetail = template('temp_resDetail');
+
+        post('/P/Food/NowOrderInfo', {},
+            function(d) {
+                nowOrderInfo = d.data;
+                loadResList(_supplier,sendTime);
+            }, 'json');
+
+
+        $('#btnRtn').click(function() {
+            history.back();
+        });
+
+
+        $('#btnChooseCN').click(function() {
+
+            $('input[name="restaurantId"]').val(_resId);
+            $('input[name="supplier"]').val(_supplier);
+            if (!isInTimespan(getTimeNow(), timeConfig.workBegin, timeConfig.workEnd)) {
+                showDlg(MSG_NOWORKINGTIME);
+            }
+            else{
+                $('#form2').submit();
+            }
+        });
+
+        $('#Supplier').change(function () {
+            var cha = $('#Supplier').val();
+            $('#keyword').val('');
+            $('#resList').empty();
+            loadResList(cha,sendTime);
+        });
+
+    });
+
+    // 加载餐厅
+    function loadResList(supplier,sendTime) {
+        resLists=null;
+
+        post('/P/Restaurant/LoadRestaurant',
+            {
+                hospitalId: hospitalId,
+                supplier:supplier,
+                sendTime:sendTime
+            },
+            function (d) {
+                if (d.rows.length == 0) {      
+                    showDlg(MSG_NORESTAURANT,  '确定', function () {
+                        return;
+                    });
+                    return;
+                    //showDlg(MSG_NORESTAURANT);
+                }
+
+                var resIds = new Array();
+                d.rows.forEach(function(val) {
+                    resIds.push(val.resId);
+                });
+
+                resLists = d;
+                post('/P/Restaurant/LoadStar', {resIds : resIds},
+                    function(d) {
+
+                        resLists.rows.forEach(function(val) {
+                            listRes[val.resId] = val;
+                        });
+
+                        d.rows.forEach(function(v) {
+                            listRes[v.RestaurantId].Star = v;
+                        });
+
+                        var html = render(resLists);
+                        $('#resList').append(html);
+                        iPath.Star();
+
+                        $('#resList>li').click(function() {
+                            event.stopPropagation();
+                            _resId = $(this).attr('_id');
+                            _supplier=$(this).attr('_channel');
+                            showDetails(_resId,_supplier);
+                        });
+
+                    },  'json');
+
+
+
+            }, 'json');
+    }
+
+    // 显示餐厅详情
+    function showDetails(resId,supplier) {
+        var _res = listRes[resId];
+
+        if (_res != undefined) {
+
+            _res.worktime = '';
+            if (_res.businessHourStart == 0 && _res.businessHourEnd == 0) {
+                _res.worktime = '全天候';
+            } else {
+
+                var _businessHourStart = _res.businessHourStart - eightHours;
+                var _businessHourEnd = _res.businessHourEnd - eightHours;
+                _res.worktime += new Date(_businessHourStart).pattern('HH:mm');
+                _res.worktime += ' - ';
+                if (oneDay <= _businessHourEnd) {
+                    _res.worktime += '次日';
+                }
+                _res.worktime += new Date(_businessHourEnd).pattern('HH:mm');
+
+                if (_res.eveningHourStart != 0 && _res.eveningHourEnd != 0 && _res.businessHourStart != _res.eveningHourStart) {
+                    _res.worktime += ' 晚间:';
+
+                    var _eveningHourStart = _res.eveningHourStart - eightHours;
+                    var _eveningHourEnd = _res.eveningHourEnd - eightHours;
+                    _res.worktime += new Date(_eveningHourStart).pattern('HH:mm');
+                    _res.worktime += ' - ';
+                    if (oneDay <= _eveningHourEnd) {
+                        _res.worktime += '次日';
+                    }
+                    _res.worktime += new Date(_eveningHourEnd).pattern('HH:mm');
+                }
+            }
+
+            if (nowOrderInfo.hospital.isExternal == 0) {
+                _res.address = undefined;
+            }
+            var html = renderDetail(_res);
+            $('#resDetails').html(html);
+            $('#btnNext').attr('href', $('#btnNext').attr('_href') + resId+'&supplier='+supplier);
+
+
+            iRoute.Navigation(detailsUri, {}, '餐厅详情');
+            //$("#list").hide();
+            //$("#details").show();
+        }
+    }
+
+    //搜索餐厅
+    function selectRes(){
+        var keyword=$('#keyword').val().trim();
+
+        if(keyword!=''){
+
+            var resListRow=resLists.rows;
+
+            var resList= new Array();
+
+            for (var i in resListRow) {
+                if (resListRow[i].resName.indexOf(keyword) != -1) {
+                    resList.push(resListRow[i]);
+                }
+            }
+            var resIds=new Array();
+            resList.forEach(function(val) {
+                resIds.push(val.resId);
+            });
+
+            if(resIds.length>0){
+                post('/P/Restaurant/LoadStar', {resIds : resIds},
+                  function(d) {
+                      resList.forEach(function(val) {
+                          listRes[val.resId] = val;
+                      });
+
+                      d.rows.forEach(function(v) {
+                          listRes[v.RestaurantId].Star = v;
+                      });
+
+                      var selectData = {
+                          state:1,
+                          rows: resList
+                      };
+                      var html = render(selectData);
+                      $('#resList').empty();
+                      $('#resList').append(html);
+                      iPath.Star();
+
+                      $('#resList>li').click(function() {
+                          event.stopPropagation();
+                          _resId = $(this).attr('_id');
+                          _supplier=$(this).attr('_channel');
+                          showDetails(_resId,_supplier);
+                      });
+
+                  },  'json');
+            }else{
+                $('#resList').empty();
+            }
+        }else{
+
+            $('#resList').empty();
+
+            var resIds = new Array();
+            resLists.rows.forEach(function(val) {
+                resIds.push(val.resId);
+            });
+
+            post('/P/Restaurant/LoadStar', {resIds : resIds},
+                function(d) {
+
+                    resLists.rows.forEach(function(val) {
+                        listRes[val.resId] = val;
+                    });
+
+                    d.rows.forEach(function(v) {
+                        listRes[v.RestaurantId].Star = v;
+                    });
+
+                    var html = render(resLists);
+                    if ($('#keyword').val() == '') {
+                        $('#resList').append(html);
+                    }
+                    iPath.Star();
+
+                    $('#resList>li').click(function() {
+                        event.stopPropagation();
+                        _resId = $(this).attr('_id');
+                        _supplier=$(this).attr('_channel');
+                        showDetails(_resId,_supplier);
+                    });
+
+                },  'json');
+        }
+    }
+
+</script>
+
+<div id="list" class="page-main">
+    <div id="IsChange">
+        <input id="keyword" oninput="selectRes()" type="text" placeholder="搜索餐厅名称" style="height:32px;padding:6px 6px;margin-left:8px;width:calc(100% - 110px);float:left;margin-top:10px;" />
+        <select name="Supplier" id="Supplier" style="height:32px;padding:6px 6px;margin-top:10px;margin-right:4px;margin-left:4px;width:90px;">
+            @if (ViewBag.isChange)
+            {
+                if (ViewBag.supplier == "xms")
+                {
+                    <option value="xms">XMS</option>
+                }
+                else
+                {
+                    <option value="bds">BDS</option>
+                }
+            }
+            else
+            {
+                <option selected='' value=''>全部餐厅</option>
+                <option value="bds">BDS</option>
+                <option value="xms">XMS</option>
+            }
+
+        </select>
+    </div>
+    <div class="page-body1">
+        <a class="weui-cell weui-cell_access">
+            <div class="weui-cell__bd">
+                <ul class="resList" id="resList"></ul>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div style="display:none" id="details" class="page-main">
+    <div class="weui-cell__bd page-body" id="resDetails">
+
+    </div>
+
+    <div class="page-foot">
+        @if (ViewBag.isForMenu)
+        {
+            <a id="btnNext" href="" _href="~/P/Restaurant/Menu?restaurantId=" class="weui-btn weui-btn_orange">下一步</a>
+        }
+        else
+        {
+            <div class="page__bd page__bd_spacing">
+                <div class="weui-flex">
+                    <div class="weui-flex__item">
+                        <div class="placeholder">
+                            <a id="btnRtn" class="weui-btn weui-btn_orange">返回列表</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>

@@ -1,0 +1,147 @@
+﻿body {
+}
+
+.page-main{
+        overflow-y:scroll;
+    }
+
+    .cost-head-div{
+        background-color:white;
+    }
+
+    .cost-title{
+        float:left;
+        font-size:11px;
+        margin:10px 3px 3px 3px;
+    }
+
+    .cost-title-line{
+        float:left;
+        font-size:11px;
+        margin:8px 3px 3px 3px;
+    }
+
+    .cost-label{
+        margin-top:5px;
+        margin-bottom:auto;
+    }
+
+    .cost-cell{
+        float:left;
+        margin:3px;
+    }
+
+    .cost-input{
+        font-weight:700;
+        font-size:11px;
+        color:orange;
+        width:60px;
+        height:17px;
+    }
+
+    .cost-right{
+        float:right;
+        margin:3px 20px 3px 3px;
+    }
+
+    .cost-button{
+        border:none;
+        background:none;
+        color:orange;
+        font-size:11px;
+        margin-top:5px;
+        margin-bottom:auto;
+        text-decoration:underline;
+    }
+
+    .cost-head-img {
+        width:100%;
+        height:auto;
+    }
+
+    .cost-head{
+        width:100%;
+        height:30px;
+        background-color:white;
+    }
+
+    .cost-content{
+        width:100%;
+        overflow-y:scroll;
+    }
+
+    .cost-content-row{
+        width:100%;
+        height:65px;
+        margin-top:1px;
+        background-color:white;
+    }
+
+    .cost-content-icon{
+        width:30px;
+        height:30px;
+        margin:10px;
+    }
+
+    .cost-content-img{
+        max-width:100%;
+        max-height:100%;
+    }
+
+    .cost-content-line{
+        float:left;
+    }
+
+    .cost-content-label{
+        font-size:14px;
+        line-height:20px;
+        margin-bottom:0px;
+        margin-left:3px;
+    }
+
+    .cost-title-right{
+        margin-left:30px;
+    }
+
+    .cost-content-input{
+        font-weight:700;
+        font-size:14px;
+        color:orange;
+        width:auto;
+        height:17px;
+        max-width:100px;
+    }
+
+    .cost-content-input-right{
+        font-weight:700;
+        font-size:14px;
+        color:steelblue;
+        width:auto;
+        height:17px;
+        max-width:50px;
+    }
+
+    .cost-content-row-a{
+        width:100%;
+        height:35px;
+        margin-top:1px;
+        margin-bottom:3px;
+        background-color:white;
+    }
+
+    .cost-content-right{
+        float:right;
+        margin:3px 10px 3px 3px;
+    }
+
+    .cost-alert-icon-top{
+        margin-top:17px;
+        max-width:12px;
+        max-height:12px;
+    }
+
+    .cost-alert-icon-bottom{
+        margin-top:45px;
+        max-width:12px;
+        max-height:12px;
+    }

@@ -1,0 +1,496 @@
+﻿@{
+    ViewBag.Title = "HT订单排名";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap/bootstrap-select.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/bootstrap/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/fontawesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="~/Content/bootstrap/bootstrap-select.js"></script>
+    <script type="text/javascript" src="~/Content/bootstrap/bootstrap3.3.7.js"></script>
+    <script src="~/Content/echarts.min.js"></script>
+
+    <style type="text/css">
+        #divCount {
+            width: 0;
+            height: 0;
+            border-bottom: 180px solid #F66800;
+            border-left: 120px solid transparent;
+            border-right: 120px solid transparent;
+            position: relative;
+            top: 140px;
+        }
+
+        #divAmount {
+            width: 0;
+            height: 0;
+            border-bottom: 180px solid #F66800;
+            border-left: 120px solid transparent;
+            border-right: 120px solid transparent;
+            position: relative;
+            top: 140px;
+        }
+
+        .triangleInput {
+            width: 200px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.5);
+            margin-top: 10px;
+            margin-left: -25px;
+            border: 2px solid #F66800;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .triangletextarea {
+            width: 200px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.5);
+            margin-top: 10px;
+            margin-left: -25px;
+            border: 2px solid #F66800;
+            border-radius: 5px;
+            text-align: center;
+            overflow: hidden;
+            resize: none;
+        }
+    </style>
+
+    <script type="text/javascript">
+        var TAlist = '@ViewBag.TAlist';
+        $(function () {
+            $('#divtriangle').hide();
+            $('#divtriangleAmount').hide();
+            $('#div1').hide();
+
+            var startYear = 2019;
+            var myDate = new Date();
+            var endYear = myDate.getFullYear();
+            var startmonth = myDate.getMonth() + 1;
+            var htmlstart;
+            var htmlmonth;
+            $('#sltYear').html('');
+            for (var i = startYear; i <= endYear; i++) {
+                if (i == endYear)
+                    htmlstart += '<option value="' + i + '" selected="selected">' + i + "年" + '</option>';
+                else
+                    htmlstart += '<option value="' + i + '">' + i + "年" + '</option>';
+            }
+            $('#sltYear').html(htmlstart);
+
+            $('#sltMonth').html('');
+            for (var i = 1; i <= 12; i++) {
+                if (i == startmonth)
+                    htmlmonth += '<option value="' + i + '" selected="selected">' + i + "月" + '</option>';
+                else
+                    htmlmonth += '<option value="' + i + '">' + i + "月" + '</option>';
+            }
+            $('#sltMonth').html(htmlmonth);
+
+            $('#sltta').html('');
+            var talist = TAlist.split(',');
+            var html = '<option value="ALL" selected="selected" >ALL</option>';
+            if (talist.length > 0) {
+                for (var i in talist) {
+                    html += '<option value="' + talist[i] + '">' + talist[i] + '</option>';
+                }
+            }
+            $('#sltta').html(html);
+
+            $('#btnRefresh').bind('click', function () {
+                //送餐时间不得早于2019.11
+                var dyear = $("#sltYear").val();
+                var dmonth = $("#sltMonth").val();
+                if (dyear == "2019" && dmonth < 11) {
+                    alert('所选择的会议日期不得早于2019年11月');
+                    return;
+                }
+
+                // 基于准备好的dom，初始化echarts实例
+                var myChart = echarts.init(document.getElementById('mainCount'));
+                var AmountChart = echarts.init(document.getElementById('mainAmount'));
+
+                var minNo = $('#txtMinNo').val();
+                var maxNo = $('#txtMaxNo').val();
+                var minRate = $('#txtMinRate').val();
+                var maxRate = $('#txtMaxRate').val();
+                var scopeNo = $('#txtScopeNo').val() != "" ? Number($('#txtScopeNo').val()) : maxNo;
+                var scopeRate = $('#txtScopeRate').val() != "" ? Number($('#txtScopeRate').val()) : maxRate;
+
+
+                getJson(minNo, maxNo, minRate, maxRate, scopeNo, scopeRate);
+                //查询数据
+                function getJson(minNo, maxNo, minRate, maxRate, scopeNo, scopeRate) {
+                    $.ajax({
+                        url: contextUri + "/P/Analysis/LoadOrderRankingChart",
+                        type: 'post',
+                        data: {
+                            Year: $("#sltYear").val(),
+                            Month: $("#sltMonth").val(),
+                            HTType: $('#slthttype').val(),
+                            TA: $('#sltta').val() == null ? "ALL" : $('#sltta').val().toString()
+                            //MinNo: $('#txtMinNo').val(),
+                            //MaxNo: $('#txtMaxNo').val(),
+                            //MinRate: $('#txtMinRate').val(),
+                            //MaxRate: $('#txtMaxRate').val()
+                        },
+                        dataType: "json",
+                        success: function (json) {
+                            if (json.state == 1) {
+                                $('#div1').show();
+                                var CountY = [];
+                                var PercentY = [];
+                                var AmountCountY = [];
+                                var AmountPercentY = [];
+                                for (var i = 0; i < 6; i++) {
+                                    CountY.push(json.data[i].MRCount);
+                                    PercentY.push(json.data[i].MRCountRate);
+                                }
+                                for (var i = 6; i < 12; i++) {
+                                    AmountCountY.push(json.data[i].MRAmountCount);
+                                    AmountPercentY.push(json.data[i].MRAmountCountRate);
+                                }
+
+                                var option = DrawBar(CountY, PercentY, minNo, maxNo, minRate, maxRate, scopeNo, scopeRate);
+                                if (option && typeof option === "object") {
+                                    // 使用刚指定的配置项和数据显示图表。
+                                    myChart.setOption(option, true);
+                                }
+                                var Aoption = DrawAmountBar(AmountCountY, AmountPercentY, minNo, maxNo, minRate, maxRate, scopeNo, scopeRate);
+                                if (Aoption && typeof Aoption === "object") {
+                                    // 使用刚指定的配置项和数据显示图表。
+                                    AmountChart.setOption(Aoption, true);
+                                }
+
+                                $('#divtriangle').show();
+                                $('#divtriangleAmount').show();
+
+                                var averStr = 'Average:' + json.data[12].MRCountAverage + '单';
+                                $('#txtAverage').val(averStr);
+                                var averAmountStr = 'Average:¥' + json.data[12].MRAmountAverage;
+                                $('#txtAverageAmount').val(averAmountStr);
+                                var LowestStr = 'Lowest:1单' + "\n" + json.data[12].MRCountForLow;
+                                $('#txtLowest').val(LowestStr);
+                                var HighestStr = 'Highest:' + json.data[12].MRCountHighest + '单' + "\n" + json.data[12].HighestName;
+                                $('#txtHighest').val(HighestStr);
+                                var HighestAmountStr = 'Highest:¥' + json.data[12].MRAmountHighest + "\n" + json.data[12].HighestAmountName;
+                                $('#txtHighestAmount').val(HighestAmountStr);
+                                var LowestAmountStr = 'Lowest:¥' + json.data[12].MRAmountLowest + "\n" + json.data[12].LowestAmountName;
+                                $('#txtLowestAmount').val(LowestAmountStr);
+                            }
+                            else {
+                                alert("没有符合筛选条件的数据，请重新选择筛选条件！");
+                            }
+                        }
+                    })
+                }
+
+                // 指定图表的配置项和数据
+                function DrawBar(YCount, YPercent, NoMin, NoMax, RateMin, RateMax, NoScope, RateScope) {
+                    var option = {
+                        color: ['#F66800', '#515151'],
+                        height: 350,
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'cross',
+                                crossStyle: {
+                                    color: '#555'
+                                }
+                            },
+                            formatter: function (params) {//提示框自定义
+                                return formatterTip(params);
+                            },
+                        },
+                        backgroundColor: 'rgb(255, 255, 255)',
+                        legend: {
+                            data: ['No.of MR', 'Percentage of MR'],
+                            selectedMode: false,
+                        },
+                        xAxis: [
+                            {
+                                type: 'category',
+                                data: ['1', '2', '3-4', '5-9', '10-14', '>15'],
+                                axisPointer: {
+                                    type: 'shadow'
+                                },
+                                axisLabel: {
+                                    interval: 'auto'
+                                }
+
+                            }
+                        ],
+
+                        yAxis: [
+                            {
+                                type: 'value',
+                                min: NoMin,
+                                max: NoMax,
+                                interval: NoScope,
+                                axisLabel: {
+                                    formatter: '{value} '
+                                }
+                            },
+                            {
+                                type: 'value',
+                                min: RateMin,
+                                max: RateMax,
+                                interval: RateScope,
+                                axisLabel: {
+                                    formatter: '{value} %'
+                                }
+                            }
+                        ],
+
+                        series: [
+                            {
+                                name: 'No.of MR',
+                                type: 'bar',
+                                barWidth: 60,//柱图宽度
+                                //barGap: 0.2,
+                                //barCategoryGap: '1%',
+                                data: YCount,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: '{c}'
+                                }
+                            },
+                            {
+                                name: 'Percentage of MR',
+                                type: 'line',
+                                yAxisIndex: 1,
+                                data: YPercent,
+
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    //formatter: '{c}%',
+                                    formatter: function (a) {
+                                        return formatterDecimalTip(a);
+                                    }
+                                }
+
+                            }
+                        ]
+
+                    };
+                    return option
+                }
+
+                function DrawAmountBar(YAmountCount, YAmountPercent, NoMin, NoMax, RateMin, RateMax, NoScope, RateScope) {
+                    var Aoption = {
+                        color: ['#F66800', '#515151'],
+                        height: 350,
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'cross',
+                                crossStyle: {
+                                    color: '#555'
+                                }
+                            },
+                            formatter: function (params) {//提示框自定义
+                                return formatterTip(params);
+                            },
+                        },
+                        backgroundColor: 'rgb(255, 255, 255)',
+                        legend: {
+                            data: ['No.of MR', 'Percentage of MR'],
+                            selectedMode: false,
+                        },
+                        xAxis: [
+                            {
+                                type: 'category',
+                                data: ['<=¥999', '¥1,000-2,499', '¥2,500-4,999', '¥5,000-9,999', '¥10,000-19,999', '>¥20,000'],
+                                axisPointer: {
+                                    type: 'shadow'
+                                },
+                                axisLabel: {
+                                    interval: 'auto',
+                                    rotate: 38
+                                }
+
+                            }
+                        ],
+
+                        yAxis: [
+                            {
+                                type: 'value',
+                                min: NoMin,
+                                max: NoMax,
+                                interval: NoScope,
+                                axisLabel: {
+                                    formatter: '{value} '
+                                }
+                            },
+                            {
+                                type: 'value',
+                                min: RateMin,
+                                max: RateMax,
+                                interval: RateScope,
+                                axisLabel: {
+                                    formatter: '{value} %'
+                                }
+                            }
+                        ],
+
+                        series: [
+                            {
+                                name: 'No.of MR',
+                                type: 'bar',
+                                barWidth: 60,//柱图宽度
+                                //barGap: 0.2,
+                                //barCategoryGap: '1%',
+                                data: YAmountCount,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: '{c}'
+                                }
+                            },
+                            {
+                                name: 'Percentage of MR',
+                                type: 'line',
+                                yAxisIndex: 1,
+                                data: YAmountPercent,
+
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    //formatter: '{c}%',
+                                    formatter: function (a) {
+                                        return formatterDecimalTip(a);
+                                    }
+                                }
+
+                            }
+                        ]
+
+                    };
+                    return Aoption
+                }
+
+            });
+
+        });
+
+        function toDecimal2(x) {
+            var f = Math.round(x * 100) / 100;
+            var s = f.toString();
+            var rs = s.indexOf('.');
+            if (rs < 0) {
+                rs = s.length;
+                s += '.';
+            }
+            while (s.length <= rs + 2) {
+                s += '0';
+            }
+            return s;
+        }
+
+        function formatterTip(params) {
+            var tip = params[0].name + '<br/>';
+            tip += params[0].marker + params[0].seriesName + ':' + params[0].value + '人' + '<br/>' + params[1].marker + params[1].seriesName + ':' + toDecimal2(params[1].value) + '%' + '<br/>';
+            return tip;
+        }
+
+        function formatterDecimalTip(a) {
+            var tip = toDecimal2(a.data) + '%';
+            return tip;
+        }
+
+    </script>
+}
+<div class="tool_bar">
+    <label>HT订单排名</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;border: solid 1px #ddd;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <label class="border-small label-block">
+                        年月筛选
+                        <select id="sltYear" name="sltYear" class="input input-small" style="width:100px;"></select>
+                        <select id="sltMonth" name="sltMonth" class="input input-small" style="width:100px;"></select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:50px;">
+                        HT类型
+                        <select class="input input-small" style="width:100px;" id="slthttype" name="slthttype">
+                            <option value="all">全部</option>
+                            <option value="0">院内HT</option>
+                            <option value="1">院外HT</option>
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:50px;">
+                        数据层级
+                        <select class="selectpicker bla bla bli" id="sltta" name="sltta" multiple></select>
+                    </label>
+                    <br />
+                    <label class="border-small label-block">
+                        人数区间
+                        <input type="text" class="input input-small" style="width:40px;" id="txtMinNo" name="txtMinNo" value="0" />&nbsp;-&nbsp;
+                        <input type="text" class="input input-small" style="width:40px;" id="txtMaxNo" name="txtMaxNo" value="900" />
+                    </label>
+                    <label class="border-small label-block" style="padding-left:10px;">
+                        跨度
+                        <input type="text" class="input input-small" style="width:40px;" id="txtScopeNo" name="txtScopeNo" value="300" />
+                    </label>
+                    <label class="border-small label-block" style="padding-left:62px;">
+                        占比范围
+                        <input type="text" class="input input-small" style="width:40px;" id="txtMinRate" name="txtMinRate" value="0" />&nbsp;-&nbsp;
+                        <input type="text" class="input input-small" style="width:40px;" id="txtMaxRate" name="txtMaxRate" value="60" />&nbsp;%
+                    </label>
+                    <label class="border-small label-block" style="padding-left:10px;">
+                        跨度
+                        <input type="text" class="input input-small" style="width:40px;" id="txtScopeRate" name="txtScopeRate" value="30" />&nbsp;%
+                    </label>
+                    <label class="border-small label-block" style="padding-left:80px;">
+                        <button class="button button-small bg-yellow fa fa-pie-chart" id="btnRefresh">刷新</button>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div id="div1" class="border-bottom inline form-auto padding" style="height:1122px">
+            <div  style="width:1000px">
+                <div id="divtriangle" style="float:left">
+                    <div id="divCount">
+                        @*<input type="text" class="triangleInput" id="txtHighest" name="txtHighest" />*@
+                        <textarea id="txtHighest" rows="2" class="triangletextarea"></textarea>
+                        <input type="text" class="triangleInput" id="txtAverage" name="txtAverage" />
+                        @*<input type="text" class="triangleInput" id="txtLowest" name="txtLowest" />*@
+                        <textarea id="txtLowest" rows="2" class="triangletextarea"></textarea>
+                    </div>
+                    <div style="margin-top:150px;text-align:center;font-weight:bold;font-size:16px;">
+                        Order by MR
+                    </div>
+                </div>
+                <div id="mainCount" style="width: 680px;height:550px;margin-left:80px;float:left;margin-top:10px;"></div>
+            </div>
+            <div  style="width:1000px">
+                <div id="divtriangleAmount" style="float:left">
+                    <div id="divAmount">
+                        @*<input type="text" class="triangleInput" id="txtHighestAmount" name="txtHighestAmount" />*@
+                        <textarea id="txtHighestAmount" rows="2" class="triangletextarea"></textarea>
+                        <input type="text" class="triangleInput" id="txtAverageAmount" name="txtAverageAmount" />
+                        @*<input type="text" class="triangleInput" id="txtLowestAmount" name="txtLowestAmount" />*@
+                        <textarea id="txtLowestAmount" rows="2" class="triangletextarea"></textarea>
+                    </div>
+                    <div style="margin-top:150px;text-align:center;font-weight:bold;font-size:16px;">
+                        Order Fee by MR
+                    </div>
+                </div>
+                <div id="mainAmount" style="width: 680px;height:550px;margin-left:80px;float:left"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

@@ -1,0 +1,878 @@
+﻿
+@{
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<style type="text/css">
+    html, body {
+        width: 100%;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 60px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .weui-label {
+        width: 140px !important;
+    }
+
+    .my_weui_uploader_input_wrp {
+        float: left;
+        position: relative;
+        margin-right: 9px;
+        margin-bottom: 9px;
+        width: 70px;
+        height: 70px;
+        border: 2px #D9D9D9;
+        border-radius: 10px;
+    }
+
+    /*.weui-uploader__input-box {
+        margin-left:9px;
+    }*/
+    .weui-label {
+        width: 170px !important;
+    }
+
+    .choosedwximage:before, .choosedwximage:after {
+        content: none;
+    }
+</style>
+
+<script type="text/html" id="tmpl_OrderDetails">
+    <div class="weui-cells__title">
+        订单详情
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">订单状态</label></div>
+            <div class="weui-cell__bd">
+                {{State}}
+            </div>
+        </div>
+        {{if IsRetuen!='' && IsRetuen!=null}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">退单状态</label></div>
+            <div class="weui-cell__bd">
+                {{IsRetuen}}
+            </div>
+        </div>
+        {{/if}}
+        {{if State=='订单未送达'}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">会议正常召开</label></div>
+            <div class="weui-cell__bd">
+                {{IsSpecialOrder=='3'?'否':'是'}}
+            </div>
+        </div>
+        {{/if}}
+        {{if IsSpecialOrder=='呼叫中心操作退单' || IsSpecialOrder=='会议支持文件丢失'}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label" style="color:red;">项目组特殊备注</label></div>
+            <div class="weui-cell__bd">
+                <span style="color:red;">{{IsSpecialOrder}}</span>
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">HT编号</label></div>
+            <div class="weui-cell__bd">
+                {{CN}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">申请人姓名</label></div>
+            <div class="weui-cell__bd">
+                {{details.preApproval.ApplierName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">MUDID</label></div>
+            <div class="weui-cell__bd">
+                {{details.preApproval.ApplierMUDID}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">Market</label></div>
+            <div class="weui-cell__bd">
+                {{Market}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">TA</label></div>
+            <div class="weui-cell__bd">
+                {{TA}}
+            </div>
+        </div>
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">供应商</label></div>
+            <div class="weui-cell__bd">
+                {{Channel.toUpperCase()}}
+            </div>
+        </div>
+        {{if Channel.toUpperCase()=='BDS'}}
+        <div class="weui-cell">
+            <div class="weui-cells__title" style="color:red;padding:0px 0px;margin:0px 0px;">
+                *BDS订单会产生3%的额外税费,此费用不计入餐费,每月由中央订餐项目组统一支付。
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">呼叫中心</label></div>
+            {{if Channel.toUpperCase()=='XMS'}}
+            <a href="tel:400-820-5577">400-820-5577</a>
+            {{else}}
+            <a href="tel:400-6868-912">400-6868-912</a>
+            {{/if}}
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用餐人数</label></div>
+            <div class="weui-cell__bd">
+                {{AttendCount}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">实际用餐人数</label></div>
+            <div class="weui-cell__bd">
+                {{RealCount}}
+            </div>
+        </div>
+        {{if RealCountChangeReason!='' && RealCountChangeReason!=null}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用餐人数调整原因</label></div>
+            <div class="weui-cell__bd">
+                {{RealCountChangeReason}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用餐人数调整备注</label></div>
+            <div class="weui-cell__bd">
+                {{RealCountChangeRemrak}}
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">预定金额</label></div>
+            <div class="weui-cell__bd">
+                RMB {{TotalPrice}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">实际金额</label></div>
+            <div class="weui-cell__bd">
+                {{if XmsTotalPrice > -1 && XmsTotalPrice != TotalPrice}}
+                RMB {{XmsTotalPrice}}
+                {{else}}
+                RMB {{TotalPrice}}
+                {{/if}}
+            </div>
+        </div>
+        {{if ChangeTotalPriceReason != '' && ChangeTotalPriceReason != null}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">实际金额调整原因</label></div>
+            <div class="weui-cell__bd">
+                {{ChangeTotalPriceReason}}
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用户确认金额</label></div>
+            <div class="weui-cell__bd">
+                RMB {{RealPrice}}
+            </div>
+        </div>
+        {{if RealPriceChangeReason!='' && RealPriceChangeReason!=null}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">确认金额调整原因</label></div>
+            <div class="weui-cell__bd">
+                {{RealPriceChangeReason}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">确认金额调整备注</label></div>
+            <div class="weui-cell__bd">
+                {{RealPriceChangeRemark}}
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">医院名称</label></div>
+            <div class="weui-cell__bd">
+                {{HospitalName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">医院编码</label></div>
+            <div class="weui-cell__bd">
+                {{HospitalId}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">送餐地址</label></div>
+            <div class="weui-cell__bd">
+                {{Address}} {{DeliveryAddress}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">收餐人</label></div>
+            <div class="weui-cell__bd">
+                {{Consignee}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联系电话</label></div>
+            <div class="weui-cell__bd">
+                {{Phone}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">送餐时间</label></div>
+            <div class="weui-cell__bd">
+                {{DeliverTime.pattern('yyyy-MM-dd HH:mm')}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">会议名称</label></div>
+            <div class="weui-cell__bd">
+                {{MeetingName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">备注</label></div>
+            <div class="weui-cell__bd">
+                {{Remark}}
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script type="text/javascript">
+    var jsapiurl = '@MealH5.Handler.WebConfigHandler.ShortUrlService/JsApi/QyConfigJs?debug=false&url=' + UrlEncode(window.location.href);
+    document.write('<script type="text/javascript" src="' + jsapiurl + '"><\/script>');
+</script>
+
+<script type="text/javascript">
+    var _images = new Array();
+    var _images2 = new Array();
+    var _images3 = new Array();
+    var nowOrderInfo;
+    var awsUrl = '@MealH5.Handler.WebConfigHandler.AWSService';
+    var htCode = '@ViewBag.HTCode';
+    var fileType = '@ViewBag.FileType';
+    var uploadOrderId = '@ViewBag.UploadOrderID';
+    var render;
+    $(function () {
+        if (!isInTimespan(getTimeNow(), timeConfig.UploadOperableTimeSpanBegin, timeConfig.UploadOperableTimeSpanEnd)) {
+            showDlg(MSG_NOUPLOADFILETIME, '返回', function () {
+                WeixinJSBridge.call('closeWindow');
+            }, 'info')
+        }
+        render = template('tmpl_OrderDetails');
+        post('/P/Upload/FindUploadOrderByID', { UploadOrderId: uploadOrderId }, function (d) {
+            if (fileType == 0) {
+                $("#dvNormal").show();
+                $("#dvSpecial").hide();
+                if (d.data.IsAttentSame == 1) {
+                    $("#NumberOne").attr("checked", "checked");
+                }
+                else {
+                    $("#NumberTwo").attr("checked", "checked");
+                    $("#dvReason").show();
+                    $("#NumberAdjustmentReason").val(d.data.AttentSameReason);
+                }
+                if (d.data.IsMeetingInfoSame == 1) {
+                    $("#MeetingInfoOne").attr("checked", "checked");
+                }
+                else {
+                    $("#MeetingInfoTwo").attr("checked", "checked");
+                    $("#dvMeetingInfoMemo").show();
+                    $("#txtMeetingInfoMemo").val(d.data.MeetingInfoSameReason);
+                }
+
+                //图片处理
+                var images = d.data.MMCoEImageOne.split(',');
+                var imageUrls = new Array();
+                var html = '';
+                for (var i in images) {
+                    html += '<div class="my_weui_uploader_input_wrp icon_sp_area" style="margin-top: 5px;margin-right: 20px;" id="' + i + '">'
+                        + '<img _src="' + images[i] + '" src="' + awsUrl + images[i] + '" style="width:100%; height:100%;margin-top: 5px;"/>'
+                        + '<i class="weui-icon-cancel" style="float:right; position: relative; top: -89px; right: -16px;" onclick="removeUploadImage(this)"></i>'
+                        + '</div>';
+                    var _url = awsUrl + images[i];
+                    imageUrls.push(_url);
+                }
+                $('#uploaderInput').before(html);
+                $('#chooseUploadImage img').each(function (i, e) {
+                    $(this).click(function () {
+                        WeixinJSBridge.invoke('imagePreview', {
+                            'current': imageUrls[i],
+                            'urls': imageUrls
+                        });
+                    });
+                });
+                showAddChooseUploadImage();
+                images = d.data.MMCoEImageTwo.split(',');
+                var imageUrls = new Array();
+                var html = '';
+                for (var i in images) {
+                    html += '<div class="my_weui_uploader_input_wrp icon_sp_area" style="margin-top: 5px;margin-right: 20px;" id="' + i + '">'
+                        + '<img _src="' + images[i] + '" src="' + awsUrl + images[i] + '" style="width:100%; height:100%;margin-top: 5px;"/>'
+                        + '<i class="weui-icon-cancel" style="float:right; position: relative; top: -89px; right: -16px;" onclick="removeConferencePhotoFile(this)"></i>'
+                        + '</div>';
+                    var _url = awsUrl + images[i];
+                    imageUrls.push(_url);
+                }
+                $('#ConferencePhotoFile').before(html);
+                $('#chooseUploadConferencePhotoFile img').each(function (i, e) {
+                    $(this).click(function () {
+                        WeixinJSBridge.invoke('imagePreview', {
+                            'current': imageUrls[i],
+                            'urls': imageUrls
+                        });
+                    });
+                });
+                showAddChooseConferencePhotoFile();
+            }
+            else {
+                $("#dvNormal").hide();
+                $("#dvSpecial").show();
+                if (d.data.IsAddFile == 1) {
+                    $("#rbIsAddFile1").attr("checked", "checked");
+                    $("#dvUploadOther").show();
+                    var images = d.data.MMCoEImageThree.split(',');
+                    var imageUrls = new Array();
+                    var html = '';
+                    for (var i in images) {
+                        html += '<div class="my_weui_uploader_input_wrp icon_sp_area" style="margin-top: 5px;margin-right: 20px;" id="' + i + '">'
+                            + '<img _src="' + images[i] + '" src="' + awsUrl + images[i] + '" style="width:100%; height:100%;margin-top: 5px;"/>'
+                            + '<i class="weui-icon-cancel" style="float:right; position: relative; top: -89px; right: -16px;" onclick="removeOtherPhotoFile(this)"></i>'
+                            + '</div>';
+                        var _url = awsUrl + images[i];
+                        imageUrls.push(_url);
+                    }
+                    $('#OtherPhotoFile').before(html);
+                    $('#chooseUploadOtherPhotoFile img').each(function (i, e) {
+                        $(this).click(function () {
+                            WeixinJSBridge.invoke('imagePreview', {
+                                'current': imageUrls[i],
+                                'urls': imageUrls
+                            });
+                        });
+                    });
+                    showAddChooseOtherPhotoFile();
+                }
+                else {
+                    $("#rbIsAddFile2").attr("checked", "checked");
+                }
+                if (fileType == 1) {
+                    $("#lblSpecialReason").html("退单原因");
+                    $("#txtSpecialReason").attr("placeholder", "请输入退单原因，至少八个字以上");
+                    $('#btnSubmit').text("提交退单原因");
+                }
+                else if (fileType == 2) {
+                    $("#lblSpecialReason").html("文件丢失原因");
+                    $("#txtSpecialReason").attr("placeholder", "请输入文件丢失原因，至少八个字以上");
+                    $('#btnSubmit').text("提交文件丢失原因");
+                }
+                else {
+                    $("#lblSpecialReason").html("未送达，会议未正常召开原因");
+                    $("#txtSpecialReason").attr("placeholder", "请输入未送达，会议未正常召开原因，至少八个字以上");
+                    $('#btnSubmit').text("提交未送达，会议未正常召开原因");
+                }
+                $("#txtSpecialReason").val(d.data.SpecialReason);
+                post('/P/Upload/FindOrderByHTCode', { HTCode: htCode }, function (d) {
+                    var orderInfo = d.data;
+                    switch (orderInfo.State) {
+                        case 6: orderInfo.State = "订单确认收餐"; break;
+                        case 7: orderInfo.State = "订单系统收餐"; break;
+                        case 8: orderInfo.State = "订单未送达"; break;
+                        case 9: orderInfo.State = "订单已评价"; break;
+                        case 12: orderInfo.State = "订单退单失败"; break;
+                    }
+                    orderInfo.DeliverTime = getDateByDotNet(orderInfo.DeliverTime);
+                    orderInfo.TotalPrice = format(orderInfo.TotalPrice);
+                    orderInfo.XmsTotalPrice = format(orderInfo.XmsTotalPrice);
+                    orderInfo.RealPrice = format(delcommafy(orderInfo.RealPrice) * 1);
+                    switch (orderInfo.IsRetuen) {
+                        case 1: orderInfo.IsRetuen = "订单申请退单"; break;
+                        case 2: orderInfo.IsRetuen = "订单退单成功"; break;
+                        case 3: orderInfo.IsRetuen = "订单退单失败"; break;
+                        case 4: orderInfo.IsRetuen = "订单退单失败"; break;
+                        case 5: orderInfo.IsRetuen = "订单退单失败"; break;
+                        case 6: orderInfo.IsRetuen = "订单退单失败"; break;
+                    }
+                    IsSpecialOrder = orderInfo.IsSpecialOrder;
+                    switch (orderInfo.IsSpecialOrder) {
+                        case 1: orderInfo.IsSpecialOrder = "呼叫中心操作退单"; break;
+                        case 2: orderInfo.IsSpecialOrder = "会议支持文件丢失"; break;
+                    }
+                    orderInfo.details = JSON.parse(orderInfo.Detail);
+                    var html = render(orderInfo);
+                    $('#dvOrderInfo').html(html);
+                }, 'json');
+            }
+            if (d.data.State != "2" && d.data.State != "3") {
+                $("#btnSubmit").attr("disabled", "disabled");
+                $('#btnSubmit').css("background-color", "rgba(0, 0, 0, 0.3)");
+            }
+        }, 'json');
+
+        $('#btnSubmit').on('click', function () {
+            showLoadingToast();
+            if (fileType == 0) {
+                //是否与实际用餐人数一致
+                var infos = $("input:radio[name=SameActualNumberDiners]:checked").val();
+                var divReason = $('#NumberAdjustmentReason').val();
+                var meetingInfo = $("input:radio[name=SameMeetingInfo]:checked").val();
+                var meetingMemo = $('#txtMeetingInfoMemo').val();
+
+                if ($('#chooseUploadImage>div').length == 1 || $('#chooseUploadConferencePhotoFile>div').length == 1) {
+                    showTopMsg("请上传签到表文件/会议照片文件");
+                    hideLoadingToast();
+                    return false;
+                }
+                else if ($('#chooseUploadImage>div').length > 1 && (infos == undefined || infos == '')) {
+                    showTopMsg("请选择是否与实际用餐人数一致");
+                    hideLoadingToast();
+                    return false;
+                }
+                else if (meetingInfo == undefined || meetingInfo == '') {
+                    showTopMsg("请选择会议信息是否一致");
+                    hideLoadingToast();
+                    return false;
+                }
+                else if ($('#chooseUploadImage>div').length > 1 && infos == 2 && divReason == "") {
+                    showTopMsg("请填写签到人数调整原因");
+                    hideLoadingToast();
+                    return false;
+                }
+                else if (meetingInfo == 2 && meetingMemo == "") {
+                    showTopMsg("请填写会议信息不一致原因");
+                    hideLoadingToast();
+                    return false;
+                }
+                else if ($('#chooseUploadImage>div').length > 1 && infos == 2 && divReason.length < 8) {
+                    showTopMsg("请输入至少8个字的签到人数调整原因");
+                    hideLoadingToast();
+                    return false;
+                }
+                else if (meetingInfo == 2 && meetingMemo.length < 8) {
+                    showTopMsg("请输入至少8个字的会议信息不一致原因");
+                    hideLoadingToast();
+                    return false;
+                }
+                else {
+                    submit();
+                }
+            }
+            else {
+                var reason = $("#txtSpecialReason").val();
+                var isAddFile = $("input:radio[name=IsAddFile]:checked").val();
+                if (reason == '' || reason.length < 8 || reason == null) {
+                    var mes = fileType == 1 ? "请输入退单原因，至少八个字以上" : (fileType==2?"请输入文件丢失原因，至少八个字以上":"请输入未送达，会议未正常召开原因，至少八个字以上") ;
+                    showTopMsg(mes);
+                    hideLoadingToast();
+                    return false;
+                }
+                if (isAddFile == '' || isAddFile == null) {
+                    showTopMsg("请选择是否上传文件");
+                    hideLoadingToast();
+                    return false;
+                }
+                if (isAddFile == 1) {
+                    if ($('#chooseUploadOtherPhotoFile>div').length == 1) {
+                        var mes = fileType == 1 ? "请上传退单原因文件" : (fileType==2?"请上传文件丢失原因文件":"请上传未送达，会议未正常召开原因文件");
+                        showTopMsg(mes);
+                        hideLoadingToast();
+                        return false;
+                    }
+                }
+                submit();
+            }
+        });
+
+        //是否与实际用餐人数一致，如果用户选择“否”，则显示“签到人数调整原因”
+        $(":radio").click(function () {
+            if (this.checked) {
+                if ($(this).attr("id") == "NumberOne") {
+                    $("#dvReason").hide();
+                    $("#dvReason").val("");
+                }
+                if ($(this).attr("id") == "NumberTwo") {
+                    $("#dvReason").show();
+                }
+                if ($(this).attr("id") == "MeetingInfoOne") {
+                    $("#dvMeetingInfoMemo").hide();
+                    $("#dvMeetingInfoMemo").val("");
+                }
+                if ($(this).attr("id") == "MeetingInfoTwo") {
+                    $("#dvMeetingInfoMemo").show();
+                }
+                if ($(this).attr("id") == "rbIsAddFile1") {
+                    $("#dvUploadOther").show();
+                }
+                if ($(this).attr("id") == "rbIsAddFile2") {
+                    $("#dvUploadOther").hide();
+                }
+            }
+        });
+
+    });
+
+    //添加会议照片文件
+    function UploadInput() {
+        var index = 0;
+        wx.chooseImage({
+            count: 1,
+            sizeType: ['original'],
+            sourceType: ['album'],
+            success: function (res) {
+                var localId = res.localIds[0];
+                wx.uploadImage({
+                    localId: localId,
+                    isShowProgressTips: 1,
+                    success: function (res) {
+                        var serverId = res.serverId;
+                        index++;
+                        post('/FileService/Save', { id: serverId }, function (d) {
+                            var html = '<div class="my_weui_uploader_input_wrp icon_sp_area" style="margin-top: 5px;margin-right: 20px;" id="' + index + '">'
+                                + '<img _src="' + d.data + '" src="' + awsUrl + d.data + '" style="width:100%; height:100%;margin-top: 5px;"/>'
+                                + '<i class="weui-icon-cancel" style="float:right; position: relative; top: -89px; right: -16px;" onclick="removeUploadImage(this)"></i>'
+                                + '</div>';
+                            $('#uploaderInput').before(html);
+                            var imageUrls = new Array();
+                            $('#chooseUploadImage img').each(function (i, e) {
+                                imageUrls.push($(e).attr("src"));
+                                $(this).unbind("click");
+                                $(this).click(function () {
+                                    WeixinJSBridge.invoke('imagePreview', {
+                                        'current': imageUrls[i],
+                                        'urls': imageUrls
+                                    });
+                                });
+                            });
+                            showAddChooseUploadImage();
+                        }, 'json');
+                    },
+                    fail: function (res) { showDlg(MSG_UPLOADIMAGE); }
+                });
+
+            }
+        });
+    }
+
+    //添加签到表文件
+    function UploadConferencePhotoFile() {
+        var index = 0;
+        wx.chooseImage({
+            count: 1,
+            sizeType: ['original'],
+            sourceType: ['album'],
+            success: function (res) {
+                var localId = res.localIds[0];
+                wx.uploadImage({
+                    localId: localId,
+                    isShowProgressTips: 1,
+                    success: function (res) {
+                        var serverId = res.serverId;
+                        index++;
+                        post('/FileService/Save', { id: serverId }, function (d) {
+                            var html = '<div class="my_weui_uploader_input_wrp icon_sp_area" style="margin-top: 5px;margin-right: 20px;" id="' + index + '">'
+                                + '<img _src="' + d.data + '" src="' + awsUrl + d.data + '" style="width:100%; height:100%;margin-top: 5px;"/>'
+                                + '<i class="weui-icon-cancel" style="float:right; position: relative; top: -89px; right: -16px;" onclick="removeConferencePhotoFile(this)"></i>'
+                                + '</div>';
+                            $('#ConferencePhotoFile').before(html);
+                            var imageUrls = new Array();
+                            $('#chooseUploadConferencePhotoFile img').each(function (i, e) {
+                                imageUrls.push($(e).attr("src"));
+                                $(this).unbind("click");
+                                $(this).click(function () {
+                                    WeixinJSBridge.invoke('imagePreview', {
+                                        'current': imageUrls[i],
+                                        'urls': imageUrls
+                                    });
+                                });
+                            });
+                            showAddChooseConferencePhotoFile();
+                        }, 'json');
+                    },
+                    fail: function (res) { showDlg(MSG_UPLOADIMAGE); }
+                });
+
+            }
+        });
+    }
+
+    //添加其他文件
+    function UploadOtherPhotoFile() {
+        var index = 0;
+        wx.chooseImage({
+            count: 1,
+            sizeType: ['original'],
+            sourceType: ['album'],
+            success: function (res) {
+                var localId = res.localIds[0];
+                wx.uploadImage({
+                    localId: localId,
+                    isShowProgressTips: 1,
+                    success: function (res) {
+                        var serverId = res.serverId;
+                        index++;
+                        post('/FileService/Save', { id: serverId }, function (d) {
+                            var html = '<div class="my_weui_uploader_input_wrp icon_sp_area" style="margin-top: 5px;margin-right: 20px;" id="' + index + '">'
+                                + '<img _src="' + d.data + '" src="' + awsUrl + d.data + '" style="width:100%; height:100%;margin-top: 5px;"/>'
+                                + '<i class="weui-icon-cancel" style="float:right; position: relative; top: -89px; right: -16px;" onclick="removeOtherPhotoFile(this)"></i>'
+                                + '</div>';
+                            $('#OtherPhotoFile').before(html);
+                            var imageUrls = new Array();
+                            $('#chooseUploadOtherPhotoFile img').each(function (i, e) {
+                                imageUrls.push($(e).attr("src"));
+                                $(this).unbind("click");
+                                $(this).click(function () {
+                                    WeixinJSBridge.invoke('imagePreview', {
+                                        'current': imageUrls[i],
+                                        'urls': imageUrls
+                                    });
+                                });
+                            });
+                            showAddChooseOtherPhotoFile();
+                        }, 'json');
+                    },
+                    fail: function (res) { showDlg(MSG_UPLOADIMAGE); }
+                });
+
+            }
+        });
+    }
+
+    //签到表文件数量最大值（签到表文件）
+    function showAddChooseUploadImage() {
+        if ($('#chooseUploadImage>div').length > 6) {
+            $('#uploaderInput').hide();
+        } else {
+            $('#uploaderInput').show();
+        }
+    }
+
+    //会议照片文件数量最大值（会议照片文件）
+    function showAddChooseConferencePhotoFile() {
+        if ($('#chooseUploadConferencePhotoFile>div').length > 6) {
+            $('#ConferencePhotoFile').hide();
+        } else {
+            $('#ConferencePhotoFile').show();
+        }
+    }
+
+    //其他文件数量最大值（其他文件）
+    function showAddChooseOtherPhotoFile() {
+        if ($('#chooseUploadOtherPhotoFile>div').length > 6) {
+            $('#OtherPhotoFile').hide();
+        } else {
+            $('#OtherPhotoFile').show();
+        }
+    }
+
+    //删除图片（签到表文件）
+    function removeUploadImage(dom) {
+        $(dom).parent().remove();
+        showAddChooseUploadImage();
+    }
+
+    //删除图片（会议照片文件）
+    function removeConferencePhotoFile(dom) {
+        $(dom).parent().remove();
+        showAddChooseConferencePhotoFile();
+    }
+
+    //删除图片（其他文件）
+    function removeOtherPhotoFile(dom) {
+        $(dom).parent().remove();
+        showAddChooseOtherPhotoFile();
+    }
+
+    var orderSuccess = false;
+    //提交审批
+    function submit() {
+        if (orderSuccess) {
+            return;
+        }
+        orderSuccess = true;
+        $('#btnSubmit').unbind('click');
+        $('#chooseUploadImage img').each(function () {
+            var src = $(this).attr('_src');
+			 _images.push(src);
+        });
+        $('#chooseUploadConferencePhotoFile img').each(function () {
+            var src = $(this).attr('_src');
+            _images2.push(src);
+        });
+        $('#chooseUploadOtherPhotoFile img').each(function () {
+            var src = $(this).attr('_src');
+            _images3.push(src);
+        });
+        trueSubmit();
+    }
+
+    function trueSubmit() {
+        post('/P/Upload/_Edit', {
+            UploadOrderId: uploadOrderId,
+            htCode: htCode,
+            MMCoEImageOne: _images.toString(),
+            MMCoEImageTwo: _images2.toString(),
+            MMCoEImageThree: _images3.toString(),
+            FileType: fileType,
+            IsAttentSame: $("input:radio[name=SameActualNumberDiners]:checked").val() == undefined ? 0 : $("input:radio[name=SameActualNumberDiners]:checked").val(),
+            AttentSameReason: $('#NumberAdjustmentReason').val(),
+            SpecialReason: $("#txtSpecialReason").val(),
+            IsAddFile: $("input:radio[name=IsAddFile]:checked").val() == undefined ? 0 : $("input:radio[name=IsAddFile]:checked").val(),
+            IsMeetingInfoSame: $("input:radio[name=SameMeetingInfo]:checked").val() == undefined ? 0 : $("input:radio[name=SameMeetingInfo]:checked").val(),
+            MeetingInfoSameReason: $("#txtMeetingInfoMemo").val(),
+            Memo: $("#txtMemo").val(),
+        },
+            function (d) {
+                var _msg = MSG_EDITUPLOADFILESSUCCEED;
+                switch (fileType) {
+                    case "1": _msg = MSG_EDITUPLOADFILESSUCCEEDSPECIAL; break;
+                    case "2": _msg = MSG_EDITUPLOADFILESSUCCEEDLOSS; break;
+                    case "3": _msg = MSG_EDITUPLOADFILESSUCCEEDFOODLOSS; break;
+                }
+                showDlg(_msg, undefined, function () {
+                    WeixinJSBridge.call('closeWindow');
+                }, 'success')
+            }, 'json');
+    }
+
+    function delcommafy(num) {
+        num = num.replace(/,/gi, '');
+        return num;
+    }
+</script>
+
+<div class="page-main">
+    <div class="page-body">
+        <div id="dvNormal" style="display:none;">
+            <div class="weui-cells__title"><h4>请上传签到表文件：</h4></div>
+            <div class="weui-cells">
+                <div class="weui-uploader">
+                    <div class="weui-uploader__bd">
+                        <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="chooseUploadImage">
+                            <div id="uploaderInput" class="weui-uploader__input-box" style="margin-top:5px;" onclick="UploadInput()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">与实际用餐人数一致：</label></div>
+                    <div class="weui-cell__bd">
+                        <div>
+                            <input type="radio" name="SameActualNumberDiners" id="NumberOne" value="1" style="float:left;margin-top:5px;margin-left:5%;"><p style="margin-right:10px;float:left;">是</p>
+                            <input type="radio" name="SameActualNumberDiners" id="NumberTwo" value="2" style="float:left;margin-top:5px;margin-left:5%"><p>否</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="weui-cell" id="dvReason" style="display:none;">
+                    <div class="weui-cell__hd"><label class="weui-label">签到人数调整原因：</label></div>
+                    <div class="weui-cell__bd">
+                        <textarea id="NumberAdjustmentReason" rows="3" style="width:100%;height:100%;font-size:14px;" placeholder="请输入签到人数调整原因，至少八个字"></textarea>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label">是否与会议信息一致：</label></div>
+                    <div class="weui-cell__bd">
+                        <div>
+                            <input type="radio" name="SameMeetingInfo" id="MeetingInfoOne" value="1" style="float:left;margin-top:5px;margin-left:5%;"><p style="margin-right:10px;float:left;">是</p>
+                            <input type="radio" name="SameMeetingInfo" id="MeetingInfoTwo" value="2" style="float:left;margin-top:5px;margin-left:5%"><p>否</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="weui-cell" id="dvMeetingInfoMemo" style="display:none;">
+                    <div class="weui-cell__hd"><label class="weui-label">会议信息不一致原因：</label></div>
+                    <div class="weui-cell__bd">
+                        <textarea id="txtMeetingInfoMemo" rows="3" style="width:100%;height:100%;font-size:14px;" placeholder="请输入会议信息不一致原因，至少八个字"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="weui-cells__title"><h4>请上传会议照片文件：</h4></div>
+            <div class="weui-cells">
+                <div class="weui-uploader">
+                    <div class="weui-uploader__bd">
+                        <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="chooseUploadConferencePhotoFile">
+                            <div id="ConferencePhotoFile" class="weui-uploader__input-box" style="margin-top:5px;" onclick="UploadConferencePhotoFile()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="weui-cell" id="dvMemo">
+                    <div class="weui-cell__hd"><label class="weui-label">备注：</label></div>
+                    <div class="weui-cell__bd">
+                        <textarea id="txtMemo" rows="3" style="width:100%;height:100%;font-size:14px;"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-left:20px;margin-top:20px;"><span style="font-size:14px;font-weight:bold;color:red;">*请确保上传文件的清晰度</span></div>
+        </div>
+        <div id="dvSpecial">
+            <div class="weui-cells" style="margin-top:0">
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label" style="width:120px !important;"><span id="lblSpecialReason"></span>：</label></div>
+                    <div class="weui-cell__bd">
+                        <textarea id="txtSpecialReason" rows="3" style="width:100%;height:100%;font-size:14px;" placeholder="请输入签到人数调整原因，至少八个字"></textarea>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd"><label class="weui-label" style="width:120px !important;">是否上传文件：</label></div>
+                    <div class="weui-cell__bd">
+                        <div>
+                            <input type="radio" name="IsAddFile" id="rbIsAddFile1" value="1" style="float:left;margin-top:5px;margin-left:5%;"><p style="margin-right:10px;float:left;">是</p>
+                            <input type="radio" name="IsAddFile" id="rbIsAddFile2" value="0" style="float:left;margin-top:5px;margin-left:5%"><p>否</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="weui-cell" id="dvUploadOther" style="display:none;">
+                    <div class="weui-uploader">
+                        <div class="weui-uploader__bd">
+                            <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="chooseUploadOtherPhotoFile">
+                                <div id="OtherPhotoFile" class="weui-uploader__input-box" style="margin-top:5px;" onclick="UploadOtherPhotoFile()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="dvOrderInfo">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-foot">
+        <div class="page__bd page__bd_spacing">
+            <div class="weui-flex">
+                <div class="weui-flex__item">
+                    <div class="placeholder">
+                        <button id="btnSubmit" class="weui-btn weui-btn_orange">修改上传文件</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

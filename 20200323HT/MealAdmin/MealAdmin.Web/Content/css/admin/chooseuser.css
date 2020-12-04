@@ -1,0 +1,79 @@
+﻿.choosedpanel {
+    border: solid 1px #CCCCCC;
+    padding: 10px;
+    overflow: hidden;
+}
+    .choosedpanel .choosed {
+        overflow: auto;
+        height: 90px;
+    }
+        .choosedpanel .choosed .item {
+            float: left;
+            padding: 5px;
+            margin: 0 5px 5px 0;
+            background-color: #EEEEEE;
+            position: relative;
+        }
+            .choosedpanel .choosed .item div {
+                float: left;
+            }
+            .choosedpanel .choosed .item .remove {
+                background-image: url(../../image/delete.png);
+                background-position: 18px 0px;
+                width: 18px;
+                height: 18px;
+                margin-top: 1px;
+                margin-left: 5px;
+                cursor: pointer;
+            }
+            .choosedpanel .choosed .item .remove:hover {
+                background-position: 0px 0px;
+            }
+    .choosedpanel .search {
+        width: 100%;
+        height: 25px;
+    }
+        .choosedpanel .search input {
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
+.deptpanel {
+    margin-top: 10px;
+}
+    .deptpanel .pathlink {
+        overflow: hidden;
+    }
+        .deptpanel .pathlink .item {
+            float: left;
+        }
+        .deptpanel .pathlink a {
+            cursor: pointer;
+            color: #4A90E2;
+        }
+
+    .deptpanel .depttreepanel {
+        margin-top: 10px;
+        overflow: auto;
+        height: 250px;
+    }
+        .deptpanel .depttreepanel li {
+            padding: 10px 0 10px 0;
+            font-size: 14px;
+            border-bottom: 1px solid #E5E5E5;
+        }
+            .deptpanel .depttreepanel #deptTree:first-child {
+                border-top: 1px solid #E5E5E5;
+            }
+        .deptpanel .depttreepanel li label.icon-sitemap {
+            cursor: pointer;
+        }
+#deptTree_users span {
+    float: right;
+}
+
+#footbar{
+    text-align:right;
+    margin-top: 15px;
+    display: none;
+}

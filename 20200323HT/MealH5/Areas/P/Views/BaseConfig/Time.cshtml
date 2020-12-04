@@ -1,0 +1,62 @@
+﻿
+@{
+    Layout = null;
+    Response.ContentType = "application/javascript";
+}
+@*
+    var timeConfig = {
+        workBegin: '00:00:00',
+        workEnd: '23:59:00',
+        sendBegin: '08:00:00',
+        sendEnd: '23:59:00',
+        todayWorkBegin: '09:00:00',
+        todayWorkEnd: '10:30:00',
+        todaySendBegin: '12:30:00',
+        todaySendEnd: '20:30:00',
+        cachetime: '00:15:00'
+    };
+
+*@
+
+@model MealAdmin.Entity.P_BIZ_CONF_OBJ
+@{
+    Layout = null;
+    Response.ContentType = "application/javascript";
+}
+
+
+
+var timeConfig = {
+    workBegin: '@Model._3_1_SysWorkTimeBegin',
+    workEnd: '@Model._3_2_SysWorkTimeEnd',
+    sendBegin: '@Model._6_1_NotThatDayCanSendMealTimeBegin',
+    sendEnd: '@Model._6_2_NotThatDayCanSendMealTimeEnd',
+    todayWorkBegin: '@Model._4_1_ThatDayCanOrderMealTimeBegin',
+    todayWorkEnd: '@Model._4_2_ThatDayCanOrderMealTimeEnd',
+    todaySendBegin: '@Model._5_1_ThatDayCanSendMealTimeBegin',
+    todaySendEnd: '@Model._5_2_ThatDayCanSendMealTimeEnd',
+    cachetime: '@ViewBag._7_OrderingBufferMin',
+    personPrice: @Model._2_ApprovePercapitaPrice,
+    personCount: @Model._1_ApprovePeopleNum,
+    _workBegin: '@Model._11_1_SysOperableTimeBegin',
+    _workEnd: '@Model._11_2_SysOperableTimeEnd',
+    preApprovalBegin:'@Model._12_1_PreApprovalCanApplyMeetingTimeSpanBegin',
+    preApprovalEnd:'@Model._12_2_PreApprovalCanApplyMeetingTimeSpanEnd',
+    preNextBegin:'@Model._13_1_PreApprovalNextWorkDaySendTimeSpanBegin',
+    preNextEnd:'@Model._13_2_PreApprovalNextWorkDaySendTimeSpanEnd',
+    PreWorkTimeSpanBegin:'@Model._14_1_PreWorkTimeSpanBegin',
+    PreWorkTimeSpanEnd:'@Model._14_2_PreWorkTimeSpanEnd',
+    PreOperableTimeSpanBegin:'@Model._15_1_PreOperableTimeSpanBegin',
+    PreOperableTimeSpanEnd:'@Model._15_2_PreOperableTimeSpanEnd',
+    UploadWorkTimeSpanBegin:'@Model._16_1_UploadWorkTimeSpanBegin',
+    UploadWorkTimeSpanEnd:'@Model._16_2_UploadWorkTimeSpanEnd',
+    UploadOperableTimeSpanBegin:'@Model._17_1_UploadOperableTimeSpanBegin',
+    UploadOperableTimeSpanEnd:'@Model._17_2_UploadOperableTimeSpanEnd',
+
+    AddAddressTimeSpanBegin:'@Model._18_1_AddAddressTimeSpanBegin',
+    AddAddressTimeSpanEnd:'@Model._18_2_AddAddressTimeSpanEnd',
+    ResubmitAddressTimeSpanBegin:'@Model._19_1_ResubmitAddressTimeSpanBegin',
+    ResubmitAddressTimeSpanEnd:'@Model._19_2_ResubmitAddressTimeSpanEnd',
+    UpdateAddressTimeSpanBegin:'@Model._20_1_UpdateAddressTimeSpanBegin',
+    UpdateAddressTimeSpanEnd:'@Model._20_2_UpdateAddressTimeSpanEnd'
+    };

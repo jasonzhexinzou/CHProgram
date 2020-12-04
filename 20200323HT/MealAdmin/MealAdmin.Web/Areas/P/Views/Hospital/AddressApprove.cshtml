@@ -1,0 +1,243 @@
+﻿@{
+    ViewBag.Title = "审批状态查询";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+    <script type="text/javascript">
+        var pdg;
+        $(function () {
+            var _option = {
+                dateFormat: "yy-mm-dd",
+                closeText: "关闭",
+                prevText: "&#x3C;上月",
+                nextText: "下月&#x3E;",
+                currentText: "今天",
+                monthNames: ["一月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                dayNames: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+                dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"],
+                weekHeader: "周",
+                dateFormat: "yy-mm-dd",
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: true,
+                yearSuffix: "年"
+
+            }
+
+            var _ctBehin = $("#startDate").datepicker(_option);
+            var _ctEnd = $("#endDate").datepicker(_option);
+
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/PreApproval/LoadAddressApprove', paging: true });
+            pdg.QueryParams = function () {
+                return {
+                    srh_DACode: $('#txtDACode').val().replace(/\s/g, ""),
+                    srh_ApplierMUDID: $('#txtApplierMUDID').val().replace(/\s/g, ""),
+                    srh_ApproverMUDID: $('#txtApproverMUDID').val().replace(/\s/g, ""),
+                    srh_GskHospital: $('#txtGskHospital').val().replace(/\s/g, ""),
+                    srh_StartApplyDate: $('#startDate').val().replace(/\s/g, ""),
+                    srh_EndApplyDate: $('#endDate').val().replace(/\s/g, ""),
+                    srh_State: $('#sltState').val().replace(/\s/g, ""),
+                    srh_IsDelete: $('#sltIsDelete').val().replace(/\s/g, "")
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+            $('#btnExport').bind('click', function () {
+                window.location.href = contextUri + '/P/PreApproval/ExportAddressApprovalList?srh_DACode=' + encodeURIComponent($('#txtDACode').val().replace(/\s/g, ""))
+                    + '&srh_ApplierMUDID=' + encodeURIComponent($('#txtApplierMUDID').val().replace(/\s/g, ""))
+                    + '&srh_ApproverMUDID=' + encodeURIComponent($('#txtApproverMUDID').val().replace(/\s/g, ""))
+                    + '&srh_GskHospital=' + encodeURIComponent($('#txtGskHospital').val().replace(/\s/g, ""))
+                    + '&srh_StartApplyDate=' + encodeURIComponent($('#startDate').val().replace(/\s/g, ""))
+                    + '&srh_EndApplyDate=' + encodeURIComponent($('#endDate').val().replace(/\s/g, ""))
+                    + '&srh_State=' + encodeURIComponent($('#sltState').val().replace(/\s/g, ""))
+                    + '&srh_IsDelete=' + encodeURIComponent($('#sltIsDelete').val().replace(/\s/g, ""));
+            });
+
+            $('#sltTA').bind('click', function () {
+                var num = $('#sltTA option').length;
+                if (num < 2) {
+                    alert('请先选择Market');
+                }
+            });
+
+        });
+        function ShowDetail(id) {
+
+            $showdialogForUrl(
+                {
+                    title: '外送地址申请详情',
+                    width: '620px',
+                    height: '600px',
+                    url: contextUri + '/P/PreApproval/AddressApplicationDetails?id=' + id,
+
+                    pageid: 'manager'
+                    //buttons: [
+                    //    {
+                    //        cls: 'button bg-green',
+                    //        txt: '导出',
+                    //        handler: function (e) {
+                    //            window.location.href = contextUri + '/P/PreApproval/PdfExport?id=' + id;
+                    //        }
+                    //    },
+                    //    {
+                    //        cls: 'button',
+                    //        txt: '取消',
+                    //        handler: function (e) { e.close(); }
+                    //    }
+                    //]
+                }
+            );
+        }
+        //$('#btnExport').bind('click', function () {
+        //    window.location.href = contextUri + '/P/PreApproval/ExportAddressApprovalList?srh_HTCode=' + encodeURIComponent($('#txtHTCode').val().replace(/\s/g, ""))
+        //        + '&srh_ApplierMUDID=' + encodeURIComponent($('#txtApplierMUDID').val().replace(/\s/g, ""))
+        //        + '&srh_HospitalCode=' + encodeURIComponent($('#txtHospitalCode').val().replace(/\s/g, ""))
+        //        + '&srh_CostCenter=' + encodeURIComponent($('#txtCostCenter').val().replace(/\s/g, ""))
+        //        + '&srh_BUHeadMUDID=' + encodeURIComponent($('#txtBUHeadMUDID').val().replace(/\s/g, ""))
+        //        + '&srh_Market=' + encodeURIComponent($('#sltMaraket').val().replace(/\s/g, ""))
+        //        + '&srh_TA=' + encodeURIComponent($('#sltTA').val().replace(/\s/g, ""))
+        //        + '&srh_State=' + encodeURIComponent($('#sltState').val().replace(/\s/g, ""))
+        //        + '&srh_StartBUHeadApproveDate=' + encodeURIComponent($('#startBUHeadApproveDate').val().replace(/\s/g, ""))
+        //        + '&srh_EndBUHeadApproveDate=' + encodeURIComponent($('#endBUHeadApproveDate').val().replace(/\s/g, ""))
+        //        + '&srh_StartMeetingDate=' + encodeURIComponent($('#startMeetingDate').val().replace(/\s/g, ""))
+        //        + '&srh_EndMeetingDate=' + encodeURIComponent($('#endMeetingDate').val().replace(/\s/g, ""));
+        //});
+    </script>
+}
+<div class="tool_bar">
+    <label>审批状态查询</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;overflow:auto" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding" style="width:6000px; max-width:6000px;">
+            <div class="container margin-little-left">
+
+                <div class="line">
+                    <input type="text" class="input input-small" style="width:100px;" id="txtDACode" name="txtDACode" placeholder="DA编码" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtApplierMUDID" name="txtApplierMUDID" placeholder="申请人MUDID" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtApproverMUDID" name="txtApproverMUDID" placeholder="审批人MUDID" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtGskHospital" name="txtGskHospital" placeholder="医院编码" />
+                    <label class="border-small label-block">
+                        申请日期
+                        <input type="text" class="input input-small" style="width:100px;" id="startDate" name="startDate" placeholder="开始时间" />
+                        <input type="text" class="input input-small" style="width:100px;" id="endDate" name="endDate" placeholder="结束时间" />
+                    </label>
+                </div>
+                <div class="line"></div>
+                <div class="line">
+                    <span>审批状态</span>
+                    <select class="input input-small" style="width:100px;" id="sltState" name="sltState">
+                        <option value="'0','1','2','3','4','5','6','7','8','9','10'" selected="selected"></option>
+                        <option value="'0','9','10'">待审批</option>
+                        <option value="'1','5','7'">审批通过</option>
+                        <option value="'2','6','8'">审批驳回</option>
+                        <option value="'3'">申请失效</option>
+                        <option value="'4'">申请取消</option>
+                    </select>
+                    <span>特殊备注</span>
+                    <select class="input input-small" style="width:150px;" id="sltIsDelete" name="sltIsDelete">
+                        <option value="'0','1','2','3'" selected="selected"></option>
+                        <option value="'2'">该医院已被删除</option>
+                        <option value="'3'">该医院主地址已被修改</option>
+                    </select>
+
+
+                    <button class="button button-small bg-main icon-search" id="btnLoad"> 搜索</button>
+                    <button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>
+                </div>
+            </div>
+        </div>
+        <table id="costcenter_dataTable" class="table table-hover" style="width:6000px; max-width:6000px;">
+            <thead>
+                <tr>
+                    <th>DA编号</th>
+                    <th>申请人姓名</th>
+                    <th>申请人MUDID</th>
+                    <th>申请人职位</th>
+                    <th>申请日期</th>
+                    <th>Market</th>
+                    <th>Region/TA</th>
+
+                    <th>医院代码</th>
+                    <th>省份</th>
+                    <th>城市</th>
+                    <th>医院名称</th>
+                    <th>医院地址</th>
+                    <th>主地址</th>
+                    <th>新增分门地址</th>
+                    <th>省份</th>
+                    <th>城市</th>
+
+                    <th>区县</th>
+                    <th>主地址与分门地址距离（公里）</th>
+                    <th>备注</th>
+                    <th>地址名称</th>
+                    <th>特殊备注</th>
+                    <th>变更时间</th>
+                    <th>申请审批状态</th>
+                    <th style="width: 320px;">审批不通过原因</thstyle="width:>
+                    <th>直线经理姓名</th>
+                    <th>直线经理MUDID</th>
+                    <th>直线经理审批时间</th>
+
+                    <th style="width: 120px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>${dr.DACode}$</td>
+                    <td>${dr.ApplierName}$</td>
+                    <td>${dr.ApplierMUDID}$</td>
+                    <td>${dr.Position}$</td>
+                    <td>${getDateByDotNet(dr.CreateDate).pattern('yyyy-MM-dd HH:mm:ss')}$</td>
+                    <td>${dr.Market}$</td>
+                    <td>${dr.TA}$</td>
+
+                    <td>${dr.GskHospital}$</td>
+                    <td>${dr.Province}$</td>
+                    <td>${dr.City}$</td>
+                    <td>${dr.HospitalName}$</td>
+                    <td>${dr.MainHospitalAddress}$</td>
+                    <td>${dr.AddressName}$</td>
+                    <td>${dr.AddAddress}$</td>
+                    <td>${dr.Province}$</td>
+                    <td>${dr.City}$</td>
+
+                    <td>${dr.District}$</td>
+                    <td>${dr.Distance}$</td>
+                    <td>${dr.Remark}$</td>
+                    <td>${dr.AddressNameDisplay}$</td>
+                    <td>${dr.IsDeleteDisplay}$</td>
+                    <td>${dr.DeleteDate != null ? getDateByDotNet(dr.DeleteDate).pattern('yyyy-MM-dd HH:mm:ss') : ''}$</td>
+
+                    <td>${dr.ApproveStatusDisplay}$</td>
+                    <td>${dr.RejectReason}$</td>
+                    <td>${dr.LineManagerName}$</td>
+                    <td>${dr.LineManagerMUDID}$</td>
+                    <td>${dr.LineManagerApproveDateDisplay}$</td>
+                    <td><a href="javascript:;" class="button border-blue button-little icon-edit" onclick="ShowDetail('${dr.ID}$')"> 详情</a></td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="80" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+
+
+

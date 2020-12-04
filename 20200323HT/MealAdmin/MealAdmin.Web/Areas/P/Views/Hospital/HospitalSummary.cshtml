@@ -1,0 +1,316 @@
+﻿@{
+    ViewBag.Title = "医院数据";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+<script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+<link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+<link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+
+<link href="~/Content/css/layui.css" rel="stylesheet" />
+<script src="~/Content/js/layui.all.js"></script>
+<script src="~/Content/js/layui.js"></script>
+<script type="text/javascript">
+    window.top.showLoading();
+    var pdg;
+    var pdgTA;
+    $(function () {
+        //当前医院数&品牌覆盖数ByMarket
+        $.post(contextUri + '/P/Hospital/LoadHospitalBrandCoverageCount', {}, function (d) {
+            window.top.showLoading();
+            var _hospitalData = d.hospitalData;
+            var _hospitalDataTA = d.hospitalDataTA;
+            var _brandData = d.brandData;
+            var _brandDataTA = d.brandDataTA;
+            var _brandDataOH = d.brandDataOH;
+            //医院数
+            var html = '';
+            for (var i = 0; i < _hospitalData.length; i++) {
+                html += '<tr>';
+                html += ' <td>' + _hospitalData[i].Type + '</td>';
+                html += ' <td>' + _hospitalData[i].Rx + '</td>';
+                html += ' <td>' + _hospitalData[i].Vx + '</td>';
+                html += ' <td>' + _hospitalData[i].DDT + '</td>';
+                html += ' <td>' + _hospitalData[i].TSKF + '</td>';
+                html += '</tr>';
+            }
+            $('#hospitalbody').html(html);
+
+            //医院数TA
+            var html = '';
+            for (var k = 0; k < 5; k++) {
+                html += '<tr>';
+                for (var j = 0; j < _hospitalDataTA.length; j++) {
+                    if (k == 0) {
+                        if (j == 0)
+                            html += ' <th width="160px;">' + _hospitalDataTA[j].TA_HEAD + '</th>';
+                        else
+                            html += ' <th>' + _hospitalDataTA[j].TA_HEAD + '</th>';
+                    } else if (k == 1) {
+                        html += ' <td>' + _hospitalDataTA[j].HospitalCount + '</td>';
+                    } else if (k == 2) {
+                        html += ' <td>' + _hospitalDataTA[j].AddressCount + '</td>';
+                    } else if (k == 3) {
+                        html += ' <td>' + _hospitalDataTA[j].AllCount + '</td>';
+                    } else if (k == 4) {
+                        html += ' <td>' + _hospitalDataTA[j].OHCount + '</td>';
+                    }
+                }
+                html += '</tr>';
+            }
+            $('#tb_hospital_ta').html(html);
+
+            //品牌数
+            html = '';
+            html += '<tr>';
+            html += ' <td>一品牌上线数</td>';
+            html += ' <td>' + _brandData[0].TotalCount + '</td>';
+            html += ' <td>' + _brandData[1].TotalCount + '</td>';
+            html += ' <td>' + _brandData[2].TotalCount + '</td>';
+            html += ' <td>' + _brandData[3].TotalCount + '</td>';
+            html += '</tr>';
+            html += '<tr>';
+            html += ' <td>未覆盖医院数</td>';
+            html += ' <td>' + _brandData[0].UnCovered + '</td>';
+            html += ' <td>' + _brandData[1].UnCovered + '</td>';
+            html += ' <td>' + _brandData[2].UnCovered + '</td>';
+            html += ' <td>' + _brandData[3].UnCovered + '</td>';
+            html += '</tr>';
+            html += '<tr>';
+            html += ' <td>一品牌覆盖率</td>';
+            html += ' <td>' + _brandData[0].Coverage + '%</td>';
+            html += ' <td>' + _brandData[1].Coverage + '%</td>';
+            html += ' <td>' + _brandData[2].Coverage + '%</td>';
+            html += ' <td>' + _brandData[3].Coverage + '%</td>';
+            html += '</tr>';
+            $('#brandbody').html(html);
+
+            //院外品牌数
+            html = '';
+            html += '<tr>';
+            html += ' <td>一品牌上线数</td>';
+            html += ' <td>' + _brandDataOH[0].TotalCount + '</td>';
+            html += ' <td>' + _brandDataOH[1].TotalCount + '</td>';
+            html += ' <td>' + _brandDataOH[2].TotalCount + '</td>';
+            html += ' <td>' + _brandDataOH[3].TotalCount + '</td>';
+            html += '</tr>';
+            html += '<tr>';
+            html += ' <td>未覆盖医院数</td>';
+            html += ' <td>' + _brandDataOH[0].UnCovered + '</td>';
+            html += ' <td>' + _brandDataOH[1].UnCovered + '</td>';
+            html += ' <td>' + _brandDataOH[2].UnCovered + '</td>';
+            html += ' <td>' + _brandDataOH[3].UnCovered + '</td>';
+            html += '</tr>';
+            html += '<tr>';
+            html += ' <td>一品牌覆盖率</td>';
+            html += ' <td>' + _brandDataOH[0].Coverage + '%</td>';
+            html += ' <td>' + _brandDataOH[1].Coverage + '%</td>';
+            html += ' <td>' + _brandDataOH[2].Coverage + '%</td>';
+            html += ' <td>' + _brandDataOH[3].Coverage + '%</td>';
+            html += '</tr>';
+            $('#brandbodyOH').html(html);
+
+            //品牌数TA
+            var html = '';
+            for (var m = 0; m < 4; m++) {
+                html += '<tr>';
+                for (var n = 0; n < _brandDataTA.length; n++) {
+                    if (m == 0) {
+                        if(n==0)
+                            html += ' <th  width="160px;">' + _brandDataTA[n].TA_HEAD + '</th>';
+                        else
+                            html += ' <th>' + _brandDataTA[n].TA_HEAD + '</th>';
+                    } else if (m == 1) {
+                        html += ' <td>' + _brandDataTA[n].CoveredCount + '</td>';
+                    } else if (m == 2) {
+                        html += ' <td>' + _brandDataTA[n].UnCoveredCount + '</td>';
+                    } else if (m == 3) {
+                        if (n == 0)
+                            html += ' <td>' + _brandDataTA[n].Coverage + '</td>';
+                        else
+                            html += ' <td>' + _brandDataTA[n].Coverage + '%</td>';
+                    }
+                }
+                html += '</tr>';
+            }
+            $('#tb_brand_ta').html(html);
+            window.top.hideLoading();
+        });
+
+        pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/Hospital/LoadHospitalVariablesCount', paging: true });
+        pdg.Load();
+
+        $.post(contextUri + '/P/Hospital/LoadTAHospitalVariablesHeader', {}, function (d) {
+            window.top.showLoading();
+            var html = '';
+            html += '<thead>';
+            html += '<tr>';
+            html += ' <th width="160px;">日期</th>';
+            for (var i = 0; i < d.rows.length; i++){
+                html += ' <th>' + d.rows[i].TERRITORY_TA.replace(/(^\s*)|(\s*$)/g, "") + '</th>';
+            }
+            //html += ' <th>合计</th>';
+            html += '</tr>';
+            html += '</thead>';
+
+
+            html += '<tbody>';
+            html += '<tr>';
+            //html += " <td>${getDateByDotNet(dr.Date).pattern('yyyy - MM - dd HH: mm: ss')}$</td>";
+            html += ' <td>${dr.Date}$</td>';
+
+            for (var j = 0; j < d.rows.length; j++) {
+                html += ' <td>${dr.' + d.rows[j].TERRITORY_TA.replace(/(^\s*)|(\s*$)/g, "") + '}$</td>';
+            }
+
+            //html += ' <td>${dr.ALL}$</td>';
+            html += '</tr>';
+            html += '</tbody>';
+
+            html += '<tfoot>';
+            html += '<tr>';
+            html += '<td colspan="80" class="paging"></td>';
+            html += '</tr>';
+            html += '</tfoot>';
+            $('#ta_hospital_dataTable').html(html);
+            pdgTA = $('#ta_hospital_dataTable').iPathDataGrid({ url: contextUri + '/P/Hospital/LoadHospitalVariablesCountTA', paging: true });
+            pdgTA.Load(); 
+            window.top.hideLoading();
+        });
+        
+    });
+</script>
+}
+<div class="tool_bar" style="width:1600px; max-width:2000px;">
+    <label>医院数据</label>
+</div>
+
+<div class="layui-tab layui-tab-card" style="width:1600px; max-width:2000px;">
+    <ul class="layui-tab-title">
+        <li class="layui-this">ByMarket</li>
+        <li>ByTA</li>
+    </ul>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show" style="width:1085px; max-width:2000px;">
+            <div style="margin-left: 20px;padding-bottom:10px;padding-top:15px;">
+                <strong style="font-size: 16px;">当前医院数</strong>
+            </div>
+            <div style="margin-left: 20px; margin-right:20px;overflow:auto" class="panel admin-panel">
+                <table id="tb_hospital" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th width="20%;">数据</th>
+                            <th width="20%;">Rx</th>
+                            <th width="20%;">Vx</th>
+                            <th width="20%;">DDT</th>
+                            <th width="20%;">TSKF</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hospitalbody"></tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div style="margin-left: 20px;padding-bottom:10px;padding-top:15px;">
+                <strong style="font-size: 16px;">品牌覆盖数</strong>
+            </div>
+            <div style="margin-left: 20px; margin-right:20px; overflow:auto" class="panel admin-panel">
+                <table id="tb_brand" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th width="20%;">数据</th>
+                            <th width="20%;">Rx</th>
+                            <th width="20%;">Vx</th>
+                            <th width="20%;">DDT</th>
+                            <th width="20%;">TSKF</th>
+                        </tr>
+                    </thead>
+                    <tbody id="brandbody"></tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div style="margin-left: 20px;padding-bottom:10px;padding-top:15px;">
+                <strong style="font-size: 16px;">院外品牌覆盖数</strong>
+            </div>
+            <div style="margin-left: 20px; margin-right:20px; overflow:auto" class="panel admin-panel">
+                <table id="tb_brand_OH" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th width="20%;">数据</th>
+                            <th width="20%;">Rx</th>
+                            <th width="20%;">Vx</th>
+                            <th width="20%;">DDT</th>
+                            <th width="20%;">TSKF</th>
+                        </tr>
+                    </thead>
+                    <tbody id="brandbodyOH"></tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div style="margin-left: 20px; padding-bottom:10px;padding-top:15px;">
+                <strong style="font-size: 16px;">医院变化数据</strong>
+            </div>
+            <div style="margin-left: 20px; margin-right:20px; margin-bottom:20px; overflow:auto;" class="panel admin-panel">
+                <table id="costcenter_dataTable" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th width="20%;">日期</th>
+                            <th width="16%;">RX</th>
+                            <th width="16%;">VX</th>
+                            <th width="16%;">DDT</th>
+                            <th width="16%;">TSKF</th>
+                            <th width="16%;">合计</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>${getDateByDotNet(dr.Date).pattern('yyyy-MM-dd HH:mm:ss')}$</td>
+                            <td>${dr.RxCount}$</td>
+                            <td>${dr.VxCount}$</td>
+                            <td>${dr.DDTCount}$</td>
+                            <td>${dr.TSKFCount}$</td>
+                            <td>${dr.AllCount}$</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="80" class="paging"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+            </div>
+        </div>
+        <div class="layui-tab-item" style="width:1600px; max-width:2000px;">
+            <div style="margin-left: 20px;padding-bottom:10px;padding-top:15px;">
+                <strong style="font-size: 16px;">当前医院数</strong>
+            </div>
+            <div style="margin-left: 20px; margin-right:20px;overflow:auto;width:1500px; max-width:2000px;" class="panel admin-panel">
+                <table id="tb_hospital_ta" class="table table-hover"></table>
+            </div>
+
+            <div style="margin-left: 20px;padding-bottom:10px;padding-top:15px;">
+                <strong style="font-size: 16px;">品牌覆盖数</strong>
+            </div>
+            <div style="margin-left: 20px; margin-right:20px; overflow:auto;width:1500px; max-width:2000px;" class="panel admin-panel">
+                <table id="tb_brand_ta" class="table table-hover"></table>
+            </div>
+
+            <div style="margin-left: 20px; padding-bottom:10px;padding-top:15px;">
+                <strong style="font-size: 16px;">医院变化数据</strong>
+            </div>
+            <div style="margin-left: 20px; margin-right:20px; margin-bottom:20px; overflow:auto;width:1500px; max-width:2000px;" class="panel admin-panel">
+                <table id="ta_hospital_dataTable" class="table table-hover">
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -1,0 +1,142 @@
+﻿@{
+    ViewBag.Title = "HT报表管理";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+    @*<link href="~/Content/bootstrap/bootstrap-select.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/bootstrap/bootstrap.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="~/Content/bootstrap/bootstrap-select.js"></script>
+    <script type="text/javascript" src="~/Content/bootstrap/bootstrap3.3.7.js"></script>*@
+    <script type="text/javascript">
+        $(function () {
+            var startYear = 2018;
+            var myDate = new Date();
+            var endYear = myDate.getFullYear();
+            var endMonth = myDate.getMonth() + 1;
+
+            var options = document.getElementById('sltMonth').options;
+            for (i = 0; i < options.length; i++) {
+                if (options[i].value == endMonth) {
+                    options[i].selected = true;
+                    break;
+                }
+            }
+            var html;
+            $('#sltYear').html('');
+            for (var i = startYear; i <= endYear; i++) {
+                if (i == endYear)
+                    html += '<option value="' + i + '" selected="selected">' + i + '</option>';
+                else
+                    html += '<option value="' + i + '">' + i + '</option>';
+            }
+            $('#sltYear').html(html);
+
+            $('#btnExport').bind('click', function () {
+                var year = $('#sltYear').val();
+                var month = $('#sltMonth').val();
+                var htChannel = $('#sltChannel').val();
+
+                window.location.href = contextUri + '/P/ExportManagement/ExportSpecialInvoiceOrder?Year=' + year
+                    + '&Month=' + month
+                    + '&Channel=' + htChannel;
+            });
+
+        });
+        function selectOption() {
+            var item = $('#sltOption').val();
+            if (item == 1) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/SpecialOrder";
+                document.getElementById("jump").click();
+            }
+            else if (item == 2) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/SpecialInvoiceOrder";
+                document.getElementById("jump").click();
+            }
+            else if (item == 3) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/UnfinishedOrder";
+                document.getElementById("jump").click();
+            }
+            else if (item == 4) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/HospitalCoverage";
+                document.getElementById("jump").click();
+            }
+            else if (item == 5) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/OrderEvaluate";
+                document.getElementById("jump").click();
+            }
+            else if (item == 6) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/SpecialOrderProportion";
+                document.getElementById("jump").click();
+            }
+        };
+
+    </script>
+}
+<div class="tool_bar">
+    <label>特殊发票订单</label>
+</div>
+<div class="main_view">
+    @*<div class="loadingmask" style="display: block;"></div>*@
+    <div style="margin: 20px;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <div class="x10">
+                        <span><strong>请选择要导出报表</strong></span>
+                        <select class="input input-small" style="width:180px;" id="sltOption" name="sltOption" onchange="selectOption()">
+                            <option value="6">Special Order</option>
+                            <option value="1">特殊订单</option>
+                            <option value="2" selected="selected">特殊发票订单</option>
+                            <option value="3">未完成订单</option>
+                            <option value="4">医院覆盖率</option>
+                            <option value="5">订单评价</option>
+                        </select>
+                        <a id="jump"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <span><strong>请筛选条件</strong></span>
+                    <label class="border-small label-block" style="padding-left:50px;">
+                        年月筛选
+                        <select id="sltYear" name="sltYear" class="input input-small" style="width:100px;"></select>
+                        <select id="sltMonth" name="sltMonth" class="input input-small" style="width:100px;">
+                            <option value="1" selected="selected">1月</option>
+                            <option value="2">2月</option>
+                            <option value="3">3月</option>
+                            <option value="4">4月</option>
+                            <option value="5">5月</option>
+                            <option value="6">6月</option>
+                            <option value="7">7月</option>
+                            <option value="8">8月</option>
+                            <option value="9">9月</option>
+                            <option value="10">10月</option>
+                            <option value="11">11月</option>
+                            <option value="12">12月</option>
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        供应商
+                        <select class="input input-small" style="width:180px;" id="sltChannel" name="sltChannel">
+                            <option value="XMS" selected="selected">XMS</option>
+                            <option value="BDS">BDS</option>
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:35px;">
+                        <button class="button button-small bg-blue icon-file-excel-o" id="btnExport">导出</button>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

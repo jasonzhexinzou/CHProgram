@@ -1,0 +1,64 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <title>Index</title>
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+
+    <script type="text/javascript" src="http://op-qyweixin.santen-china.cn/api/config.js?key=84bf52710bb09731&secret=246CC572EA5E301ADD9C01B0648B2618&debug=true&url=@HttpUtility.UrlEncode("http://santenvipsupport.dev.imtpath.com/JsApi/Index")"></script>
+    
+    @*<script type="text/javascript" src="http://j.dev.imtpath.com/JsApi/QyConfigJs?debug=true&url=@HttpUtility.UrlEncode("http://j.dev.imtpath.com/JsApi/Index")"></script>*@
+
+    <script type="text/javascript">
+
+        @*wx.config({
+            debug: true,
+            appId: '@ViewBag.appId',
+            timestamp: '@ViewBag.timestamp',
+            nonceStr: '@ViewBag.noncestr',
+            signature: '@ViewBag.signature',
+            jsApiList: ['hideOptionMenu', 'startRecord', 'stopRecord', 'playVoice', 'translateVoice', 'onVoiceRecordEnd', 'chooseImage']
+        });*@
+
+        wx.ready(function () {
+            wx.hideOptionMenu();
+
+            wx.chooseImage({
+                count: 1, // 默认9
+                sizeType: ['original', 'compressed'],
+                sourceType: ['album', 'camera'],
+                success: function (res) {
+                    var localIds = res.localIds[0];
+                    alert(localIds);
+                    $('#image').attr('src', localIds);
+                    wx.uploadImage({
+                        localId: localIds,
+                        isShowProgressTips: 1,
+                        success: function (res) {
+                            var serverId = res.serverId; 
+                        },
+                        fail: function (res) { showDlg(MSG_UPLOADIMAGE); }
+                    });
+                }
+            });
+        });
+
+    </script>
+
+</head>
+<body>
+    <div> 
+        白灼 是什么意思
+    </div>
+    <div>
+        <img src="" id="image"  style="width: 150px; height: 150px;"/>
+    </div>
+</body>
+</html>

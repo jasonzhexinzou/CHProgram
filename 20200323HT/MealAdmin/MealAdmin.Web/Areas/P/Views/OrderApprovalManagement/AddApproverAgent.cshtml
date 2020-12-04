@@ -1,0 +1,227 @@
+﻿
+@{
+    ViewBag.Title = "AddApproverAgent";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+
+    <script type="text/javascript">
+        var pdg;
+
+        var AgentId = '@ViewBag.id';
+
+        $(function () {
+            var _option = {
+                dateFormat: "yy-mm-dd",
+                closeText: "关闭",
+                prevText: "&#x3C;上月",
+                nextText: "下月&#x3E;",
+                currentText: "今天",
+                monthNames: ["一月", "二月", "三月", "四月", "五月", "六月",
+                "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月",
+                "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                dayNames: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+                dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"],
+                weekHeader: "周",
+                dateFormat: "yy-mm-dd",
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: true,
+                yearSuffix: "年"
+            }
+
+            var _ctBehin = $("#txtStartTime").datepicker(_option);
+            var _ctEnd = $("#txtEndTime").datepicker(_option);
+
+            if (AgentId != "") {
+                $.PintuerPost(contextUri + '/P/OrderApprovalManagement/FindById', { id: AgentId }, function (d) {
+                    var data = d.data.UserDelegate;
+                    $('#ID').val(data.ID);
+                    $('#txtUserMUDID').val(data.UserMUDID);
+                    $('#txtUserName').val(data.UserName);
+                    $('#txtDelegateUserMUDID').val(data.DelegateUserMUDID);
+                    $('#txtDelegateUserName').val(data.DelegateUserName);
+                    var strStartTime = getDateByDotNet(data.StartTime).pattern('yyyy-MM-dd');
+                    $('#txtStartTime').val(strStartTime);
+                    var strEndTime = getDateByDotNet(data.EndTime).pattern('yyyy-MM-dd');
+                    $('#txtEndTime').val(strEndTime);
+
+                    $('#txtUserMUDID').attr('readonly', "readonly");
+
+                    if (data.IsEnable == "1") {
+                        $('#1').attr('checked', true);
+                    } else {
+                        $('#0').attr('checked', true);
+                    }
+                });
+            }
+        });
+
+        function ShowUserName() {
+            var AgentMudid = $('#txtUserMUDID').val();//获取申请人MUDID
+            if (AgentMudid != null && AgentMudid != "") {
+                $.post(contextUri + '/P/OrderApprovalManagement/ShowName', { AgentMudid: AgentMudid }, function (d) {
+                    if (d.ishave == 1) {
+                        $('#txtUserName').val(d.res.Name);//如果MUDID存在自动添加姓名
+                    }
+                    if (d.ishave == 0) {
+                        $showdialog({ title: '提示', body: d.txt });
+                        $('#txtUserName').val("");
+                    }
+                }, 'json')
+            }
+            $.post(contextUri + '/P/OrderApprovalManagement/ExistentAgent', { AgentMudid: AgentMudid }, function (d) {
+                if (d.isAgent == 1) {
+                    if (d.data) {
+                        $('#ID').val(d.data.ID)
+                        $('#txtDelegateUserMUDID').val(d.data.DelegateUserMUDID);
+                        $('#txtDelegateUserName').val(d.data.DelegateUserName);
+                        var strStartTime = getDateByDotNet(d.data.StartTime).pattern('yyyy-MM-dd');
+                        $('#txtStartTime').val(strStartTime);
+                        var strEndTime = getDateByDotNet(d.data.EndTime).pattern('yyyy-MM-dd');
+                        $('#txtEndTime').val(strEndTime);
+                        if (d.data.IsEnable == 1) {
+                            $('#1').attr('checked', true);
+                        }
+                        if (d.data.IsEnable == 0) {
+                            $('#0').attr('checked', true);
+                        }
+                    }
+                }
+                return;
+
+            });
+            return;
+
+        }
+
+        function ShowDelegateUserName() {
+            var AgentMudid = $('#txtDelegateUserMUDID').val();//获取代理人MUDID
+            if (AgentMudid != null && AgentMudid != "") {
+                $.post(contextUri + '/P/OrderApprovalManagement/ShowName', { AgentMudid: AgentMudid }, function (d) {
+                    if (d.ishave == 1) {
+                        $('#txtDelegateUserName').val(d.res.Name);//如果MUDID存在自动添加姓名
+                    }
+                    if (d.ishave == 0) {
+                        $showdialog({ title: '提示', body: d.txt });
+                        $('#txtDelegateUserName').val("");
+                    }
+                }, 'json')
+            }
+            return;
+
+        }
+        function btnOKClick(e, callback) {
+            var userName = $('#txtUserName').val();
+            var userMUDID = $('#txtUserMUDID').val();
+            var DelegateUserName = $('#txtDelegateUserName').val();
+            var DelegateUserMUDID = $('#txtDelegateUserMUDID').val();
+            var startTime = $('#txtStartTime').val();
+            var endTime = $('#txtEndTime').val();
+            var dateNow = CurentTime();
+            if (userMUDID == '' || userName == '' || DelegateUserName == '' || DelegateUserMUDID == '' || startTime == '' || endTime == '') {
+                $showdialog({ title: '提示', body: '请填写完整信息！' });
+                return;
+            }
+            if (startTime < dateNow) {
+                $showdialog({ title: '提示', body: "开始日期不可小于当前日期。" });
+                return;
+            }
+            if (endTime < dateNow) {
+                $showdialog({ title: '提示', body: "结束日期不可小于当前日期。" });
+                return;
+            }
+
+            if (endTime < startTime) {
+                $showdialog({ title: '提示', body: "结束日期不可小于开始日期。" });
+                return;
+            }
+            $ajaxSubmit('form0', contextUri + '/P/OrderApprovalManagement/_AddApproverAgent',
+                function (data) {
+                    $showdialog({ title: '提示', body: "提交成功！" });
+                    callback();
+                    e.close();
+                });
+        }
+
+        function CurentTime() {
+            var now = new Date();
+
+            var year = now.getFullYear();       //年
+            var month = now.getMonth() + 1;     //月
+            var day = now.getDate();            //日
+
+            var clock = year + "-";
+
+            if (month < 10)
+                clock += "0";
+
+            clock += month + "-";
+
+            if (day < 10)
+                clock += "0";
+
+            clock += day;
+            return (clock);
+        }
+
+    </script>
+}
+<div style="padding: 15px;">
+    <form action="" id='form0' method="post">
+        <input type="hidden" id="ID" name="ID" value="" />
+        <div class="form-group">
+            <div class="label"><label for="txtUserMUDID">审批人MUDID</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtUserMUDID" name="txtUserMUDID" value="" autocomplete="off" onblur="ShowUserName()" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="txtUserName">审批人姓名</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtUserName" name="txtUserName" value="" readonly="readonly" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="txtDelegateUserMUDID">代理人MUDID</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtDelegateUserMUDID" name="txtDelegateUserMUDID" value="" autocomplete="off" onblur="ShowDelegateUserName()" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="txtDelegateUserName">代理人姓名</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtDelegateUserName" name="txtDelegateUserName" value="" readonly="readonly" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="txtStartTime">开始日期</label></div>
+            <div class="field">
+                <label class="border-small label-block">
+                    <input type="text" class="input " id="txtStartTime" name="txtStartTime" placeholder="开始日期" />
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="txtEndTime">结束日期</label></div>
+            <div class="field">
+                <label class="border-small label-block">
+                    <input type="text" class="input " id="txtEndTime" name="txtEndTime" placeholder="结束日期" />
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="txtIsEnable">是否启用</label></div>
+            <div class="field">
+                <input type="radio" name="txtIsEnable" value="1" id="1" />是 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="txtIsEnable" value="0" id="0" checked />否
+            </div>
+        </div>
+    </form>
+</div>
+
+

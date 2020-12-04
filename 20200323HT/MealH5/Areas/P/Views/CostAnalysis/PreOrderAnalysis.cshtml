@@ -1,0 +1,716 @@
+﻿@{
+    ViewBag.Title = "有效预申请/订单分析";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+@section scripts{
+}
+<style type="text/css">
+    html, body {
+        width: 100%;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 50px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .page-head {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .placeholder {
+        padding: 7px;
+    }
+
+    .weui-cell {
+        min-height: 45px;
+        margin-top: 0px !important;
+    }
+
+    .weui-cells {
+        font-size: 14px !important;
+    }
+
+    .weui-label {
+        width: 140px !important;
+    }
+    weui-label-hospital{
+        width:100%!important;
+    }
+    .type-select {
+        color: white;
+        width: 90px;
+        border: 0;
+        outline: 0;
+        background-color: transparent;
+        font-size: inherit;
+        position: relative;
+        z-index: 1;
+    }
+</style>
+<script type="text/javascript" src="~/Content/echarts/echarts.min.js"></script>
+<script type="text/javascript" src="~/Content/bootstrap/bootstrap3.3.7.js"></script>
+<link type="text/css" rel="stylesheet" href="~/Content/bootstrap/bootstrap.css" />
+<link type="text/css" rel="stylesheet" href="~/Content/fontawesome/css/font-awesome.css" />
+<link href="~/Content/css/cost_summary.css" rel="stylesheet" />
+<script src="~/Content/plugin/LCalendar/js/LCalendar.js"></script>
+<link href="~/Content/plugin/LCalendar/css/LCalendar.css" rel="stylesheet" />
+<script type="text/javascript">
+    var std = '@ViewBag.StartDate';
+    var ed = '@ViewBag.EndDate'; 
+    $(document).ready(function () {
+        var calendar = new LCalendar();
+        calendar.init({
+            'trigger': '#startDate', //标签id
+            'type': 'date', //date 调出日期选择 datetime 调出日期时间选择 time 调出时间选择 ym 调出年月选择,
+            'minDate': (new Date().getFullYear() - 3) + '-' + 1 + '-' + 1, //最小日期
+            'maxDate': (new Date().getFullYear() + 3) + '-' + 12 + '-' + 31 //最大日期
+        });
+
+        var calendar = new LCalendar();
+        calendar.init({
+            'trigger': '#endDate', //标签id
+            'type': 'date', //date 调出日期选择 datetime 调出日期时间选择 time 调出时间选择 ym 调出年月选择,
+            'minDate': (new Date().getFullYear() - 3) + '-' + 1 + '-' + 1, //最小日期
+            'maxDate': (new Date().getFullYear() + 3) + '-' + 12 + '-' + 31 //最大日期
+        });
+
+        $('#startDate').val(std);
+        $('#endDate').val(ed);
+
+        
+        
+        
+        $("#btnRefresh").click(function () {
+            getJson();
+        });
+        getJson();
+        function getJson() {
+            var _StartDate = $('#startDate').val();
+            var _EndDate = $('#endDate').val();
+            showLoadingToast();
+            post('/P/CostAnalysis/LoadPreOrderAnalysisData',
+                {
+                    StartDate: _StartDate,
+                    EndDate: _EndDate,
+                    Type: $('#Type').val()
+                },
+                function (d) {
+                    if (d.state == 1) {
+                        //医院排行title数据
+                        document.getElementById('lblTotalHosCount').innerHTML = d.TotalHospitalCount;
+                        document.getElementById('labHosPreCount').innerHTML = d.TotalHospitalPreCount;
+                        document.getElementById('lblPreProportion').innerHTML = d.TotalPreProportion;
+                        document.getElementById('labHosOrderCount').innerHTML = d.TotalHospitalOrderCount;
+                        document.getElementById('lblOrderProportion').innerHTML = d.TotalOrderProportion;
+                        //预申请/订单金额
+                        if ($('#Type').val() == "1") {
+                            //人员排行title数据
+                            document.getElementById('lblUser1').style.display = "block";
+                            document.getElementById('lblUser2').style.display = "none";
+                            document.getElementById('labTotalOrderAmount').innerHTML = d.TotalOrderAmount;
+                            
+                            document.getElementById('lblUser3').style.display = "block";
+                            document.getElementById('lblUser4').style.display = "none";
+                            document.getElementById('labTotalPreAmount').innerHTML = d.TotalPreAmount;
+
+                            document.getElementById('mainOrderAmount').style.display = "block";
+                            document.getElementById('mainPreAmount').style.display = "block";
+                            document.getElementById('mainOrderCount').style.display = "none";
+                            document.getElementById('mainPreCount').style.display = "none";
+                            var OrderAmountChart = echarts.init(document.getElementById('mainOrderAmount'));
+                            var OrderAmountData = [];
+                            var PreAmountChart = echarts.init(document.getElementById('mainPreAmount'));
+                            var PreAmountData = [];
+                            //订单金额饼图
+                            //var Amountstr = toDecimal2(d.TotalOrderAmount).toString();
+                            //var Amountreg = Amountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                            //var AmountT = "¥" + Amountstr.replace(Amountreg, "$1,");
+                            for (var i = 0; i < d.orderAmountChart.length; i++) {
+                                var obj = new Object();
+                                obj.name = d.orderAmountChart[i].Name;
+                                obj.value = d.orderAmountChart[i].OrderAmount;
+                                OrderAmountData[i] = obj;
+                            }
+                            var option = DrawOrderAmountBar(OrderAmountData, d.TotalOrderAmount);
+                            if (option && typeof option === "object") {
+                                OrderAmountChart.setOption(option, true);
+                            }
+                            //预申请金额饼图
+                            //var Amountstr = toDecimal2(d.TotalPreAmount).toString();
+                            //var Amountreg = Amountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                            //var AmountT = "¥" + Amountstr.replace(Amountreg, "$1,");
+                            for (var i = 0; i < d.preAmountChart.length; i++) {
+                                var obj = new Object();
+                                obj.name = d.preAmountChart[i].Name;
+                                obj.value = d.preAmountChart[i].PreAmount;
+                                PreAmountData[i] = obj;
+                            }
+                            var option = DrawPreAmountBar(PreAmountData, d.TotalPreAmount);
+                            if (option && typeof option === "object") {
+                                PreAmountChart.setOption(option, true);
+                            }
+                            //金额柱状图
+                            document.getElementById('mainBarAmount').style.display = "block";
+                            document.getElementById('mainBarCount').style.display = "none";
+                            var BarAmountChart = echarts.init(document.getElementById('mainBarAmount'));
+                            
+                            var CountX_1 = [];
+                            var CountX_2 = [];
+                            var CountY = [];
+
+                            for (var i = 0; i < d.BarAmountChart.length; i++) {
+                                CountX_1.push(d.BarAmountChart[i].OrderAmount.toString());
+                                CountX_2.push(d.BarAmountChart[i].PreAmount.toString());
+                                CountY.push(d.BarAmountChart[i].CodeandNAME);
+                            }
+                            var option1 = DrawBarAmount(CountX_1, CountX_2, CountY);
+                            if (option1 && typeof option1 === "object") {
+                                BarAmountChart.setOption(option1, true);
+                            }
+                        }
+                        else
+                        {
+                            //document.getElementById('labTotalOrderCount').innerHTML = d.TotalOrderCount;
+                        //document.getElementById('labTotalPreCount').innerHTML = d.TotalPreCount;
+
+
+
+                            document.getElementById('mainOrderAmount').style.display = "none";
+                            document.getElementById('mainPreAmount').style.display = "none";
+                            document.getElementById('mainOrderCount').style.display = "block";
+                            document.getElementById('mainPreCount').style.display = "block";
+                            var OrderCountChart = echarts.init(document.getElementById('mainOrderCount'));
+                            var OrderCountData = [];
+                            var PreCountChart = echarts.init(document.getElementById('mainPreCount'));
+                            var PreCountData = [];
+
+                            //预申请/订单数量饼图
+                            for (var i = 0; i < d.dataCountChart.length; i++) {
+                                var obj = new Object();
+                                obj.name = d.dataCountChart[i].Name;
+                                obj.value = d.dataCountChart[i].OrderCount;
+                                countData[i] = obj;
+                            }
+                            var Aoption = DrawCountBar(countData, CountT);
+                            if (Aoption && typeof Aoption === "object") {
+                                CountChart.setOption(Aoption, true);
+                            }
+
+                        }
+
+                        
+
+                        hideLoadingToast();
+                        $('#divUserRanking').append(FormatHtml(d.UserRankingList, '1'));
+                        $('#divHospitalRanking').append(FormatHosHtml(d.HospitalRankingList, '1'));
+                    } else {
+                        $showdialog({ body: '无数据！' });
+                        return;
+                    }
+                }, 'json');
+
+        }
+        function FormatHtml(data, type) {
+            var html = ''
+            if (data.length > 0) {
+                html += '<div class="panel panel-default">';
+                for (var i = 0; i < data.length; i++) {
+                    html += '<div class="panel-heading parent-nav collapsed" style="height:110px;" data-toggle="collapse" data-target="#type' + data[i].TerritoryCode + '">';
+
+                    html += '<div><div style="float:left;"><label for="" class="weui-label"><strong>' + data[i].Name + '</strong></label></div>';
+                    html += '<div style="float:right;"><label for="" class="weui-label">&nbsp;</label></div></div>'
+
+                    html += '<div><div><label for="" class="weui-label-hospital">' + data[i].TerritoryCode + '</label></div>';
+                    html += '</div>';
+
+                    html += '<div><div style="float:left;"><label for="" class="weui-label">订单金额(数量)</label></div>';
+                    //金额
+                    var Amountstr = toDecimal2(data[i].OrderAmount).toString();
+                    var Amountreg = Amountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                    var AmountT = "¥" + Amountstr.replace(Amountreg, "$1,");
+                    //数量
+                    var Countstr = data[i].OrderCount.toString();
+                    var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                    var CountT = Countstr.replace(Countreg, "$1,") + "单";
+                    html += '<div style="float:right;"><label for="" class="weui-label" style="color:#006774;">' + AmountT + '(' + CountT + ')</label></div></div>';
+
+                    html += '<div><div style="float:left;"><label for="" class="weui-label">预算金额(数量)</label></div>';
+                    //金额
+                    var Amountstr = toDecimal2(data[i].PreAmount).toString();
+                    var Amountreg = Amountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                    var AmountT = "¥" + Amountstr.replace(Amountreg, "$1,");
+                    //数量
+                    var Countstr = data[i].PreCount.toString();
+                    var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                    var CountT = Countstr.replace(Countreg, "$1,") + "单";
+                    html += '<div style="float:right;"><label for="" class="weui-label" style="color:#F66800;">' + AmountT + '(' + CountT + ')</label></div></div>';
+
+                    html += '<div><i class="fa fa-bars" aria-hidden="true"></i></div></div>'
+
+                    if (data[i].DownList.length > 0) {
+                        html += '<div id="type' + data[i].TerritoryCode + '" class="panel-collapse collapse child-nav">';
+                        for (var j = 0; j < data[i].DownList.length; j++) {
+                            html += '<div class="panel-body"><div><div style="float:left;"><label for="" class="weui-label"><strong>' + data[i].DownList[j].Name + '</strong></label></div>';
+                            html += '<div style="float:right;"><label for="" class="weui-label">&nbsp;</label></div></div>';
+
+                            html += '<div><div style="float:left;"><label for="" class="weui-label">' + data[i].DownList[j].TerritoryCode + '</label></div>';
+                            
+                            html += '<div style="float:right;"><label for="" class="weui-label">&nbsp;</label></div></div>';
+
+                            html += '<div><div style="float:left;"><label for="" class="weui-label">订单金额(数量)</label></div>';
+                            //金额
+                            var amountstr = toDecimal2(data[i].DownList[j].OrderAmount).toString();
+                            var amountreg = amountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                            var amountT = "¥" + amountstr.replace(amountreg, "$1,");
+                            //数量
+                            var str = data[i].DownList[j].OrderCount.toString();
+                            var reg = str.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                            var T = str.replace(reg, "$1,") + "单";
+                            html += '<div style="float:right;"><label for="" class="weui-label" style="color:#006774;">' + amountT + '(' + T + ')</label></div></div>';
+                            
+                            html += '<div><div style="float:left;"><label for="" class="weui-label">预算金额(数量)</label></div>';
+                            //金额
+                            var amountstr = toDecimal2(data[i].DownList[j].PreAmount).toString();
+                            var amountreg = amountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                            var amountT = "¥" + amountstr.replace(amountreg, "$1,");
+                            //数量
+                            var str = data[i].DownList[j].PreCount.toString();
+                            var reg = str.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                            var T = str.replace(reg, "$1,") + "单";
+                            html += '<div style="float:right;"><label for="" class="weui-label" style="color:#F66800;">' + amountT + '(' + T + ')</label></div></div></div >';
+                        }
+                        html += '</div>';
+                    }
+                }
+                html += '</div>';
+            }
+            return html;
+        }
+        function FormatHosHtml(data, type) {
+            var html = ''
+            if (data.length > 0) {
+                html += '<div class="panel panel-default">';
+                for (var i = 0; i < data.length; i++) {
+                    html += '<div class="panel-heading" style="height:110px;" data-toggle="collapse" data-target="#type' + data[i].HospitalCode + '">';
+
+                    html += '<div><div style="float:left;"><label for="" class="weui-label"><strong>' + data[i].HospitalCode + '</strong></label></div>';
+                    html += '<div style="float:right;"><label for="" class="weui-label">&nbsp;</label></div></div>'
+
+                    html += '<div><div><label for="" class="weui-label-hospital">' + data[i].HospitalName + '</label></div>';
+                    html += '</div>';
+
+                    html += '<div><div style="float:left;"><label for="" class="weui-label">订单金额(数量)</label></div>';
+                    //金额
+                    var Amountstr = toDecimal2(data[i].OrderAmount).toString();
+                    var Amountreg = Amountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                    var AmountT = "¥" + Amountstr.replace(Amountreg, "$1,");
+                    //数量
+                    var Countstr = data[i].OrderCount.toString();
+                    var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                    var CountT = Countstr.replace(Countreg, "$1,") + "单";
+                    html += '<div style="float:right;"><label for="" class="weui-label" style="color:#006774;">' + AmountT + '(' + CountT + ')</label></div></div>';
+
+                    html += '<div><div style="float:left;"><label for="" class="weui-label">预算金额(数量)</label></div>';
+                    //金额
+                    var Amountstr = toDecimal2(data[i].PreAmount).toString();
+                    var Amountreg = Amountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                    var AmountT = "¥" + Amountstr.replace(Amountreg, "$1,");
+                    //数量
+                    var Countstr = data[i].PreCount.toString();
+                    var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                    var CountT = Countstr.replace(Countreg, "$1,") + "单";
+                    html += '<div style="float:right;"><label for="" class="weui-label" style="color:#F66800;">' + AmountT + '(' + CountT + ')</label></div></div></div>';
+                }
+                html += '</div>';
+            }
+            return html;
+        }
+        function DrawOrderAmountBar(servicedata, TotalAmount) {
+            option = {
+                title: {
+                    text: 'HT订单金额: ' + TotalAmount,
+                    x: 'center',
+                    bottom: '20',
+                    textStyle: {
+                        fontSize: 13,
+                        fontStyle: 'bolder',
+                        fontWeight: 'normal',
+                    },
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b} '
+                },
+
+                series: [
+                    {
+                        name: 'HT订单金额占比',
+                        type: 'pie',
+                        radius: '45%',
+                        center: ['50%', '40%'],
+                        data: servicedata,
+                        itemStyle: {
+                            borderWidth: 2,
+                            borderColor: '#fff',
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            return option
+        }
+        function DrawPreAmountBar(servicedata, TotalAmount) {
+            option = {
+                title: {
+                    text: 'HT预算金额: ' + TotalAmount,
+                    x: 'center',
+                    bottom: '30',
+                    textStyle: {
+                        fontSize: 13,
+                        fontStyle: 'bolder',
+                        fontWeight: 'normal',
+                    },
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b} '
+                },
+
+                series: [
+                    {
+                        name: 'HT订单金额占比',
+                        type: 'pie',
+                        radius: '45%',
+                        center: ['50%', '40%'],
+                        data: servicedata,
+                        itemStyle: {
+                            borderWidth: 2,
+                            borderColor: '#fff',
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            return option
+        }
+        function DrawBarAmount(CountX_1, CountX_2, CountY) {
+            option = {
+                backgroundColor: 'rgb(255, 255, 255)',
+                color: ['#F66800', '#006774'],
+                height: 220,
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    trigger: 'item',
+                    formatter: function (data) {
+                        var result = [],
+                            counter = 0,
+                            num = data.value;
+                        num = (num || 0).toString().split('');
+                        for (var i = num.length - 1; i >= 0; i--) {
+                            counter++;
+                            result.unshift(num[i]);
+                            //无小数部分
+                            if (!(counter % 3) && i != 0) {
+                                result.unshift(',');
+                            }
+                        }
+                        result = result.join('');
+                        return data.name + " : " + result;
+                    }
+                },
+                legend: {
+                    data: ['HT预算金额', 'HT订单金额']
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    boundaryGap: [0, 0.01]
+                },
+                yAxis: {
+                    type: 'category',
+                    inverse: true,//倒叙
+                    data: CountY,
+                    axisLabel: {
+                        interval: 0,
+                        fontSize: 10,
+                        formatter: function (value) {
+                            return value.split("-").join("\n\n");
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: 'HT预算金额',
+                        type: 'bar',
+                        barGap: 0,
+                        label: {
+                            show: true,
+                            formatter: function (a) {
+                                var Amountstr = toDecimal2(a.data).toString();
+                                var Amountreg = Amountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                                var AmountT = "¥" + Amountstr.replace(Amountreg, "$1,");
+                                return AmountT;
+                            }
+                        },
+                        data: CountX_2
+                    },
+                    {
+                        name: 'HT订单金额',
+                        type: 'bar',
+                        label: {
+                            show: true,
+                            formatter: function (a) {
+                                var Amountstr = toDecimal2(a.data).toString();
+                                var Amountreg = Amountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                                var AmountT = "¥" + Amountstr.replace(Amountreg, "$1,");
+                                return AmountT;
+                            }
+                        },
+                        data: CountX_1
+                    }
+                ]
+            };
+            return option
+        }
+
+
+
+        function DrawCountBar(servicedata, TotalCount) {
+            option = {
+                title: {
+                    text: 'HT订单数量: ' + TotalCount,
+                    x: 'center',
+                    bottom: '30',
+                    textStyle: {
+                        fontSize: 13,
+                        fontStyle: 'bolder',
+                        fontWeight: 'normal',
+                    },
+                },
+                //color: ['#006774', '#F66800'],
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b} '
+                },
+
+                series: [
+                    {
+                        name: 'HT订单数量占比',
+                        type: 'pie',
+                        radius: '50%',
+                        center: ['50%', '50%'],
+                        data: servicedata,
+                        itemStyle: {
+                            borderWidth: 3,
+                            borderColor: '#fff',
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            return option
+        }
+    });
+    function toDecimal2(x) {
+        var f = Math.round(x * 100) / 100;
+        var s = f.toString();
+        var rs = s.indexOf('.');
+        if (rs < 0) {
+            rs = s.length;
+            s += '.';
+        }
+        while (s.length <= rs + 2) {
+            s += '0';
+        }
+        return s;
+    }
+</script>
+<div class="page-main">
+    <div class="page-body" style="background-color: #FFFFFF; bottom: 0px !important;">
+        <div style="background-color:#f60; height:60px;padding-left:15px;padding-top:5px;">
+            <div>
+                <img id="imgTool" src="~/Content/image/line-chart.png" style="height:24px;vertical-align:middle;" />&nbsp;
+                <font color="white" style="font-size:14px;">分析维度：</font>
+                <select class="type-select" name="Type" id="Type">
+                    <option value="1" style="background-color:#f60;" selected>按金额分析</option>
+                    <option value="2" style="background-color:#f60;">按数量分析</option>
+                </select>
+            </div>
+            <div style="float:left;">
+                <img id="imgTool" src="~/Content/image/Calendar.png" style="height:24px;vertical-align:middle;" />
+                <input class="weui-input" style="color:white;width:75px;" id="startDate" type="text" readonly>
+                <input class="weui-input" style="color:white;width:15px;" value="--" />
+                <input class="weui-input" style="color:white;width:75px;" id="endDate" type="text" readonly>
+                <div class="cost-right">
+                    <button id="btnRefresh" style="z-index:999;color:white!important;border:none;background:none;margin-left:20px;text-decoration:underline;">刷新</button>
+                </div>
+            </div>
+        </div>
+
+        <label style="color: #999999;padding-left:15px;">仅分析审批通过的非0元预申请及已产生实际费用的订单</label>
+
+        <div id="mainOrderAmount" style="width: auto;height:320px; display:none;"></div>
+        <div id="mainPreAmount" style="width: auto;height:320px; display:none;"></div>
+        <div id="mainOrderCount" style="width: auto;height:280px; display:none;"></div>
+        <div id="mainPreCount" style="width: auto;height:280px; display:none;"></div>
+
+        <div id="mainBarAmount" style="width: 95%;height:280px; display:none;"></div>
+        <div id="mainBarCount" style="width: 95%;height:280px; display:none;"></div>
+
+        <div class="weui-cells" style="margin-top:5px!important;margin-left:20px;">
+            <div>
+                <label for=""><strong id="belong">人员排行</strong></label>
+            </div>
+            <div>
+                <label id="lblUser1" style="display:none;" for="">订单总金额：<label id="labTotalOrderAmount"></label></label>
+                <label id="lblUser2" style="display:none;">HT订单数：<label id="labTotalOrderCount"></label>单</label>
+            </div>
+
+            <div>
+                <label id="lblUser3" style="display:none;">预算总金额：<label id="labTotalPreAmount"></label></label>
+                <label id="lblUser4" style="display:none;">HT预申请数：<label id="labTotalPreCount"></label>单</label>
+            </div>
+
+        </div>
+        <div class="weui-cells" style="border: solid 1px #ddd !important; margin-top: 0px !important;"></div>
+        <div style="padding:5px;">
+            <div id="divUserRanking"></div>
+        </div>
+        <div class="weui-cells" style="margin-top:-10px!important;margin-left:20px;">
+            <div>
+                <label for=""><strong id="belong">医院排行</strong></label>
+            </div>
+            <div>
+                <label id="lblTotalHosCount">医院总数量：</label>
+            </div>
+            <div>
+                <label style="width:160px;">产生预算医院数：<label id="labHosPreCount"></label></label><label id="lblPreProportion"></label>
+            </div>
+            <div>
+                <label style="width:160px;">产生订单医院数：<label id="labHosOrderCount"></label></label><label id="lblOrderProportion"></label>
+            </div>
+        </div>
+        <div style="padding:5px;">
+            <div id="divHospitalRanking">
+            </div>
+        </div>
+    </div>
+</div>
+<style type="text/css">
+    #chooseDeliverTime {
+        background-color: #FFFFFF;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        display: none;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 8;
+    }
+
+    #dvUploadSpeakerFile {
+        background-color: #FFFFFF;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        display: none;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9;
+    }
+
+    .my_weui_uploader_input_wrp {
+        float: left;
+        position: relative;
+        margin-right: 9px;
+        margin-bottom: 9px;
+        width: 70px;
+        height: 70px;
+        border: 2px #D9D9D9;
+        border-radius: 10px;
+    }
+
+    .panel-body {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        padding-top: 5px !important;
+        padding-bottom: 0px !important;
+        border-bottom: solid 1px #ddd !important
+    }
+
+    /*body {
+        background-color: #f5f5f5;
+        color: #444;
+    }*/
+
+    .parent-nav:after {
+        content: "\f077"; /** 箭头向上图标*/
+        font-family: FontAwesome;
+    }
+
+    /**箭头图标展开式时的样式*/
+    /** collapsed是bootstrap的属性，表示父标签展开的时候加入的图标 after表示在此后加入字体图标  */
+    .parent-nav.collapsed:after {
+        content: "\f078"; /** 箭头向下图标*/
+        font-family: FontAwesome;
+    }
+</style>
+
+
+
+
+
+

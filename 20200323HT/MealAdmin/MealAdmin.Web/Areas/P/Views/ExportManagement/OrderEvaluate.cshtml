@@ -1,0 +1,174 @@
+﻿@{
+    ViewBag.Title = "HT报表管理";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap/bootstrap-select.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/bootstrap/bootstrap.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="~/Content/bootstrap/bootstrap-select.js"></script>
+    <script type="text/javascript" src="~/Content/bootstrap/bootstrap3.3.7.js"></script>
+    <script type="text/javascript">
+        var TAlist = '@ViewBag.TAlist';
+        $(function () {
+            var _option = {
+                dateFormat: "yy-mm-dd",
+                closeText: "关闭",
+                prevText: "&#x3C;上月",
+                nextText: "下月&#x3E;",
+                currentText: "今天",
+                monthNames: ["一月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                dayNames: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+                dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"],
+                weekHeader: "周",
+                dateFormat: "yy-mm-dd",
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: true,
+                yearSuffix: "年"
+
+            }
+            $('#sltTA').html('');
+            var taList = TAlist.split(',');
+            var html = '<option value="ALL" selected="selected" style="color:black">ALL</option>';
+            if (taList.length > 0) {
+                for (var i in taList) {
+                    html += '<option value="' + taList[i] + '">' + taList[i] + '</option>';
+                }
+            }
+            $('#sltTA').html(html);
+
+            //$.post(contextUri + '/P/ExportManagement/LoadTa', {
+
+            //}, function (data) {
+            //    var taList = data.data;
+            //    //$('#sltTA').html('');
+            //    var html = '<option value="ALL" selected="selected" style="color:red">ALL</option>';
+            //    if (taList.length > 0) {
+            //        for (var i in taList) {
+            //            html += '<option value="' + taList[i].Name + '">' + taList[i].Name + '</option>';
+            //        }
+            //    }
+            //    $('#sltTA').html(html);
+            //});
+
+            var _stBegin = $("#txtDeliverTimeBegin").datepicker(_option);
+            var _stEnd = $("#txtDeliverTimeEnd").datepicker(_option);
+
+            $('#btnExport').bind('click', function () {
+                //送餐日期校验
+                if ($('#txtDeliverTimeBegin').val() == "") {
+                    alert('请选择送餐日期开始时间');
+                    return;
+                }
+                if ($('#txtDeliverTimeEnd').val() == "") {
+                    alert('请选择送餐日期结束时间');
+                    return;
+                }
+                if ($('#txtDeliverTimeEnd').val() < $('#txtDeliverTimeBegin').val()) {
+                    alert('送餐日期结束时间不得早于开始时间');
+                    return;
+                }
+                
+                var ta = $('#sltTA').val() == null ? "ALL" : encodeURIComponent($('#sltTA').val().toString());
+                window.location.href = contextUri + '/P/ExportManagement/ExportOrderEvaluate?'
+                    + 'DeliverTimeBegin=' + $('#txtDeliverTimeBegin').val().replace(/\s/g, "")
+                    + '&DeliverTimeEnd=' + $('#txtDeliverTimeEnd').val().replace(/\s/g, "")
+                    + '&TA=' + ta                
+                    + '&supplier=' + $('#sltSupplier').val();
+            });
+
+        });
+        function selectOption1() {
+            var item = $('#sltOption').val();
+            if (item == 1) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/SpecialOrder";
+                document.getElementById("jump").click();
+            }
+            else if (item == 2) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/SpecialInvoiceOrder";
+                document.getElementById("jump").click();
+            }
+            else if (item == 3) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/UnfinishedOrder";
+                document.getElementById("jump").click();
+            }
+            else if (item == 4) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/HospitalCoverage";
+                document.getElementById("jump").click();
+            }
+            else if (item == 5) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/OrderEvaluate";
+                document.getElementById("jump").click();
+            }
+            else if (item == 6) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/SpecialOrderProportion";
+                document.getElementById("jump").click();
+            }
+        };
+
+    </script>
+}
+<div class="tool_bar">
+    <label>订单评价</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;border: solid 1px #ddd;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <div class="x10">
+                        <span><strong>请选择要导出报表</strong></span>
+                        <select class="input input-small" style="width:180px;" id="sltOption" name="sltOption" onchange="selectOption1()">
+                            <option value="6">Special Order</option>
+                            <option value="1">特殊订单</option>
+                            <option value="2">特殊订单发票</option>
+                            <option value="3">未完成订单</option>
+                            <option value="4">医院覆盖率</option>
+                            <option value="5" selected="selected">订单评价</option>
+                        </select>
+                        <a id="jump"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <span><strong>请筛选条件</strong></span>
+                    <label class="border-small label-block" style="padding-left:50px;">
+                        送餐日期
+                        <input type="text" class="input input-small" style="width:100px;" id="txtDeliverTimeBegin" name="txtDeliverTimeBegin" placeholder="开始时间" autocomplete="off" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtDeliverTimeEnd" name="txtDeliverTimeEnd" placeholder="结束时间" autocomplete="off" />
+                    </label>
+                    <label class="border-small label-block" style="padding-left:40px;">
+                        TA
+                        <select class="selectpicker bla bla bli" id="sltTA" name="sltTA" multiple></select>
+                    </label>
+
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        供应商
+                        <select id="sltSupplier" name="sltSupplier" class="input input-small" style="width:100px;">
+                            <option value="all">ALL</option>
+                            <option value="xms">XMS</option>
+                            <option value="bds">BDS</option>
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        <button class="button button-small bg-blue icon-file-excel-o" id="btnExport">导出</button>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

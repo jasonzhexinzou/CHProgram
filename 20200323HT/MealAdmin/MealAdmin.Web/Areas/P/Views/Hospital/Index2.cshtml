@@ -1,0 +1,415 @@
+﻿@{
+    ViewBag.Title = "医院列表";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+<script type="text/javascript">
+        var pdg;
+        $(function () {
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/Hospital/Load', paging: true });
+            pdg.QueryParams = function () {
+                return {
+                    srh_GskHospital: $('#txtGskHospital').val(),
+                    srh_HospitalName: $('#txtHospitalName').val(),
+                    srh_HospitalMarket: $('#sltHospitalMarket option:selected').val(),
+                    srh_OHHospitalType: $('#sltOHHospitalType option:selected').val()
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+
+            $('#btnExport').bind('click', function () {
+                $showdialogForUrl(
+                    {
+                        title: '导出医院列表信息',
+                        width: '450px',
+                        height: '100px',
+                        url: contextUri + '/P/Hospital/ExportHospitalList?srh_GskHospital=' + encodeURIComponent($('#txtGskHospital').val())
+                            + '&srh_HospitalName=' + encodeURIComponent($('#txtHospitalName').val())
+                            + '&srh_HospitalMarket=' + encodeURIComponent($('#sltHospitalMarket option:selected').val())
+                            + '&srh_OHHospitalType=' + encodeURIComponent($('#sltOHHospitalType option:selected').val()),
+                        pageid: 'manager',
+                        buttons: [
+                            {
+                                cls: 'button',
+                                txt: '关闭',
+                                handler: function (e) { e.close(); }
+                            }
+                        ]
+                    }
+                );
+                //ExportSearchList
+            });
+
+            $('#btnExportData').bind('click', function () {
+                $showdialogForUrl(
+                    {
+                        title: '导出医院数据信息',
+                        width: '450px',
+                        height: '100px',
+                        url: contextUri + '/P/Hospital/ExportHospitalData?srh_GskHospital=' + encodeURIComponent($('#txtGskHospital').val())
+                            + '&srh_HospitalName=' + encodeURIComponent($('#txtHospitalName').val())
+                            + '&srh_HospitalMarket=' + encodeURIComponent($('#sltHospitalMarket option:selected').val())
+                            + '&srh_OHHospitalType=' + encodeURIComponent($('#sltOHHospitalType option:selected').val()),
+                        pageid: 'manager',
+                        buttons: [
+                            {
+                                cls: 'button',
+                                txt: '关闭',
+                                handler: function (e) { e.close(); }
+                            }
+                        ]
+                    }
+                );
+            });
+
+            $('#btnImportDDT').click(function () {
+                ajaxFileUpload('ddt');
+            });
+
+            $('#btnImportRx').click(function () {
+                ajaxFileUpload('rx');
+            });
+
+            $('#btnImportTSKF').click(function () {
+                ajaxFileUpload('tskf');
+            });
+
+            $('#btnImportVx').click(function () {
+                ajaxFileUpload('vx');
+            });
+
+            $('#btnImportExt').click(function () {
+                ajaxFileUpload('ext');
+            });
+
+            $('#btnDelete').click(function () {
+                var ids = new Array();
+                $('#costcenter_dataTable input[name="id"]:checked').each(function () {
+                    //过滤掉全选时的院内数据
+                    if ($(this).val().substring($(this).val().length-3,$(this).val().length) == '-OH') {
+                        ids.push($(this).val());
+                    }
+                });
+
+                if (ids.length == 0) {
+                    $showdialog({ title: '提示', body: "请先选择被删除医院" });
+                    return;
+                }
+
+                $showdialogForConfim(
+                {
+                    title: '确认删除',
+                    body: '删除后无法恢复，您确定要删除吗？',
+                    ok: function () {
+                        $.PintuerPost(contextUri + '/P/Hospital/DelByIds', { ids: ids.toString() }, function () {
+                            Load();
+                        });
+                    }
+                }
+                );
+            });
+
+            $('#btnAdd').click(function () {
+                Edit('');
+            });
+
+            $('#btnDel').click(function () {
+                Delete();
+            });
+
+            $('#btnReportHospitalRes').bind('click', function () {
+                ReportHospitalResExcel();
+            });
+
+            $('#btnReportRes').bind('click', function () {
+                ReportResExcel();
+            });
+
+            pdg.LoadComplete = function () {
+                $(".HospitalCodeChx[_endstr != '-OH']").remove();
+                $(".AddressCheck[_endstr = '-1']").remove();
+            }
+
+        });
+
+        function Delete() {
+            $showdialogForUrl(
+                {
+                    title: '批量删除',
+                    width: '350px',
+                    height: '380px',
+                    url: contextUri + '/P/Hospital/Delete',
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '确定',
+                            handler: function (e) {
+                                window.top.c_manager.window.btnOKClick(e, Load);
+                            }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+                }
+            );
+        }
+
+        function Load() {
+            pdg.Load();
+        }
+
+
+        function ajaxFileUpload(market) {
+            $("#fileUpload").click();
+
+            isExternal = market == 'ext' ? 1 : 0;
+            importMarket = market;
+        }
+        var isExternal = 0;
+        var importMarket = "";
+        /**
+         * 上传文件
+         */
+        function fileChange(uri, fileInputId) {
+            var fileName = $("#" + fileInputId).val();
+            var fileType = fileName.substr(fileName.length - 4, 4);
+            if (fileType != 'xlsx') {
+                $showdialog({ body: '请选择一个.xlsx格式Execl的文档！' });
+                return;
+            }
+
+            var qyAccountId = '';
+            $.ajaxFileUpload
+            (
+                {
+                    url: uri + '?isExternal=' + isExternal + '&imporMarket=' + importMarket,
+                    secureuri: false,
+                    fileElementId: fileInputId,
+                    dataType: 'json',
+                    success: function (data, status) {
+                        if (data.state == 1) {
+                            $showdialog({ body: '导入成功，请刷新页面查看' });
+                        } else {
+                            if (data.data != undefined) {
+                                var txt = '';
+                                for (var i in data.data) {
+                                    var item = data.data[i];
+                                    txt += '<br />' + item;
+                                }
+                                var body = '<strong>' + data.txt + '</strong>: <br />' + '<div style="max-height: 150px; overflow:auto">' + txt + '</div>'
+                                $showdialog({ body: body });
+                            } else {
+                                $showdialog({ body: data.txt });
+                            }
+
+                        }
+                        $("#" + fileInputId).val("");
+                    },
+                    error: function (data, status, e) {
+                        $showdialog({ body: '网络故障' });
+                    }
+                }
+            )
+        }
+
+        function Edit(id) {
+            $showdialogForUrl(
+                {
+                    title: '医院信息',
+                    width: '450px',
+                    height: '320px',
+                    url: contextUri + '/P/Hospital/Edit?id=' + id,
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '保存',
+                            handler: function (e) { top.c_manager.window.btnOKClick(e, function () { Load(); }); }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+
+                }
+            );
+        }
+
+        function Del(id) {
+
+            $showdialogForConfim(
+                {
+                    title: '确认删除',
+                    body: '删除后无法恢复，您确定要删除吗？',
+                    ok: function () {
+                        $.PintuerPost(contextUri + '/P/Hospital/DelById', { id: id }, function () {
+                            Load();
+                        });
+                    }
+                }
+            );
+        }
+
+        function DelAddress(id) {
+
+            $showdialogForConfim(
+                {
+                    title: '确认删除',
+                    body: '删除后无法恢复，您确定要删除吗？',
+                    ok: function () {
+                        $.PintuerPost(contextUri + '/P/Hospital/DeleteAddress', { id: id }, function () {
+                            Load();
+                        });
+                    }
+                }
+            );
+        }
+
+
+        function ReportHospitalResExcel() {
+            $('#repor_HospitalRes').submit();
+        }
+        function ReportResExcel() {
+            $('#repor_Res').submit();
+        }
+
+</script>
+}
+<div class="tool_bar">
+    <label>医院列表</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;overflow:auto" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding" style="width:2700px; max-width:2700px;">
+            <div class="container margin-little-left">
+
+                <div class="line">
+                    <input type="text" class="input input-small" style="width:100px;" id="txtGskHospital" name="txtGskHospital" placeholder="医院代码" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtHospitalName" name="txtHospitalName" placeholder="医院名称" />
+                    <select class="input input-small" style="width:100px;" id="sltHospitalMarket" name="sltHospitalMarket">
+                        <option value="" selected="selected">全部Market</option>
+                        <option value="Rx">Rx</option>
+                        <option value="Vx">Vx</option>
+                        <option value="TSKF">TSKF</option>
+                        <option value="DDT">DDT</option>
+                    </select>
+                    <select class="input input-small" style="width:100px;" id="sltOHHospitalType" name="sltOHHospitalType">
+                        <option value="" selected="selected">全部Type</option>
+                        <option value="院内">院内</option>
+                        <option value="院外">院外</option>
+                    </select>
+                    <button class="button button-small bg-main icon-search" id="btnLoad"> 搜索</button>
+                    <button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出医院列表</button>
+                    <button class="button button-small bg-blue icon-file-o" id="btnAdd"> 添加医院</button>
+                    @*<button class="button button-small bg-red icon-trash-o" id="btnDelete"> 删除医院</button>*@
+                    @*<button class="button button-small bg-red icon-trash-o" id="btnDel"> 批量删除</button>*@
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    @*<button class="button button-small bg-yellow icon-cloud-upload" id="btnImportDDT"> 导入DDT</button>
+                    <button class="button button-small bg-yellow icon-cloud-upload" id="btnImportRx"> 导入Rx</button>
+                    <button class="button button-small bg-yellow icon-cloud-upload" id="btnImportTSKF"> 导入TSKF</button>
+                    <button class="button button-small bg-yellow icon-cloud-upload" id="btnImportVx"> 导入Vx</button>*@
+                    <button class="button button-small bg-yellow icon-cloud-upload" id="btnImportExt"> 导入院外</button>
+                    <button class="button button-small bg-yellow icon-file-excel-o" id="btnExportData"> 导出医院数据</button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button class="button button-small bg-yellow icon-file-excel-o" id="btnReportRes" @@click="report()"> 导出餐厅列表</button>
+                    <button class="button button-small bg-yellow icon-file-excel-o" id="btnReportHospitalRes" @@click="report()"> 导出可送餐列表</button>
+                </div>
+                <div style="display: none">
+                    <input id="fileUpload" type="file" name="file" onchange="fileChange('import', 'fileUpload')" />
+                </div>
+
+                <div style="display: none;">
+                    <form id="repor_HospitalRes" action="~/P/Restaurant/ReportHospitalResExcel" method="post" target="_blank"></form>
+                    <form id="repor_Res" action="~/P/Restaurant/ReportResExcel" method="post" target="_blank"></form>
+                </div>
+            </div>
+        </div>
+        <table id="costcenter_dataTable" class="table table-hover" style="width:2700px; max-width:2700px;">
+            <thead>
+                <tr>
+                    <th style="text-align:center; width:50px;">
+                        <input type="checkbox" />
+                    </th>
+                    <th>医院代码</th>
+                    <th>省份</th>
+                    <th>城市</th>
+                    <th>医院名称</th>
+                    <th>医院地址</th>
+                    <th>Market</th>
+
+                    <th>Total品牌数</th>
+                    <th>XMS品牌数</th>
+                    <th>BDS品牌数</th>
+
+                    <th>XMS早餐数</th>
+                    <th>XMS正餐数</th>
+                    <th>XMS下午茶数</th>
+                    
+                    <th>BDS早餐数</th>
+                    <th>BDS正餐数</th>
+                    <th>BDS下午茶数</th>
+                    
+                    <th>Total早餐品牌数</th>
+                    <th>Total正餐品牌数</th>
+                    <th>Total下午茶品牌数</th>
+                    <th style="width: 120px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    @*<td align="center"><input type="checkbox" name="id" value="${dr.HospitalCode}$" style="display:${dr.HospitalCode.substring(dr.HospitalCode.length-3,dr.HospitalCode.length)=='-OH'?'block':'none'}$"></td>*@
+                    <td align="center"><input class="HospitalCodeChx" type="checkbox" name="id" value="${dr.HospitalCode}$" _endstr="${dr.HospitalCode.substring(dr.HospitalCode.length-3,dr.HospitalCode.length)}$"></td>
+                    <td>${dr.GskHospital}$</td>
+                    <td>${dr.ProvinceName}$</td>
+                    <td>${dr.CityName}$</td>
+                    <td>${dr.Name}$</td>
+                    <td>${dr.HospitalCode==dr.GskHospital?dr.Address:dr.MainAddress+":"+dr.Address}$</td>
+                    <td>${dr.Type}$ </td>
+
+                    <td>${dr.TotalCount}$ </td>
+                    <td>${dr.XMSTotalCount}$ </td>
+                    <td>${dr.BDSTotalCount}$ </td>
+
+                    <td>${dr.XMSBreakfastCount}$ </td>
+                    <td>${dr.XMSLunchCount}$ </td>
+                    <td>${dr.XMSTeaCount}$ </td>
+                    
+                    <td>${dr.BDSBreakfastCount}$ </td>
+                    <td>${dr.BDSLunchCount}$ </td>
+                    <td>${dr.BDSTeaCount}$ </td>
+                    
+                    <td>${dr.TotalBreakfastCount}$ </td>
+                    <td>${dr.TotalLunchCount}$ </td>
+                    <td>${dr.TotalTeaCount}$ </td>
+                    @*<td><a href="javascript:;" class="button border-blue button-little icon-edit" onclick="ShowDetail('${dr.ID}$')"> 详情</a></td>*@
+                    @*<td>${getDateByDotNet(dr.CreateDate).pattern('yyyy-MM-dd HH:mm:ss')}$</td>*@
+                      <td style="white-space:nowrap;">
+                          <a href="javascript:;" class="button border-blue button-little icon-edit HospitalCodeChx" _endstr="${dr.HospitalCode.substring(dr.HospitalCode.length-3,dr.HospitalCode.length)}$" onclick="Edit('${dr.HospitalCode}$')" style="width:50px;"> 修改</a>
+                          <a href="javascript:;" class="button border-red button-little icon-trash-o HospitalCodeChx" _endstr="${dr.HospitalCode.substring(dr.HospitalCode.length-3,dr.HospitalCode.length)}$" onclick="Del('${dr.HospitalCode}$')" style="width:50px;"> 删除</a>
+                          <a href="javascript:;" class="button border-red button-little icon-trash-o AddressCheck" _endstr="${dr.HospitalCode.indexOf('_').toString()}$" onclick="DelAddress('${dr.ID}$')" style="width:50px;">删除</a>
+                      </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="80" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+
+
+

@@ -1,0 +1,325 @@
+﻿
+@{
+    ViewBag.Title = ViewBag.PageTitle;
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+
+    <script type="text/javascript">
+        var pdg;
+
+        function MyFormateDateTime(Data, fmt) {
+            if (Data) {
+                return getDateByDotNet(Data).pattern(fmt);
+            }
+            else {
+                return '';
+            }
+        }
+        function MyComNullVal(Data) {
+            if (Data) {
+                return Data;
+            }
+            else {
+                return '';
+            }
+        }
+        $(function () {
+            var _option = {
+                dateFormat: "yy-mm-dd",
+                closeText: "关闭",
+                prevText: "&#x3C;上月",
+                nextText: "下月&#x3E;",
+                currentText: "今天",
+                monthNames: ["一月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                dayNames: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+                dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"],
+                weekHeader: "周",
+                dateFormat: "yy-mm-dd",
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: true,
+                yearSuffix: "年"
+
+            }
+            var _stBegin = $("#txtSendTimeBegin").datepicker(_option);
+            var _stEnd = $("#txtSendTimeEnd").datepicker(_option);
+           
+            
+           
+            
+
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/UploadFileManagement/LoadUnFinishOrder', paging: true });
+           
+            pdg.QueryParams = function () {
+                var startDate = $('#txtSendTimeBegin').val()
+                var endDate = $('#txtSendTimeEnd').val()
+                //if ((startDate == "" || endDate == "") && $('#txtCN').val() == "" && $('#txtMudId').val() == "") {
+                //    var myDate = new Date();
+                //    //获取当前年
+                //    var year = myDate.getFullYear();
+                //    //获取当前月
+                //    var month = myDate.getMonth() + 2;
+                //    //获取当前日
+                //    var date = myDate.getDate();
+                //    var now = year + '-' + month + "-" + date;
+                //    startDate = now;
+                //    endDate = now;
+                //}
+                return {
+                    CN: $('#txtCN').val(),
+                    MUDID: $('#txtMudId').val(),
+                    startDate: startDate,
+                    endDate: endDate
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+
+            $('#btnEdit').bind('click', function () {
+                Import();
+            });
+
+            $('#btnClear').bind('click', function () {
+                Clear();
+            });
+            $('#btnExport').bind('click', function () {
+                var p = {
+                    CN: $('#txtCN').val(),
+                    MUID: $('#txtMudId').val(),
+                    startDate: $('#txtSendTimeBegin').val(),
+                    endDate: $('#txtSendTimeEnd').val(),
+                };
+                window.location.href = contextUri + '/P/UploadFileManagement/ExportUnFinishOrder?CN=' + p.CN
+                    + '&MUDID=' + p.MUID
+                    + '&StartDate=' + p.startDate
+                    + '&EndDate=' + p.endDate
+            });
+            $('#btnMessage').bind('click', function () {
+                $.PintuerPost(contextUri + '/P/UploadFileManagement/SendUnFinishOrder', {
+                    CN: $('#txtCN').val(),
+                    MUDID: $('#txtMudId').val(),
+                    StartDate: $('#txtSendTimeBegin').val(),
+                    EndDate: $('#txtSendTimeEnd').val(),
+                }, function (json) {
+                    if (json.state == 1) {
+                        alert("推送消息成功！");
+                    } else {
+                        alert("导出错误");
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+<div class="tool_bar">
+    <label>未完成订单查询</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <div>
+                        <input type="text" class="input input-small" style="width:100px;" id="txtCN" name="txtCN" placeholder="HT编号" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtMudId" name="txtMudId" placeholder="申请人MUDID" />
+                        <label class="border-small label-block">
+                            送餐日期
+                            <input type="text" class="input input-small" style="width:100px;" id="txtSendTimeBegin" name="txtSendTimeBegin" placeholder="开始时间" />
+                            <input type="text" class="input input-small" style="width:100px;" id="txtSendTimeEnd" name="txtSendTimeEnd" placeholder="结束时间" />
+                        </label>
+                        <button class="button button-small bg-main icon-search" id="btnLoad"> 搜索</button>
+                        <button class="button button-small bg-main icon-search" id="btnExport"> 导出</button>
+                        <button class="button button-small bg-main icon-search" id="btnMessage"> 发送提醒消息</button>
+                    </div>
+                    @*<div style="padding-top: 15px;">
+                    </div>*@
+                </div>
+            </div>
+
+        </div>
+        <div class="panel-body" style="overflow-x:auto;">
+            <table id="costcenter_dataTable" class="table table-hover" style="width:20000px; max-width:20000px;">
+                <thead class="text-unbreak">
+                    <tr>
+                        <th>申请人姓名</th>
+                        <th>申请人MUDID</th>
+                        <th>申请人职位</th>
+                        <th>申请人手机号码</th>
+                        <th>HT编号</th>
+                        <th>Market</th>
+                        <th>TA</th>
+                        <th>省份</th>
+                        <th>城市</th>
+                        <th>医院编码</th>
+                        <th>医院名称</th>
+                        <th>大区区域代码</th>
+                        <th>供应商</th>
+                        <th>送餐日期</th>
+                        <th>送餐时间</th>
+                        <th>餐厅编码</th>
+                        <th>餐厅名称</th>
+                        <th>用餐人数</th>
+                        <th>实际金额</th>
+                        <th>是否申请退单</th>
+                        <th>是否退单成功</th>
+                        <th>退单失败平台发起配送需求</th>
+                        <th>退单失败线下反馈配送需求</th>
+                        <th>预定/退单失败原因</th>
+                        <th>是否收餐/未送达</th>
+                        <th>用户确认金额</th>
+                        <th>是否与预定餐品一致</th>
+                        <th>用户确认金额调整原因</th>
+                        <th>用户确认金额调整备注</th>
+                        <th>实际用餐人数</th>
+                        <th>实际用餐人数调整原因</th>
+                        <th>实际用餐人数调整备注</th>
+                        <th>直线经理姓名</th>
+                        <th>直线经理MUDID</th>
+                        <th>Level2 Manager 姓名</th>
+                        <th>Level2 Manager MUDID</th>
+                        <th>Level3 Manager 姓名</th>
+                        <th>Level3 Manager MUDID</th>
+                        <th>是否上传文件</th>
+                        <th>上传文件提交日期</th>
+                        <th>上传文件提交时间</th>
+                        <th>上传文件审批直线经理姓名</th>
+                        <th>上传文件审批直线经理MUDID</th>
+                        <th>上传文件审批日期</th>
+                        <th>上传文件审批时间</th>
+                        <th>上传文件审批状态</th>
+                        <th>签到人数是否等于实际用餐人数</th>
+                        <th>签到人数调整原因</th>
+                        <th>是否与会议信息一致</th>
+                        <th>会议信息不一致原因</th>
+                        <th>上传文件是否Re-Open</th>
+                        <th>上传文件Re-Open操作人</th>
+                        <th>上传文件Re-Open操作人MUDID</th>
+                        <th>上传文件Re-Open日期</th>
+                        <th>上传文件Re-Open时间</th>
+                        <th>上传文件Re-Open发起人姓名</th>
+                        <th>上传文件Re-Open发起人MUDID</th>
+                        <th>上传文件Re-Open原因</th>
+                        <th>上传文件Re-Open备注</th>
+                        <th>上传文件Re-Open审批状态</th>
+                        <th>上传文件是否重新分配</th>
+                        <th>上传文件重新分配操作人</th>
+                        <th>上传文件重新分配操作人MUDID</th>
+                        <th>上传文件被重新分配人姓名</th>
+                        <th>上传文件被重新分配人MUDID</th>
+                        <th>上传文件被重新分配日期</th>
+                        <th>上传文件被重新分配时间</th>
+                        <th>上传文件是否重新分配审批人</th>
+                        <th>上传文件重新分配审批人-操作人</th>
+                        <th>上传文件重新分配审批人-操作人MUDID</th>
+                        <th>上传文件被重新分配审批人姓名</th>
+                        <th>上传文件被重新分配审批人MUDID</th>
+                        <th>上传文件重新分配审批人日期</th>
+                        <th>上传文件重新分配审批人时间</th>
+                        <th>项目组特殊备注</th>
+                        <th>WorkDay是否离职</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        @* <td align="center"><input type="checkbox" name="id" value="${dr.ID}$"></td>*@
+                        <td>${dr.c1}$</td>
+                        <td>${dr.c2}$</td>
+                        <td>${dr.c3}$</td>
+                        @*<td>${dr.c4}$</td>*@
+                        <td></td>
+                        <td>${dr.c5}$</td>
+                        <td>${dr.c6}$</td>
+                        <td>${dr.c7}$</td>
+                        <td>${dr.c8}$</td>
+                        <td>${dr.c9}$</td>
+                        <td>${dr.c10}$</td>
+                        <td>${dr.c11}$</td>
+                        <td>${dr.c12}$</td>
+                        <td>${dr.c13}$</td>
+                        <td>${dr.c14}$</td>
+                        <td>${dr.c15}$</td>
+                        <td>${dr.c16}$</td>
+                        <td>${dr.c17}$</td>
+                        <td>${dr.c18}$</td>
+                        <td>${dr.c19}$</td>
+                        <td>${dr.c20}$</td>
+                        <td>${dr.c21}$</td>
+                        <td>${dr.c22}$</td>
+                        <td>${dr.c23}$</td>
+                        <td>${dr.c24}$</td>
+                        <td>${dr.c25}$</td>
+                        <td>${dr.c26}$</td>
+                        <td>${dr.c27}$</td>
+                        <td>${dr.c28}$</td>
+                        <td>${dr.c29}$</td>
+                        <td>${dr.c30}$</td>
+                        <td>${dr.c31}$</td>
+                        <td>${dr.c32}$</td>
+                        <td>${dr.c33}$</td>
+                        <td>${dr.c34}$</td>
+                        <td>${dr.c35}$</td>
+                        <td>${dr.c36}$</td>
+                        <td>${dr.c37}$</td>
+                        <td>${dr.c38}$</td>
+                        <td>${dr.c39}$</td>
+                        <td>${dr.c40}$</td>
+                        <td>${dr.c41}$</td>
+                        <td>${dr.c42}$</td>
+                        <td>${dr.c43}$</td>
+                        <td>${dr.c44}$</td>
+                        <td>${dr.c45}$</td>
+                        <td>${dr.c46}$</td>
+                        <td>${dr.c47}$</td>
+                        <td>${dr.c48}$</td>
+                        <td>${dr.c49}$</td>
+                        <td>${dr.c50}$</td>
+                        <td>${dr.c51}$</td>
+                        <td>${dr.c52}$</td>
+                        <td>${dr.c53}$</td>
+                        <td>${dr.c54}$</td>
+                        <td>${dr.c55}$</td>
+                        <td>${dr.c56}$</td>
+                        <td>${dr.c57}$</td>
+                        <td>${dr.c58}$</td>
+                        <td>${dr.c59}$</td>
+                        <td>${dr.c60}$</td>
+                        <td>${dr.c61}$</td>
+                        <td>${dr.c62}$</td>
+                        <td>${dr.c63}$</td>
+                        <td>${dr.c64}$</td>
+                        <td>${dr.c65}$</td>
+                        <td>${dr.c66}$</td>
+                        <td>${dr.c67}$</td>
+                        <td>${dr.c68}$</td>
+                        <td>${dr.c69}$</td>
+                        <td>${dr.c70}$</td>
+                        <td>${dr.c71}$</td>
+                        <td>${dr.c72}$</td>
+                        <td>${dr.c73}$</td>
+                        <td>${dr.c74}$</td>
+                        <td>${dr.c75}$</td>
+                        <td>${dr.c76}$</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="76" class="paging"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,587 @@
+﻿
+@{
+    ViewBag.Title = "上传文件详情";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<style type="text/css">
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 60px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .weui-btn + .weui-btn {
+        margin-top: 3px;
+    }
+
+    .choosedwximage:before, .choosedwximage:after {
+        content: none;
+    }
+
+    .my_weui-cells {
+        margin-top: 0px;
+    }
+
+    .weui-label {
+        width: 140px !important;
+    }
+</style>
+
+<script type="text/html" id="tmpl_normal">
+    <div class="weui-cells__title">签到表文件：</div>
+    <div class="weui-cells my_weui-cells">
+        <div class="weui-uploader__bd">
+            <div id="dvNomal1"></div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label" style="width:170px !important;">与实际用餐人数一致</label></div>
+            <div class="weui-cell__bd">
+                {{IsAttentSame=='2'?'否':'是'}}
+            </div>
+        </div>
+        {{if IsAttentSame!='1'}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label" style="width:170px !important;">签到人数调整原因</label></div>
+            <div class="weui-cell__bd">
+                {{AttentSameReason}}
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label" style="width:170px !important;">是否与会议信息一致</label></div>
+            <div class="weui-cell__bd">
+                {{IsMeetingInfoSame=='2'?'否':'是'}}
+            </div>
+        </div>
+        {{if IsMeetingInfoSame!='1'}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label" style="width:170px !important;">会议信息不一致原因</label></div>
+            <div class="weui-cell__bd">
+                {{MeetingInfoSameReason}}
+            </div>
+        </div>
+        {{/if}}
+    </div>
+    <div class="weui-cells__title">会议照片文件：</div>
+    <div class="weui-cells my_weui-cells">
+        <div id="dvNomal2"></div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label" style="width:170px !important;">备注</label></div>
+            <div class="weui-cell__bd">
+                {{Memo}}
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="tmpl_special">
+    <div class="weui-cells__title">
+        {{FileType=='1'?'退单详情':(FileType=='2'?'会议文件丢失详情':'未送达，会议未正常召开详情')}}
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label" style="width:140px !important;">{{FileType=='1'?'退单原因':(FileType=='2'?'会议文件丢失原因':'未送达，会议未正常召开原因')}}</label></div>
+            <div class="weui-cell__bd">
+                {{SpecialReason}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label" style="width:140px !important;">是否上传文件</label></div>
+            <div class="weui-cell__bd">
+                {{IsAddFile=='0'?'否':'是'}}
+            </div>
+        </div>
+        <div class="weui-cell" id="dvUploadOther" style="display:none;">
+            <div id="dvSpecialImage"></div>
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="tmpl_normal1">
+    <div class="weui-uploader__bd">
+        <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="images1">
+            {{each items}}
+            <img class="weui-uploader__input-box choosedwximage" src="{{$value}}" style="margin:10px 0 16px 10px;" />
+            {{/each}}
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="tmpl_normal2">
+    <div class="weui-uploader__bd">
+        <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="images2">
+            {{each items}}
+            <img class="weui-uploader__input-box choosedwximage" src="{{$value}}" style="margin:10px 0 16px 10px;" />
+            {{/each}}
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="tmpl_specialImage">
+    <div class="weui-uploader__bd">
+        <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="images3">
+            {{each items}}
+            <img class="weui-uploader__input-box choosedwximage" src="{{$value}}" style="margin:10px 0 16px 10px;" />
+            {{/each}}
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="tmpl_OrderDetails">
+    <div class="weui-cells__title">
+        订单详情
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">订单状态</label></div>
+            <div class="weui-cell__bd">
+                {{State}}
+            </div>
+        </div>
+        {{if IsRetuen!='' && IsRetuen!=null}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">退单状态</label></div>
+            <div class="weui-cell__bd">
+                {{IsRetuen}}
+            </div>
+        </div>
+        {{/if}}
+        {{if State=='订单未送达'}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">会议正常召开</label></div>
+            <div class="weui-cell__bd">
+                {{IsSpecialOrder=='3'?'否':'是'}}
+            </div>
+        </div>
+        {{/if}}
+        {{if IsSpecialOrder=='呼叫中心操作退单' || IsSpecialOrder=='会议支持文件丢失'}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label" style="color:red;">项目组特殊备注</label></div>
+            <div class="weui-cell__bd">
+                <span style="color:red;">{{IsSpecialOrder}}</span>
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">HT编号</label></div>
+            <div class="weui-cell__bd">
+                {{CN}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">申请人姓名</label></div>
+            <div class="weui-cell__bd">
+                {{details.preApproval.ApplierName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">MUDID</label></div>
+            <div class="weui-cell__bd">
+                {{details.preApproval.ApplierMUDID}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">Market</label></div>
+            <div class="weui-cell__bd">
+                {{Market}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">TA</label></div>
+            <div class="weui-cell__bd">
+                {{TA}}
+            </div>
+        </div>
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">供应商</label></div>
+            <div class="weui-cell__bd">
+                {{Channel.toUpperCase()}}
+            </div>
+        </div>
+        {{if Channel.toUpperCase()=='BDS'}}
+        <div class="weui-cell">
+            <div class="weui-cells__title" style="color:red;padding:0px 0px;margin:0px 0px;">
+                *BDS订单会产生3%的额外税费,此费用不计入餐费,每月由中央订餐项目组统一支付。
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">呼叫中心</label></div>
+            {{if Channel.toUpperCase()=='XMS'}}
+            <a href="tel:400-820-5577">400-820-5577</a>
+            {{else}}
+            <a href="tel:400-6868-912">400-6868-912</a>
+            {{/if}}
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用餐人数</label></div>
+            <div class="weui-cell__bd">
+                {{AttendCount}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">实际用餐人数</label></div>
+            <div class="weui-cell__bd">
+                {{RealCount}}
+            </div>
+        </div>
+        {{if RealCountChangeReason!='' && RealCountChangeReason!=null}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用餐人数调整原因</label></div>
+            <div class="weui-cell__bd">
+                {{RealCountChangeReason}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用餐人数调整备注</label></div>
+            <div class="weui-cell__bd">
+                {{RealCountChangeRemrak}}
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">预定金额</label></div>
+            <div class="weui-cell__bd">
+                RMB {{TotalPrice}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">实际金额</label></div>
+            <div class="weui-cell__bd">
+                {{if XmsTotalPrice > -1 && XmsTotalPrice != TotalPrice}}
+                RMB {{XmsTotalPrice}}
+                {{else}}
+                RMB {{TotalPrice}}
+                {{/if}}
+            </div>
+        </div>
+        {{if ChangeTotalPriceReason != '' && ChangeTotalPriceReason != null}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">实际金额调整原因</label></div>
+            <div class="weui-cell__bd">
+                {{ChangeTotalPriceReason}}
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用户确认金额</label></div>
+            <div class="weui-cell__bd">
+                RMB {{RealPrice}}
+            </div>
+        </div>
+        {{if RealPriceChangeReason!='' && RealPriceChangeReason!=null}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">确认金额调整原因</label></div>
+            <div class="weui-cell__bd">
+                {{RealPriceChangeReason}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">确认金额调整备注</label></div>
+            <div class="weui-cell__bd">
+                {{RealPriceChangeRemark}}
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">医院名称</label></div>
+            <div class="weui-cell__bd">
+                {{HospitalName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">医院编码</label></div>
+            <div class="weui-cell__bd">
+                {{HospitalId}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">送餐地址</label></div>
+            <div class="weui-cell__bd">
+                {{Address}} {{DeliveryAddress}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">收餐人</label></div>
+            <div class="weui-cell__bd">
+                {{Consignee}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联系电话</label></div>
+            <div class="weui-cell__bd">
+                {{Phone}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">送餐时间</label></div>
+            <div class="weui-cell__bd">
+                {{DeliverTime.pattern('yyyy-MM-dd HH:mm')}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">会议名称</label></div>
+            <div class="weui-cell__bd">
+                {{MeetingName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">备注</label></div>
+            <div class="weui-cell__bd">
+                {{Remark}}
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="tmpl_approveInfo">
+    <div class="weui-cells__title">
+        审批详情<p style="float:right;">{{State}}</p>
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">审批人姓名</label></div>
+            <div class="weui-cell__bd">
+                {{BUHeadUserName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">MUDID</label></div>
+            <div class="weui-cell__bd">
+                {{BUHeadUserId}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">审批时间</label></div>
+            <div class="weui-cell__bd">
+                {{BUHeadApproveDate}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">审批理由</label></div>
+            <div class="weui-cell__bd">
+                {{BUHeadComments}}
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/javascript">
+    var render;
+    var renderNormal;
+    var renderNormalImage1;
+    var renderNormalImage2;
+    var renderSpecial;
+    var renderSpecialImage;
+    var renderApprovalReason;
+    var renderApproveInfo;
+    var OrderId = '@ViewBag.UploadOrderId';
+    var awsUrl = '@MealH5.Handler.WebConfigHandler.AWSService';
+    $(function () {
+        render = template('tmpl_OrderDetails');
+        renderSpecial = template('tmpl_special');
+        renderSpecialImage = template('tmpl_specialImage');
+        renderNormal = template('tmpl_normal');
+        renderNormalImage1 = template('tmpl_normal1');
+        renderNormalImage2 = template('tmpl_normal2');
+        renderApproveInfo = template('tmpl_approveInfo');
+        post('/P/Upload/FindUploadOrderByID', { UploadOrderId: OrderId }, function (d) {
+            if (d.data.FileType == 0) {
+                var html = renderNormal(d.data);
+                $('#dvNormal').html(html);
+                var images1 = d.data.MMCoEImageOne.split(',');
+                for (var i in images1) {
+                    images1[i] = awsUrl + images1[i];
+                }
+                var html = $(renderNormalImage1({ items: images1 }));
+                var imageUrls = new Array();
+                var http = location.protocol + '//' + location.host;
+                for (var i in images1) {
+                    var _url = images1[i];
+                    imageUrls.push(_url);
+                }
+                $('#dvNomal1').html(html);
+                $('#dvNomal1 img').each(function (i, e) {
+                    $(this).click(function () {
+                        WeixinJSBridge.invoke('imagePreview', {
+                            'current': imageUrls[i],
+                            'urls': imageUrls
+                        });
+                    });
+                });
+                var images2 = d.data.MMCoEImageTwo.split(',');
+                for (var i in images2) {
+                    images2[i] = awsUrl + images2[i];
+                }
+                var html = $(renderNormalImage2({ items: images2 }));
+                var imageUrls2 = new Array();
+                var http = location.protocol + '//' + location.host;
+                for (var i in images2) {
+                    var _url = images2[i];
+                    imageUrls2.push(_url);
+                }
+                $('#dvNomal2').html(html);
+                $('#dvNomal2 img').each(function (i, e) {
+                    $(this).click(function () {
+                        WeixinJSBridge.invoke('imagePreview', {
+                            'current': imageUrls2[i],
+                            'urls': imageUrls2
+                        });
+                    });
+                });
+            }
+            else {
+                //加载特殊订单
+                var specialHtml = renderSpecial(d.data);
+                $('#dvSpecial').html(specialHtml);
+                if (d.data.IsAddFile == 1) {
+                    var images = d.data.MMCoEImageThree.split(',');
+                    for (var i in images) {
+                        images[i] = awsUrl + images[i];
+                    }
+                    var html = $(renderSpecialImage({ items: images }));
+                    var imageUrls = new Array();
+                    var http = location.protocol + '//' + location.host;
+                    for (var i in images) {
+                        var _url = images[i];
+                        imageUrls.push(_url);
+                    }
+                    $('#dvSpecialImage').html(html);
+                    $('#dvSpecialImage img').each(function (i, e) {
+                        $(this).click(function () {
+                            WeixinJSBridge.invoke('imagePreview', {
+                                'current': imageUrls[i],
+                                'urls': imageUrls
+                            });
+                        });
+                    });
+                    $("#dvUploadOther").show();
+                }
+            }
+            //加载订单详情
+            post('/P/Upload/FindOrderByHTCode', { HTCode: d.data.HTCode }, function (dd) {
+                var orderInfo = dd.data;
+                if (orderInfo == null || orderInfo == "") {
+                    $("#dvOrderInfo").hide();
+                } else {
+                    switch (orderInfo.State) {
+                        case 6: orderInfo.State = "订单确认收餐"; break;
+                        case 7: orderInfo.State = "订单系统收餐"; break;
+                        case 8: orderInfo.State = "订单未送达"; break;
+                        case 9: orderInfo.State = "订单已评价"; break;
+                        case 12: orderInfo.State = "订单退单失败"; break;
+                    }
+                    orderInfo.DeliverTime = getDateByDotNet(orderInfo.DeliverTime);
+                    orderInfo.TotalPrice = format(orderInfo.TotalPrice);
+                    orderInfo.XmsTotalPrice = format(orderInfo.XmsTotalPrice);
+                    orderInfo.RealPrice = format(delcommafy(orderInfo.RealPrice) * 1);
+                    IsSpecialOrder = orderInfo.IsSpecialOrder;
+                    switch (orderInfo.IsSpecialOrder) {
+                        case 1: orderInfo.IsSpecialOrder = "呼叫中心操作退单"; break;
+                        case 2: orderInfo.IsSpecialOrder = "会议支持文件丢失"; break;
+                    }
+                    switch (orderInfo.IsRetuen) {
+                        case 1: orderInfo.IsRetuen = "订单申请退单"; break;
+                        case 2: orderInfo.IsRetuen = "订单退单成功"; break;
+                        case 3: orderInfo.IsRetuen = "订单退单失败"; break;
+                        case 4: orderInfo.IsRetuen = "订单退单失败"; break;
+                        case 5: orderInfo.IsRetuen = "订单退单失败"; break;
+                        case 6: orderInfo.IsRetuen = "订单退单失败"; break;
+                    }
+                    orderInfo.details = JSON.parse(orderInfo.Detail);
+                    var html = render(orderInfo);
+                    $('#dvOrderInfo').html(html);
+                }
+                post('/P/Upload/LoadApproveHistoryInfo', { id: OrderId },
+                    function (history) {
+                        if (d.data.State == "1") {
+                            d.data.BUHeadUserName = d.data.IsReAssign == 1 ? d.data.ReAssignBUHeadName: d.data.BUHeadName;
+                            d.data.BUHeadUserId = d.data.IsReAssign == 1 ? d.data.ReAssignBUHeadMUDID:d.data.BUHeadMUDID;
+                            d.data.BUHeadApproveDate = null;
+                            d.data.BUHeadActionType = "上传文件待审批";
+                            d.data.State = "上传文件待审批";
+                            ApplicantView(d.data);
+                            $("#btnEdit").attr("disabled", "disabled");
+                            $('#btnEdit').css("background-color", "rgba(0, 0, 0, 0.3)");
+                        }
+                        else {
+                            history.data.BUHeadApproveDate = history.data.ApproveDate == null ? "" : getDateByDotNet(history.data.ApproveDate).pattern('yyyy-MM-dd HH:mm:ss');
+                            history.data.BUHeadUserName = history.data.UserName;
+                            history.data.BUHeadUserId = history.data.UserId;
+                            history.data.BUHeadComments = history.data.Comments;
+                            history.data.BUHeadActionType = history.data.ActionType == 3 ? "上传文件审批通过" : "上传文件审批被驳回";
+                            history.data.State = history.data.ActionType == 3 ? "上传文件审批通过" : "上传文件审批被驳回";
+                            if (d.data.State == "3") {
+                                history.data.State = "上传文件审批被驳回";
+                            }
+                            ApplicantView(history.data);
+                            if (d.data.State == "4") {
+                                $("#btnEdit").attr("disabled", "disabled");
+                                $("#btnEdit").css("background-color", "rgba(0, 0, 0, 0.3)");
+                            }
+                        }
+                    }, 'json');
+            }, 'json');
+        }, 'json');
+    });
+
+    function edit() {
+        if (!isInTimespan(getTimeNow(), timeConfig.UploadOperableTimeSpanBegin, timeConfig.UploadOperableTimeSpanEnd)) {
+            showDlg(MSG_NOUPLOADFILETIME, '确定', function () {
+                //WeixinJSBridge.call('closeWindow');
+            }, 'info');
+            return false;
+        }
+        location.href = contextUri + '/P/Upload/EditUploadFiles/' + OrderId;
+    }
+
+    function ApplicantView(preApprovalData) {
+        var html = renderApproveInfo(preApprovalData);
+        $('#dvApproveInfo').html(html);
+    }
+
+    function delcommafy(num) {
+        num = num.replace(/,/gi, '');
+        return num;
+    }
+
+    function closeWindow() {
+        WeixinJSBridge.call('closeWindow');
+    }
+
+    function delcommafy(num) {
+        num = num.replace(/,/gi, '');
+        return num;
+    }
+</script>
+
+<div class="page-main">
+    <div class="page-body">
+        <div id="dvApproveInfo">
+        </div>
+        <div id="dvNormal">
+        </div>
+        <div id="dvSpecial">
+        </div>
+        <div id="dvOrderInfo">
+        </div>
+    </div>
+    <div class="page-foot">
+        <button type="button" class="weui-btn weui-btn_orange" id="btnEdit" style="float:left;" onclick="edit()">修改上传文件</button>
+    </div>
+</div>

@@ -1,0 +1,138 @@
+﻿
+@{
+    ViewBag.Title = "一二线城市列表";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+<script type="text/javascript">
+
+    var pdg;
+    $(function () {
+
+        pdg = $('#city_dataTable').iPathDataGrid({ url: contextUri + '/P/City/Load', paging: true });
+
+        pdg.QueryParams = function () {
+            return {
+                key: $('#txtKey').val().toString().trim()
+            };
+        }
+
+        pdg.Load();
+        
+
+        $('#btnLoad').bind('click', function () {
+            pdg.Load();
+        });
+
+        $('#btnImport').click(function () {
+            ajaxFileUpload();
+        });
+
+
+       
+
+    });
+
+    function Load() {
+        pdg.Load();
+    }
+
+    function ajaxFileUpload() {
+        $("#fileUpload").click();
+    }
+    /**
+     * 上传文件
+     */
+    function fileChange(uri, fileInputId) {
+        var fileName = $("#" + fileInputId).val();
+        var fileType = fileName.substr(fileName.length - 4, 4);
+        if (fileType != 'xlsx') {
+            $showdialog({ body: '请选择一个.xlsx格式Execl的文档！' });
+            return;
+        }
+
+        var qyAccountId = '';
+        $.ajaxFileUpload
+        (
+            {
+                url: uri,
+                secureuri: false,
+                fileElementId: fileInputId,
+                dataType: 'json',
+                success: function (data, status) {
+                    if (data.state == 1) {
+                        $showdialog({ body: '导入成功，请刷新页面查看' });
+                    } else {
+                        if (data.data != undefined) {
+                            var txt = '';
+                            for (var i in data.data) {
+                                var item = data.data[i];
+                                txt += '<br />' + item;
+                            }
+                            var body = '<strong>' + data.txt + '</strong>: <br />' + '<div style="max-height: 150px; overflow:auto">' + txt + '</div>'
+                            $showdialog({ body: body });
+                        } else {
+                            $showdialog({ body: data.txt });
+                        }
+
+                    }
+                },
+                error: function (data, status, e) {
+                    $showdialog({ body: '网络故障' });
+                }
+            }
+        )
+    }
+
+</script>
+
+<div class="tool_bar">
+    <label>一二线城市列表</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+
+                <div class="line">
+                    <input type="text" class="input input-small" style="width:200px;min-width:200px;" id="txtKey" name="txtKey" placeholder="关键字搜索" />
+
+                    <button class="button button-small bg-main icon-search" id="btnLoad"> 搜索</button>
+
+                    <button class="button button-small bg-yellow icon-cloud-upload" id="btnImport"> 导入</button>
+                    @*<button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>*@
+
+
+                    <div style="display: none">
+                        <input id="fileUpload" type="file" name="file" onchange="fileChange('import', 'fileUpload')" />
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        <table id="city_dataTable" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>省份</th>
+                    <th>城市</th>
+                    <th>城市等级划分</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>${dr.ProvinceName}$</td>
+                    <td>${dr.CityName}$</td>
+                    <td>${dr.Rank}$</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="10" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+

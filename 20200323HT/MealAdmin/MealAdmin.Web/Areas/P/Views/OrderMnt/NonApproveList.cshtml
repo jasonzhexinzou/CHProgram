@@ -1,0 +1,234 @@
+﻿
+@{
+    ViewBag.Title = "NonApproveList";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+
+    <script type="text/javascript">
+        var pdg;
+
+        var srhParam;
+        function GetSrhParam() {
+            var _srhParam = new Object();
+            _srhParam.CN = '';
+            _srhParam.MUDID = '';
+            _srhParam.DeliverTimeBegin = '';
+            _srhParam.DeliverTimeEnd = '';
+            _srhParam.MMCoEApproveState = '1';
+            return _srhParam;
+        }
+        function MyFormateDateTime(Data, fmt) {
+            if (Data) {
+                return getDateByDotNet(Data).pattern(fmt);
+            }
+            else {
+                return '';
+            }
+        }
+        function MyComNullVal(Data) {
+            if (Data) {
+                return Data;
+            }
+            else {
+                return '';
+            }
+        }
+        function MyApproveState(Data) {
+            if (Data) {
+                if (Data == 1) {
+                    return '待审批';
+                }
+                else if (Data == 2) {
+                    return '已驳回';
+                }
+                else if (Data == 3) {
+                    return '已通过';
+                }
+                else {
+                    return Data;
+                }
+            }
+            else {
+                return '';
+            }
+        }
+        $(function () {
+            var _option = {
+                dateFormat: "yy-mm-dd",
+                closeText: "关闭",
+                prevText: "&#x3C;上月",
+                nextText: "下月&#x3E;",
+                currentText: "今天",
+                monthNames: ["一月", "二月", "三月", "四月", "五月", "六月",
+                "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月",
+                "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                dayNames: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+                dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"],
+                weekHeader: "周",
+                dateFormat: "yy-mm-dd",
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: true,
+                yearSuffix: "年"
+
+            }
+            var _stBegin = $("#txtSendTimeBegin").datepicker(_option);
+            var _stEnd = $("#txtSendTimeEnd").datepicker(_option);
+
+            srhParam = GetSrhParam();
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/OrderMnt/LoadNonHTApproveList', paging: true });
+            pdg.QueryParams = function () {
+
+                return {
+                    CN: srhParam.CN,
+                    MUDID: srhParam.MUDID,
+                    DeliverTimeBegin: srhParam.DeliverTimeBegin,
+                    DeliverTimeEnd: srhParam.DeliverTimeEnd,
+                    MMCoEApproveState: srhParam.MMCoEApproveState,
+                    isNonHt:1
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                srhParam.CN = $('#txtCN').val();
+                srhParam.MUDID = $('#txtMudId').val();
+                srhParam.DeliverTimeBegin = $('#txtSendTimeBegin').val();
+                srhParam.DeliverTimeEnd = $('#txtSendTimeEnd').val();
+                srhParam.MMCoEApproveState = $('#sltOrderState option:selected').val();
+                srhParam.isNonHt = 1;
+                pdg.Load();
+            });
+
+            $('#btnEdit').bind('click', function () {
+                Import();
+            });
+
+            $('#btnClear').bind('click', function () {
+                Clear();
+            });
+        });
+
+
+        // 弹出选择企业成员对话框
+        function ApproveOpreation(OrderID) {
+            $showdialogForUrl(
+                {
+                    title: '审批订单',
+                    width: '850px',
+                    height: '580px',
+                    url: contextUri + '/P/OrderMnt/ApproveForm?OrderID=' + OrderID,
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '保存',
+                            handler: function (e) {
+                                window.top.c_manager.window.btnOKClick(e, function () {
+                                    pdg.Load();
+                                });
+                            }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+                }
+            );
+        }
+    </script>
+}
+<div class="tool_bar">
+    <label>@ViewBag.PageTitle</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <div class="x10">
+                        <input type="text" class="input input-small" style="width:100px;" id="txtCN" name="txtCN" placeholder="PO No." />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtMudId" name="txtMudId" placeholder="MUDID" />
+                        <label class="border-small label-block">
+                            送餐日期
+                            <input type="text" class="input input-small" style="width:100px;" id="txtSendTimeBegin" name="txtSendTimeBegin" placeholder="开始时间" />
+                            <input type="text" class="input input-small" style="width:100px;" id="txtSendTimeEnd" name="txtSendTimeEnd" placeholder="结束时间" />
+                        </label>
+                        <label>
+                            审批状态
+                            <select id="sltOrderState" name="sltOrderState" class="input input-small" style="width:100px;">
+                                <option value="1" selected="selected">待审批</option>
+                                <option value="2">已驳回</option>
+                                <option value="3">已通过</option>
+                            </select>
+                        </label>
+                        <button class="button button-small bg-main icon-search" id="btnLoad"> 搜索</button>
+                    </div>
+                    <div class="x2">
+                        @*<button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>*@
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="panel-body" style="overflow-x:auto;">
+
+            <table id="costcenter_dataTable" class="table table-hover" style="width:1500px;">
+                <thead class="text-unbreak">
+                    <tr>
+                        <th style="text-align:center; width:50px;">
+                            <input type="checkbox" />
+                        </th>
+                        <th>Market</th>
+                        <th>PO No.</th>
+                        <th>订餐人<br />姓名</th>
+                        <th>订餐人<br />手机号</th>
+                        <th>MUDID</th>
+                        <th>医院名称</th>
+                        <th>收餐人<br />姓名</th>
+                        <th>收餐人<br />电话</th>
+                        <th>预订金额</th>
+                        <th>送餐日期</th>
+                        <th>送餐时间</th>
+                        <th>审批状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td align="center"><input type="checkbox" name="id" value="${dr.ID}$"></td>
+                        <td>${dr.Market}$</td>
+                        <td>${dr.PO}$</td>
+                        <td>${MyComNullVal(dr.DCUserName)}$</td>
+                        @*<td>${MyComNullVal(dr.DCPhoneNum)}$</td>*@
+                        <td></td>
+                        <td>${dr.MUDID}$</td>
+                        <td>${dr.HospitalName}$</td>
+                        <td>${dr.SCUserName}$</td>
+                        @*<td>${dr.SCPhoneNum}$</td>*@
+                        <td></td>
+                        <td>${dr.TotalPrice}$</td>
+                        <td>${MyFormateDateTime(dr.SendTime, 'yyyy-MM-dd')}$</td>
+                        <td>${MyFormateDateTime(dr.SendTime, 'HH:mm:ss')}$</td>
+                        <td>${MyApproveState(dr.MMCoEApproveState)}$</td>
+                        <td><button class="button border-blue button-little icon-edit" onclick="ApproveOpreation('${dr.ID}$')"> 审核</button></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="100" class="paging"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>

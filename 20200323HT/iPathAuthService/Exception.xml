@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<error-resource>
+  <error-info id="100000" name="err">
+    <msg lang="en_US">System Error</msg>
+    <msg lang="zh_CN">系统异常</msg>
+  </error-info>
+
+  <error-info id="9000" name="err">
+    <msg lang="en_US">System Error</msg>
+    <msg lang="zh_CN"><![CDATA[错误码：9000<br/>请联系：400-820-5577]]></msg>
+  </error-info>
+  
+</error-resource>

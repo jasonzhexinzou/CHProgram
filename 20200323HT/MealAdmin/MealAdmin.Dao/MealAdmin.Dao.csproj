@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{27864EF5-D734-404A-B71B-11AA35341166}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MealAdmin.Dao</RootNamespace>
+    <AssemblyName>MealAdmin.Dao</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="IamPortal.AppLogin">
+      <HintPath>..\..\..\20190117HT\MealAdmin\MealAdmin.Web\ImportDll\IamPortal.AppLogin.dll</HintPath>
+      <HintPath>..\MealAdmin.Web\ImportDll\IamPortal.AppLogin.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="XFramework.XDataBase, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\XFramework.XDataBase.1.1.0.2\lib\net45\XFramework.XDataBase.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XFramework.XInject, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\XFramework.XInject.1.1.0\lib\net45\XFramework.XInject.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XFramework.XUtil, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\XFramework.XUtil.1.1.0.1\lib\net45\XFramework.XUtil.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseDataDao.cs" />
+    <Compile Include="BizConfigDao.cs" />
+    <Compile Include="BUManagementDao.cs" />
+    <Compile Include="CostCenterDao.cs" />
+    <Compile Include="CostCenterManagerDao.cs" />
+    <Compile Include="DCostCenterDao.cs" />
+    <Compile Include="EvaluateDao.cs" />
+    <Compile Include="AnalysisDao.cs" />
+    <Compile Include="IBUManagementDao.cs" />
+    <Compile Include="IDCostCenterDao.cs" />
+    <Compile Include="IAnalysisDao.cs" />
+    <Compile Include="IOperationAuditDao.cs" />
+    <Compile Include="IOrderApprovalManagementDao.cs" />
+    <Compile Include="IExportManagementDao.cs" />
+    <Compile Include="IPreApprovalDao.cs" />
+    <Compile Include="IRestaurantDao.cs" />
+    <Compile Include="ITADao.cs" />
+    <Compile Include="IUploadFileManagementDao.cs" />
+    <Compile Include="IUploadFileQueryDao.cs" />
+    <Compile Include="IUploadOrderDao.cs" />
+    <Compile Include="OperationAuditDao.cs" />
+    <Compile Include="OrderApprovalManagementDao.cs" />
+    <Compile Include="ExportManagementDao.cs" />
+    <Compile Include="PreApprovalDao.cs" />
+    <Compile Include="RestaurantDao.cs" />
+    <Compile Include="HolidayDao.cs" />
+    <Compile Include="GroupMemberDao.cs" />
+    <Compile Include="HospitalDao.cs" />
+    <Compile Include="IBaseDataDao.cs" />
+    <Compile Include="IBizConfigDao.cs" />
+    <Compile Include="ICostCenterDao.cs" />
+    <Compile Include="ICostCenterManagerDao.cs" />
+    <Compile Include="IEvaluateDao.cs" />
+    <Compile Include="IHolidayDao.cs" />
+    <Compile Include="IGroupMemberDao.cs" />
+    <Compile Include="IHospitalDao.cs" />
+    <Compile Include="IMarketDao.cs" />
+    <Compile Include="IMeetingDao.cs" />
+    <Compile Include="IOrderDao.cs" />
+    <Compile Include="IProvinceDao.cs" />
+    <Compile Include="IReportDao.cs" />
+    <Compile Include="IUserInfoDao.cs" />
+    <Compile Include="MarketDao.cs" />
+    <Compile Include="MeetingDao.cs" />
+    <Compile Include="OrderDao.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProvinceDao.cs" />
+    <Compile Include="ReportDao.cs" />
+    <Compile Include="TADao.cs" />
+    <Compile Include="UploadFileQueryDao.cs" />
+    <Compile Include="UploadOrderDao.cs" />
+    <Compile Include="UploadFileManagementDao.cs" />
+    <Compile Include="UserInfoDao.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MealAdmin.Entity\MealAdmin.Entity.csproj">
+      <Project>{62816afc-0b05-43ff-9fd8-4da38b8ad21f}</Project>
+      <Name>MealAdmin.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MealAdmin.Util\MealAdmin.Util.csproj">
+      <Project>{2c06c2d1-e0cf-43e7-8e93-0bac326ff01e}</Project>
+      <Name>MealAdmin.Util</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

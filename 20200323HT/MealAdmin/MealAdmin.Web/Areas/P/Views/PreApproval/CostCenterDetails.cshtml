@@ -1,0 +1,235 @@
+﻿
+@{
+    ViewBag.Title = "修改预申请最高审批人";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+@section scripts{
+    <script type="text/javascript">
+        var id = '@ViewBag.id';
+        $(function () {
+            //$('#sltTA').bind('click', function () {
+            //    var num = $('#sltTA option').length;
+            //    if (num < 2) {
+            //        alert('请先选择Market');
+            //    }
+            //});
+        });
+        function ShowBUHeadName() {
+            var AgentMudid = $('#txtBUHeadMUDID').val();//获取代理人MUDID
+            if (AgentMudid != null && AgentMudid != "") {
+                $.post(contextUri + '/P/OrderApprovalManagement/_ShowName', { AgentMudid: AgentMudid }, function (d) {
+                    if (d.ishave == 1) {
+                        $('#txtBUHeadName').val(d.res.Name);//如果MUDID存在自动添加姓名
+                    }
+                    if (d.ishave == 0) {
+                        $showdialog({ title: '提示', body: d.txt });
+                    }
+                }, 'json')
+            }
+            return;
+
+        }
+        //function ShowRegionManagerName() {
+        //    var AgentMudid = $('#txtRegionManagerMUDID').val();//获取代理人MUDID
+        //    if (AgentMudid != null && AgentMudid != "") {
+        //        $.post(contextUri+'/P/OrderApprovalManagement/_ShowName', { AgentMudid: AgentMudid }, function (d) {
+        //            if (d.ishave == 1) {
+        //                $('#txtRegionManagerName').val(d.res.Name);//如果MUDID存在自动添加姓名
+        //            }
+        //            if (d.ishave == 0) {
+        //                $showdialog({ title: '提示', body: d.txt });
+        //            }
+        //        }, 'json')
+        //    }
+        //    return;
+
+        //}
+
+        //function ShowRDSDManagerName() {
+        //    var AgentMudid = $('#txtRDSDManagerMUDID').val();//获取代理人MUDID
+        //    if (AgentMudid != null && AgentMudid != "") {
+        //        $.post(contextUri + '/P/OrderApprovalManagement/_ShowName', { AgentMudid: AgentMudid }, function (d) {
+        //            if (d.ishave == 1) {
+        //                $('#txtRDSDManagerName').val(d.res.Name);//如果MUDID存在自动添加姓名
+        //            }
+        //            if (d.ishave == 0) {
+        //                $showdialog({ title: '提示', body: d.txt });
+        //            }
+        //        }, 'json')
+        //    }
+        //    return;
+
+        //}
+        
+        $(function () {
+
+            $.PintuerPost(contextUri + '/P/PreApproval/CostCenterDetailsLoad', { id: id }, function (d) {
+                var data = d.data.costCenter;
+                //$("#sltMarket option").removeAttr("selected");
+                //$("#sltMarket option[value='" + data.Market + "']").attr("selected", "selected");
+                //$("#sltMarket").val(data.Market);
+                //initTA(data.Market, data.TA);
+                //$("#sltTA option").removeAttr("selected");
+                //$("#sltTA option[value='" + data.TA + "']").attr("selected", "selected");
+                //$('#sltTA').val(data.TA);
+                $('#txtTERRITORY_TA').val(data.TERRITORY_TA);
+                $('#txtBUHeadName').val(data.BUHeadName);
+                $('#txtBUHeadMUDID').val(data.BUHeadMUDID);
+                //$('#txtRegion').val(data.Region);
+                //$('#txtRegionManagerName').val(data.RegionManagerName);
+                //$('#txtRegionManagerMUDID').val(data.RegionManagerMUDID);
+                //$('#txtRDSDManagerName').val(data.RDSDName);
+                //$('#txtRDSDManagerMUDID').val(data.RDSDMUDID);
+                //$('#CostCenter').val(data.CostCenter);
+                //$('#OldCostCenter').val(data.OldCostCenter);
+            });
+
+        });
+        //function selectMarket() {
+        //    var market = $('#sltMarket').val();
+        //    $.post(contextUri + '/P/PreApproval/LoadTa', {
+        //        marketName: market
+        //    }, function (data) {
+        //        var taList = data.data;
+        //        $('#sltTA').html('');
+        //        var html = '<option value=""></option>';
+        //        if (taList.length > 0) {
+        //            for (var i in taList) {
+        //                html += '<option value="' + taList[i].Name + '">' + taList[i].Name + '</option>';
+        //            }
+        //        }
+        //        $('#sltTA').html(html);
+        //    });
+        //};
+
+        //function initTA(market,ta) {
+        //    $.post(contextUri + '/P/PreApproval/LoadTa', {
+        //        marketName: market
+        //    }, function (data) {
+        //        var taList = data.data;
+        //        var html = '<option value=""></option>';
+        //        if (taList.length > 0) {
+        //            for (var i in taList) {
+        //                if (ta == taList[i].Name) {
+        //                    html += '<option value="' + taList[i].Name + '" selected="selected">' + taList[i].Name + '</option>';
+        //                }
+        //                else {
+        //                    html += '<option value="' + taList[i].Name + '">' + taList[i].Name + '</option>';
+        //                }
+        //            }
+        //        }
+        //        $('#sltTA').html(html);
+        //    });
+        //}
+        function btnOKClick(e, callback) {
+            $ajaxSubmit('form0', contextUri + '/P/PreApproval/Save',
+                function (data) {
+                    if (callback != undefined) {
+                        callback();
+                    }
+                    e.close();
+                });
+        }
+    </script>
+}
+<div style="padding: 15px;">
+    <form action="" id='form0' method="post">
+        @*<div class="form-group">
+            <div class="label"><label for="sltMarket">Market</label></div>
+            <div class="field">
+                <select class="input input-small" id="sltMarket" name="sltMarket" onchange="selectMarket()">
+                    <option value="" selected="selected"></option>
+                    <option value="Rx">Rx</option>
+                    <option value="Vx">Vx</option>
+                    <option value="TSKF">TSKF</option>
+                    <option value="DDT">DDT</option>
+                </select>
+            </div>
+        </div>*@
+        @*<div class="form-group">
+            <div class="label"><label for="sltTA">TA</label></div>
+            <div class="field">
+                <select class="input input-small" id="sltTA" name="sltTA">
+                    <option value="" selected="selected"></option>
+                    <option value="THRO">THRO</option>
+                    <option value="CNS">CNS</option>
+                    <option value="DDT">DDT</option>
+                    <option value="RESP">RESP</option>
+                    <option value="HA">HA</option>
+                    <option value="HEP">HEP</option>
+                    <option value="TSKF">TSKF</option>
+                    <option value="Vx">Vx</option>
+                    <option value="HIV">HIV</option>
+                    <option value="VOL">VOL</option>
+                </select>
+            </div>
+        </div>*@
+        <div class="form-group" style="display:none">
+            <div class="label"><label for="ID">ID</label></div>
+            <div class="field">
+                <input type="text" class="input" id="ID" name="ID" value="@ViewBag.id" autocomplete="off" required="required" onblur="ShowBUHeadName()" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="txtTERRITORY_TA">TERRITORY_TA</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtTERRITORY_TA" name="txtTERRITORY_TA" value="" autocomplete="off" required="required" readonly="readonly" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="txtBUHeadMUDID">BUHeadMUDID</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtBUHeadMUDID" name="txtBUHeadMUDID" value="" autocomplete="off" required="required" onblur="ShowBUHeadName()" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="txtBUHeadName">BUHeadName</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtBUHeadName" name="txtBUHeadName" value="" autocomplete="off" required="required" readonly="readonly" />
+            </div>
+        </div>
+        @*<div class="form-group">
+            <div class="label"><label for="txtRegion">Region</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtRegion" name="txtRegion" value="" autocomplete="off" required="required" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="txtRegionManagerMUDID">RegionManagerMUDID</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtRegionManagerMUDID" name="txtRegionManagerMUDID" value="" autocomplete="off" required="required" onblur="ShowRegionManagerName()" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="txtRegionManagerName">RegionManagerName</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtRegionManagerName" name="txtRegionManagerName" value="" autocomplete="off" required="required" readonly="readonly" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="txtRDSDManagerMUDID">RD/SD ManagerMUDID</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtRDSDManagerMUDID" name="RDSDManagerMUDID" value="" autocomplete="off" required="required" onblur="ShowRDSDManagerName()" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="txtRDSDManagerName">RD/SD ManagerName</label></div>
+            <div class="field">
+                <input type="text" class="input" id="txtRDSDManagerName" name="RDSDManagerName" value="" autocomplete="off" required="required" readonly="readonly" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="CostCenter">CostCenter</label></div>
+            <div class="field">
+                <input type="text" class="input" id="CostCenter" name="CostCenter" value="" autocomplete="off" required="required" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label"><label for="CostCenter">原CostCenter</label></div>
+            <div class="field">
+                <input type="text" class="input" id="OldCostCenter" name="OldCostCenter" value="" autocomplete="off" required="required" />
+            </div>
+        </div>*@
+    </form>
+</div>
+

@@ -1,0 +1,362 @@
+﻿@{
+    ViewBag.Title = "HT预申请分析2";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+@section scripts{
+}
+<style type="text/css">
+    html, body {
+        width: 100%;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 50px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .page-head {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .placeholder {
+        padding: 7px;
+    }
+
+    .weui-cell {
+        min-height: 45px;
+    }
+
+    .weui-label {
+        width: 140px !important;
+    }
+</style>
+<script type="text/javascript" src="~/Content/echarts/echarts.min.js"></script>
+<script type="text/javascript" src="~/Content/bootstrap/bootstrap3.3.7.js"></script>
+<link type="text/css" rel="stylesheet" href="~/Content/bootstrap/bootstrap.css" />
+<link type="text/css" rel="stylesheet" href="~/Content/fontawesome/css/font-awesome.css" />
+<link href="~/Content/css/cost_summary.css" rel="stylesheet" />
+<script src="~/Content/plugin/LCalendar/js/LCalendar.js"></script>
+<link href="~/Content/plugin/LCalendar/css/LCalendar.css" rel="stylesheet" />
+<script type="text/javascript">
+    var startdate = '@ViewBag.StartDate';
+    var enddate = '@ViewBag.EndDate';
+    $(document).ready(function () {
+        var calendar = new LCalendar();
+        calendar.init({
+            'trigger': '#startDate', //标签id
+            'type': 'date', //date 调出日期选择 datetime 调出日期时间选择 time 调出时间选择 ym 调出年月选择,
+            'minDate': (new Date().getFullYear() - 3) + '-' + 1 + '-' + 1, //最小日期
+            'maxDate': (new Date().getFullYear() + 3) + '-' + 12 + '-' + 31 //最大日期
+        });
+
+        var calendar = new LCalendar();
+        calendar.init({
+            'trigger': '#endDate', //标签id
+            'type': 'date', //date 调出日期选择 datetime 调出日期时间选择 time 调出时间选择 ym 调出年月选择,
+            'minDate': (new Date().getFullYear() - 3) + '-' + 1 + '-' + 1, //最小日期
+            'maxDate': (new Date().getFullYear() + 3) + '-' + 12 + '-' + 31 //最大日期
+        });
+
+        $('#startDate').val(startdate);
+        $('#endDate').val(enddate);
+
+        var CountChart = echarts.init(document.getElementById('mainCount'));
+        var AmountChart = echarts.init(document.getElementById('mainAmount'));
+        var amountData = [];
+        var countData = [];
+        getJson('all');
+
+        function getJson(dataType) {
+            var _StartDate = $('#startDate').val();
+            var _EndDate = $('#endDate').val();
+            showLoadingToast();
+            post('/P/CostAnalysis/LoadPreApprovalUpData',
+                {
+                    DataType: dataType,
+                    StartDate: _StartDate,
+                    EndDate: _EndDate
+                },
+                function (d) {
+                    if (d.state == 1) {
+                        document.getElementById('belong').innerHTML = d.Belong;
+
+                        var Countstr = d.TotalCount.toString();
+                        var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                        var CountT = Countstr.replace(Countreg, "$1,") + "单";
+                        document.getElementById('labCount').innerHTML = CountT;
+
+                        var Amountstr = toDecimal2(d.TotalAmount).toString();
+                        var Amountreg = Amountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                        var AmountT = "¥" + Amountstr.replace(Amountreg, "$1,");
+                        document.getElementById('labAmount').innerHTML = AmountT;
+                        //数量饼图
+                        for (var i = 0; i < d.dataCountChart.length; i++) {
+                            var obj = new Object();
+                            obj.name = d.dataCountChart[i].Name;
+                            obj.value = d.dataCountChart[i].PreCount;
+                            countData[i] = obj;
+                        }
+                        var Aoption = DrawCountBar(countData, CountT);
+                        if (Aoption && typeof Aoption === "object") {
+                            CountChart.setOption(Aoption, true);
+                        }
+                        if (dataType != "0") {
+                            $('#mainAmount').show();
+                            //金额饼图
+                            for (var i = 0; i < d.dataAmountChart.length; i++) {
+                                var obj = new Object();
+                                obj.name = d.dataAmountChart[i].Name;
+                                obj.value = d.dataAmountChart[i].TotalBudget;
+                                amountData[i] = obj;
+                            }
+                            var option = DrawAmountBar(amountData, AmountT);
+                            if (option && typeof option === "object") {
+                                AmountChart.setOption(option, true);
+                            }
+                        } else { $('#mainAmount').hide(); }
+                        hideLoadingToast();
+                    }                   
+                }, 'json');
+
+        }
+        function DrawCountBar(servicedata, TotalCount) {
+            Aoption = {
+                title: {
+                    text: 'HT预申请数量: ' + TotalCount,
+                    x: 'center',
+                    bottom: '30',
+                    textStyle: {
+                        fontSize: 13,
+                        fontStyle: 'bolder',
+                        fontWeight: 'normal',
+                    },
+                },
+                color: ['#FF0021', '#554F40'],
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b} '
+                },
+
+                series: [
+                    {
+                        name: 'HT预申请数量占比',
+                        type: 'pie',
+                        radius: '50%',
+                        center: ['50%', '35%'],
+                        data: servicedata,
+                        itemStyle: {
+                            borderWidth: 3,
+                            borderColor: '#fff',
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            return Aoption
+        }
+        function DrawAmountBar(servicedata, TotalAmount) {
+            option = {
+                title: {
+                    text: 'HT预算金额: ' + TotalAmount,
+                    x: 'center',
+                    bottom: '30',
+                    textStyle: {
+                        fontSize: 13,
+                        fontStyle: 'bolder',
+                        fontWeight: 'normal',
+                    },
+                },
+                color: ['#006975', '#FF5D00'],
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b} '
+                },
+
+                series: [
+                    {
+                        name: 'HT预算金额占比',
+                        type: 'pie',
+                        radius: '50%',
+                        center: ['50%', '35%'],
+                        data: servicedata,
+                        itemStyle: {
+                            borderWidth: 3,
+                            borderColor: '#fff',
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            return option
+        }
+        //刷新
+        $('#btnRefresh').bind('click', function () {
+            // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('mainCount'));
+            var AmountChart = echarts.init(document.getElementById('mainAmount'));
+            getJson('all');
+        });
+        //全部按钮
+        $('#btnAllBudget').bind('click', function () {
+            // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('mainCount'));
+            var AmountChart = echarts.init(document.getElementById('mainAmount'));
+            getJson('all');
+        });
+        //0元按钮
+        $('#btnZero').bind('click', function () {
+            // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('mainCount'));
+            getJson('0');
+        });
+        //非0元按钮
+        $('#btnNonZero').bind('click', function () {
+            // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('mainCount'));
+            var AmountChart = echarts.init(document.getElementById('mainAmount'));
+            getJson('1');
+        });
+    });
+    function toDecimal2(x) {
+        var f = Math.round(x * 100) / 100;
+        var s = f.toString();
+        var rs = s.indexOf('.');
+        if (rs < 0) {
+            rs = s.length;
+            s += '.';
+        }
+        while (s.length <= rs + 2) {
+            s += '0';
+        }
+        return s;
+    }
+</script>
+
+<div class="page-main">
+    <div class="page-body" style="background-color: #FFFFFF; bottom: 0px !important;">
+        <div style="background-color:#f60; height:90px;padding-left:15px;padding-top:5px;">
+            <img id="imgTool" src="~/Content/image/line-chart.png" style="height:24px;vertical-align:middle;" />&nbsp;<font color="white" style="font-size:14px;">分析维度：按数量金额分析</font><label></label>
+            <div style="float:left;">
+                <img id="imgTool" src="~/Content/image/Calendar.png" style="height:24px;vertical-align:middle;" />
+                <input class="weui-input" style="color:white;width:75px;" id="startDate" type="text" readonly>
+                <input class="weui-input" style="color:white;width:15px;" value="--" />
+                <input class="weui-input" style="color:white;width:75px;" id="endDate" type="text" readonly>
+                <div class="cost-right">
+                    <button id="btnRefresh" style="z-index:999;color:white!important;border:none;background:none;margin-left:20px;text-decoration:underline;">刷新</button>
+                </div>
+            </div>
+            <div id="divBudget"  style="float:left;">
+                <button id="btnAllBudget" style="float:left;">全部</button>
+                <button id="btnZero" style="float:left;">0元预申请</button>
+                <button id="btnNonZero" style="float:left;">非0元预申请</button>
+            </div>
+        </div>
+
+        <label style="padding-left:15px;">仅分析审批通过的预申请</label>
+        <div id="mainCount" style="width: auto;height:250px;"></div>
+        <div id="mainAmount" style="width: auto;height:250px;"></div>
+        <div class="weui-cells">
+            <div class="weui-cell">
+                <label for="" class="weui-label" style="width:100% !important;"><strong id="belong"></strong></label>
+            </div>
+
+            <div class="weui-cells" style="border: solid 1px #ddd !important; margin-top: 0px !important;"></div>
+
+            <div class="weui-cells" style="margin-top: 0px ;padding:0px 15px; position: relative;">
+                <div class="weui-cell__hd" style="float:left;">
+                    <label for="" class="weui-label">HT预申请数量</label>
+                </div>
+                <div class="weui-cell__hd" style="float:right;">
+                    <label id="labCount"></label>
+                </div>
+            </div>
+
+            <div style="padding:10px 15px; position: relative;">
+                <div class="weui-cell__hd" style="float:left;">
+                    <label for="" class="weui-label">HT预算金额</label>
+                </div>
+                <div class="weui-cell__hd" style="float:right;">
+                    <label id="labAmount"></label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<style type="text/css">
+    #chooseDeliverTime {
+        background-color: #FFFFFF;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        display: none;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 8;
+    }
+
+    #dvUploadSpeakerFile {
+        background-color: #FFFFFF;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        display: none;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9;
+    }
+
+    .my_weui_uploader_input_wrp {
+        float: left;
+        position: relative;
+        margin-right: 9px;
+        margin-bottom: 9px;
+        width: 70px;
+        height: 70px;
+        border: 2px #D9D9D9;
+        border-radius: 10px;
+    }
+</style>
+
+
+
+
+

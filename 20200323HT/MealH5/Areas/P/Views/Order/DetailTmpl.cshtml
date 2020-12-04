@@ -1,0 +1,469 @@
+﻿
+<link rel="stylesheet" href="~/Content/css/food_order.css?v=javaScriptVersion" />
+<script type="text/javascript" src="~/Content/js/order_details.js?v=javaScriptVersion"></script>
+
+<style type="text/css">
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 60px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 55px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .weui-btn + .weui-btn {
+        margin-top: 0px;
+    }
+
+    .weui-btn {
+        font-size: 10px;
+    }
+
+    .weui-tabbar {
+        background-color: #FFFFFF;
+    }
+
+    .weui-tabbar__item {
+        padding: 10px 5px 10px 0px;
+    }
+
+        .weui-tabbar__item:first-child {
+            padding-left: 5px;
+        }
+
+    .weui-tabbar__label {
+        color: #ffffff;
+        background-color: rgb(255,102,2);
+        border-radius: 5px;
+        font-size: 14px;
+        padding: 5px 0px;
+    }
+
+    .weui-tabbar__label_disabled {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .my_weui-cells__title {
+        color: rgba(242, 106, 32, 1);
+        font-weight: bold;
+    }
+    .weui-label {
+        width:160px;
+    }
+</style>
+
+<script type="text/html" id="tmpl_order">
+
+    <div class="weui-cells__title">
+        基本信息
+        {{if ReceiveCode}}
+        <div class="code" style="float:right;">收餐码：{{ReceiveCode}}</div>
+        {{/if}}
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">订单状态</label></div>
+            <div class="weui-cell__bd">
+                {{StateCN}}
+            </div>
+        </div>
+        {{if IsRetuen!='' && IsRetuen!=null && IsRetuen!=0}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">退单状态</label></div>
+            <div class="weui-cell__bd">
+                {{IsRetuen}}
+            </div>
+        </div>
+        {{/if}}
+        {{if State==8}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">会议正常召开</label></div>
+            <div class="weui-cell__bd">
+                {{IsSpecialOrder=='3'?'否':'是'}}
+            </div>
+        </div>
+        {{/if}}
+        {{if IsSpecialOrder=='呼叫中心操作退单' || IsSpecialOrder=='会议支持文件丢失'}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label" style="color:red;">项目组特殊备注</label></div>
+            <div class="weui-cell__bd">
+                <span style="color:red;">{{IsSpecialOrder}}</span>
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">HT编号</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.preApproval.HTCode}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">申请人姓名</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.preApproval.ApplierName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">MUDID</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.preApproval.ApplierMUDID}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">Market</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.preApproval.Market}}
+            </div>
+        </div>
+        @*20190115*@
+        {{if Detail.preApproval.Market=='Rx' || Detail.preApproval.Market=='Vx'}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">VeevaMeetingID</label></div>
+            <div class="weui-cell__bd">
+                {{VeevaMeetingID}}
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">TA</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.preApproval.TA}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">供应商</label></div>
+            <div class="weui-cell__bd">
+                {{Channel}}
+            </div>
+        </div>
+        {{if Channel=='BDS'}}
+        <div class="weui-cell">
+            <div class="weui-cells__title" style="color:red;padding:0px 0px;margin:0px 0px;">
+                *BDS订单会产生3%的额外税费,此费用不计入餐费,每月由中央订餐项目组统一支付。
+            </div>
+        </div>
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">呼叫中心</label></div>
+            {{if Channel=='XMS'}}
+            <a href="tel:400-820-5577">400-820-5577</a>
+            {{else}}
+            <a href="tel:400-6868-912">400-6868-912</a>
+            {{/if}}
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用餐人数</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.details.attendCount}}
+            </div>
+        </div>
+        {{if State>5 && State<10}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">实际用餐人数</label></div>
+            <div class="weui-cell__bd">
+                {{RealCount}}
+            </div>
+        </div>
+        {{if RealCountChangeReason!='' && RealCountChangeReason!=null}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用餐人数调整原因</label></div>
+            <div class="weui-cell__bd">
+                {{RealCountChangeReason}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用餐人数调整备注</label></div>
+            <div class="weui-cell__bd">
+                {{RealCountChangeRemrak}}
+            </div>
+        </div>
+        {{/if}}
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">预定金额</label></div>
+            <div class="weui-cell__bd">
+                RMB {{Detail.foods.allPrice}}
+            </div>
+        </div>
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">实际金额</label></div>
+            <div class="weui-cell__bd">
+                {{if XmsTotalPrice > -1 && XmsTotalPrice != Detail.foods.allPrice}}
+                RMB {{XmsTotalPrice}}·
+                {{else}}
+                RMB {{Detail.foods.allPrice}}
+                {{/if}}
+            </div>
+        </div>
+        {{if ChangeTotalPriceReason != '' && ChangeTotalPriceReason != null}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">实际金额调整原因</label></div>
+            <div class="weui-cell__bd">
+                {{ChangeTotalPriceReason}}
+            </div>
+        </div>
+        {{/if}}
+        {{if State>5 && State<10}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">用户确认金额</label></div>
+            <div class="weui-cell__bd">
+                RMB {{RealPrice}}
+            </div>
+        </div>
+        {{if RealPriceChangeReason != '' && RealPriceChangeReason != null}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">确认金额调整原因</label></div>
+            <div class="weui-cell__bd">
+                {{RealPriceChangeReason}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">确认金额调整备注</label></div>
+            <div class="weui-cell__bd">
+                {{RealPriceChangeRemark}}
+            </div>
+        </div>
+        {{/if}}
+        {{/if}}
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">医院名称</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.preApproval.HospitalName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">医院编码</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.preApproval.HospitalCode}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">送餐地址</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.preApproval.HospitalAddress}} {{Detail.details.deliveryAddress}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">会议名称</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.preApproval.MeetingName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">收餐人</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.details.consignee}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联系电话</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.details.phone}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">送餐时间</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.details.deliverTime}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">备注</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.details.remark}}
+            </div>
+        </div>
+    </div>
+    <div class="foodinfo">
+        <div class="supplier">
+            <span>{{Detail.foods.resName}}</span>
+            <span>总价：{{Detail.foods.allPrice}}元</span>
+        </div>
+        <div class="details">
+            {{each Detail.foods.foods}}
+            <div>
+                <span>￥{{$value.price}}</span>
+                <span>x{{$value.count}}</span>
+                <div>
+                    {{$value.foodName}}
+                </div>
+            </div>
+            {{/each}}
+        </div>
+        <div class="other">
+            <div>
+                <span>￥{{Detail.foods.sendFee}}</span>
+                <div>
+                    配送费
+                </div>
+            </div>
+            <div>
+                <span>￥{{Detail.foods.packageFee}}</span>
+                <div>
+                    包装费
+                </div>
+            </div>
+        </div>
+    </div>
+    {{if Detail.preApproval.MMCoEImage}}
+    <div class="weui-cells__title">
+        MMCoE
+        <div class="code" style="float:right;">审批通过</div>
+    </div>
+    <div class="weui-cells">
+        <div class="weui-uploader__bd">
+            <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="mmCoEImages">
+
+            </div>
+        </div>
+    </div>
+    {{/if}}
+
+</script>
+
+<script type="text/html" id="tmpl_images">
+    {{each items}}
+    <img class="weui-uploader__input-box choosedwximage" src="{{$value}}" style="margin:10px 0 16px 10px;" />
+    {{/each}}
+</script>
+
+<script type="text/html" id="tmpl_evaluate">
+    <div class="weui-cells weui-cells_form">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">评分</label></div>
+            <div class="star_panel" data="{{Star}}">
+                @for (var i = 0; i < 5; i++)
+                {
+                    <div class="star">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title my_weui-cells__title">
+        准点率
+        <div class="code" style="float:right;">{{OnTimeName}}</div>
+    </div>
+    <div class="weui-cells">
+        {{if OnTime == 1 }}
+        <div class="weui-cell" id="_describe">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" placeholder="情况描述" rows="3" maxlength="200" readonly="readonly">{{OnTimeDiscrpion}}</textarea>
+            </div>
+        </div>
+        {{/if}}
+    </div>
+
+    <div class="weui-cells__title my_weui-cells__title">
+        食品安全存在问题
+        <div class="code" style="float:right;">{{IsSafe}}</div>
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" readonly="readonly">{{SafeDiscrpion}}</textarea>
+            </div>
+        </div>
+        <div class="weui-cells">
+            <div class="weui-uploader__bd">
+                <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="safeImage">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title my_weui-cells__title">
+        餐品卫生及新鲜
+        <div class="code" style="float:right;">{{Health}}</div>
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" readonly="readonly">{{HealthDiscrpion}}</textarea>
+            </div>
+        </div>
+        <div class="weui-cells">
+            <div class="weui-uploader__bd">
+                <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="healthImage">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title my_weui-cells__title">
+        餐品包装
+        <div class="code" style="float:right;">{{Pack}}</div>
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" readonly="readonly">{{PackDiscrpion}}</textarea>
+            </div>
+        </div>
+        <div class="weui-cells">
+            <div class="weui-uploader__bd">
+                <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="packImage">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title my_weui-cells__title">
+        餐品性价比
+        <div class="code" style="float:right;">{{CostEffective}}</div>
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" readonly="readonly">{{CostEffectiveDiscrpion}}</textarea>
+            </div>
+        </div>
+        <div class="weui-cells">
+            <div class="weui-uploader__bd">
+                <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="costEffectiveImage">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title my_weui-cells__title">其他评价</div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" readonly="readonly">{{OtherDiscrpion}}</textarea>
+            </div>
+        </div>
+    </div>
+
+</script>
+
+<script type="text/html" id="tmpl_undelivered">
+    <div class="weui-cells__title">未送达情况描述</div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" readonly="readonly" rows="5">{{OnTimeDiscrpion}}</textarea>
+            </div>
+        </div>
+    </div>
+</script>

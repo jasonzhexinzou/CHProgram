@@ -1,0 +1,52 @@
+﻿@{
+    ViewBag.Title = "费用分析";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<style type="text/css">
+    html{
+        background-color:white;
+    }
+
+    body {
+        height: auto;
+    }
+
+    .weui-select {
+        apperance: normal !important;
+        -moz-appearance: menulist-button !important;
+        -webkit-appearance: menulist-button !important;
+    }
+
+    .stateBtn {
+        font-size: 10px;
+        width: 70% !important;
+    }
+
+    .stateDP {
+        height: 30px;
+        line-height: 30px;
+        font-size: 12px;
+    }
+</style>
+
+<div class="page-main">
+    <div id="content">
+        <div id="MyApprove">
+            <div id="dvApprove" class="page-body">
+                <div class="weui-cell__bd" style="width:100%;overflow:auto;">
+                    <div id="dvNoRights">
+                        <div id="dvNoRightsBg" style="vertical-align: middle;text-align: center;">
+                            <img src="~/Content/image/nop.png" style="padding-top:30%">
+                            <br /><br /><br />
+                            <span style="font-size:1.25em">
+                                您无此查看权限。
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

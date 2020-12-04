@@ -1,0 +1,72 @@
+﻿@{
+    ViewBag.Title = "HT报表管理";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        function selectOption() {
+            var item = $('#sltOption').val();
+            if (item == 1) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/SpecialOrder";
+                document.getElementById("jump").click();
+            }
+            else if (item == 2) {//特殊发票订单
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/SpecialInvoiceOrder";
+                document.getElementById("jump").click();
+            }
+            else if (item == 3) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/UnfinishedOrder";
+                document.getElementById("jump").click();
+            }
+            else if (item == 4) {//医院覆盖率
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/HospitalCoverage";
+                document.getElementById("jump").click();
+            }
+
+            else if (item == 5) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/OrderEvaluate";
+                document.getElementById("jump").click();
+            }
+
+            else if (item == 6) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/SpecialOrderProportion";
+                document.getElementById("jump").click();
+            }
+
+        };
+
+    </script>
+}
+<div class="tool_bar">
+    <label>HT报表管理</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+
+                <div class="line">
+                    <div class="x10">
+                        <span><strong>请选择要导出报表</strong></span>
+                        <select class="input input-small" style="width:180px;" id="sltOption" name="sltOption" onchange="selectOption()">
+                            <option value="0" selected="selected">请选择报表</option>
+                            <option value="6">Special Order</option>
+                            <option value="1">特殊订单</option>
+                            <option value="2">特殊发票订单</option>
+                            <option value="3">未完成订单</option>
+                            <option value="4">医院覆盖率</option>
+                            <option value="5">订单评价</option>
+                        </select>
+                        <a id="jump"></a>
+                    </div>
+                    <div class="x2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

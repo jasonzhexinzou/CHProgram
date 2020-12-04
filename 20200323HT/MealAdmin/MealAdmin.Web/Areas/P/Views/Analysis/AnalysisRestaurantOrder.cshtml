@@ -1,0 +1,403 @@
+﻿@{
+    ViewBag.Title = "HT订单分析";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap/bootstrap-select.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/bootstrap/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/fontawesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="~/Content/bootstrap/bootstrap-select.js"></script>
+    <script type="text/javascript" src="~/Content/bootstrap/bootstrap3.3.7.js"></script>
+    <script src="~/Content/echarts.min.js"></script>
+    <script type="text/javascript">
+        var TAlist = '@ViewBag.TAList';
+        $(function () {
+            //年月
+            var startYear = 2019;
+            var myDate = new Date();
+            var endYear = myDate.getFullYear();
+            var endMonth = myDate.getMonth() + 1;
+            var options = document.getElementById('sltMonth').options;
+            for (i = 0; i < options.length; i++) {
+                if (options[i].value == endMonth) {
+                    options[i].selected = true;
+                    break;
+                }
+            }
+            var html;
+            $('#sltYear').html('');
+            for (var i = startYear; i <= endYear; i++) {
+                if (i == endYear)
+                    html += '<option value="' + i + '" selected="selected">' + i + '</option>';
+                else
+                    html += '<option value="' + i + '">' + i + '</option>';
+            }
+            $('#sltYear').html(html);
+            //ta
+            $('#sltTA').html('');
+            var taList = TAlist.split(',');
+            var html = '<option value="ALL" selected="selected" style="color:black">ALL</option>';
+            if (taList.length > 0) {
+                for (var i in taList) {
+                    html += '<option value="' + taList[i] + '">' + taList[i] + '</option>';
+                }
+            }
+            $('#sltTA').html(html);
+
+            $('#btnRefreshData').bind('click', function () {
+                var year = $('#sltYear').val();
+                var month = $('#sltMonth').val();
+                var htType = $('#sltHTType').val();
+
+                if (year <= 2019) {
+                    if (month < 11) {
+                        $showdialog({ body: '筛选年月需晚于2019年11月！' });
+                        return;
+                    }
+                }
+                // 基于准备好的dom，初始化echarts实例
+                var myChart = echarts.init(document.getElementById('main'));
+                var myChart1 = echarts.init(document.getElementById('main1'));
+                getJson();
+                //查询数据
+                function getJson() {
+                    window.top.showLoading();
+                    document.getElementById("div1").style.display = "block";
+                    document.getElementById("div2").style.display = "block";
+                    var _sltTa = $('#sltTA').val() == null ? "ALL" : $('#sltTA').val().toString()
+                    $.ajax({
+                        url: contextUri + "/P/Analysis/LoadRestaurantOrderData",
+                        type: 'post',
+                        data: {
+                            Year: year,
+                            Month: month,
+                            HTType: htType,
+                            TA: _sltTa
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.state == 1) {
+                                //summary data
+                                
+
+                                document.getElementById("s1_ht").innerText = data.summaryView.s1ht;
+                                document.getElementById("s2_ht").innerText = data.summaryView.s2ht;
+                                document.getElementById("s3_ht").innerText = data.summaryView.s3ht + "%";
+                                var Countstr = data.summaryView.s4ht.toString();
+                                var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                                CountT = Countstr.replace(Countreg, "$1,");
+                                document.getElementById("s4_ht").innerText = "(" + CountT+ ")";
+
+                                document.getElementById("s1_oh").innerText = data.summaryView.s1oh;
+                                document.getElementById("s2_oh").innerText = data.summaryView.s2oh;
+                                document.getElementById("s3_oh").innerText = data.summaryView.s3oh + "%";
+                                var Countstr1 = data.summaryView.s4oh.toString();
+                                var Countreg1 = Countstr1.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                                CountT1 = Countstr1.replace(Countreg1, "$1,");
+                                document.getElementById("s4_oh").innerText = "(" + CountT1 + ")";
+
+                                var CountX = [];
+                                var CountY = [];
+                                for (var i = 0; i < data.firstChartData.length; i++) {
+                                    CountX.push(data.firstChartData[i].CodeAndNAME);
+                                    CountY.push(data.firstChartData[i].ChartCount.toString());
+                                }
+                                var option = DrawBar(CountX, CountY);
+                                if (option && typeof option === "object") {
+                                    // 使用刚指定的配置项和数据显示图表。
+                                    myChart.setOption(option, true);
+                                    document.getElementById('summartDiv').style.display = "block";
+                                    if (htType == 1) {
+                                        document.getElementById('htDiv').style.display = "block";
+                                        document.getElementById('ohDiv').style.display = "none";
+                                    } else if (htType == 2) {
+                                        document.getElementById('ohDiv').style.display = "block";
+                                        document.getElementById('htDiv').style.display = "none";
+                                    } else {
+                                        document.getElementById('htDiv').style.display = "block";
+                                        document.getElementById('ohDiv').style.display = "block";
+                                    }
+                                }
+                                var CountX_1 = [];
+                                var CountY_1 = [];
+                                var CountY_2 = [];
+                                for (var i = 0; i < data.secondChartData.length; i++) {
+                                    CountX_1.push(data.secondChartData[i].CodeAndNAME);
+                                    CountY_1.push(data.secondChartData[i].ChartCount.toString());
+                                    CountY_2.push(data.secondChartData[i].ChartCount1.toString());
+                                }
+                                var option1 = DrawBar1(CountX_1, CountY_1, CountY_2);
+                                if (option1 && typeof option1 === "object") {
+                                    myChart1.setOption(option1, true);
+                                }
+                            }
+                            window.top.hideLoading();
+                        }
+                    })
+                }
+
+                // 指定图表的配置项和数据
+                function DrawBar(XName, YCount) {
+                    var option = {
+                        color: ['#F66800', '#006774'],
+                        title: {
+                            text: '',
+                            left: 'center',
+                            bottom: '120',
+                            textStyle: {
+                                fontSize: 16,
+
+                            }
+                        },
+                        backgroundColor: 'rgb(255, 255, 255)',
+                        height: 400,
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            },
+                            trigger: 'item',
+                            formatter: function (data) {
+                                var result = [],
+                                    counter = 0,
+                                    num = data.value;
+                                num = (num || 0).toString().split('');
+                                for (var i = num.length - 1; i >= 0; i--) {
+                                    counter++;
+                                    result.unshift(num[i]);
+                                    //无小数部分
+                                    if (!(counter % 3) && i != 0) {
+                                        result.unshift(',');
+                                    }
+                                }
+                                result = result.join('');
+                                return data.name + " : " + result;
+                            }
+                        },
+
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        yAxis: {
+                            type: 'value',
+                            boundaryGap: [0, 0.01]
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: XName,
+                            axisLabel: {
+                                interval: 0,
+                                fontSize: 10,
+                                formatter: function (value) {
+                                    return value.split("-").join("\n\n");
+                                }
+                            }
+                        },
+                        series: [
+                            {
+                                name: '',
+                                type: 'bar',
+                                barWidth: 40,//柱图宽度
+                                barGap: 0,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: function (params) {
+                                        var result = [],
+                                            counter = 0,
+                                            num = params.data;
+                                        num = (num || 0).toString().split('');
+                                        for (var i = num.length - 1; i >= 0; i--) {
+                                            counter++;
+                                            result.unshift(num[i]);
+                                            //无小数部分
+                                            if (!(counter % 3) && i != 0) {
+                                                result.unshift(',');
+                                            }
+                                        }
+                                        result = result.join('');
+                                        return result;
+                                        //return params.value.replace(/(?=(...)+$)/g, ",");
+                                    }
+                                },
+                                data: YCount
+                            }
+                        ]
+                    };
+                    return option
+                }
+                function DrawBar1(CountX_1, CountY_1, CountY_2) {
+                    var option = {
+                        color: ['#5E5E5E', '#F66800'],
+                        title: {
+                            text: '',
+                            left: 'center',
+                            bottom: '120',
+                            textStyle: {
+                                fontSize: 16,
+
+                            }
+                        },
+                        backgroundColor: 'rgb(255, 255, 255)',
+                        height: 400,
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            },
+                            trigger: 'item',
+                            formatter: function (data) {
+                                var result = [],
+                                    counter = 0,
+                                    num = data.value;
+                                num = (num || 0).toString().split('');
+                                for (var i = num.length - 1; i >= 0; i--) {
+                                    counter++;
+                                    result.unshift(num[i]);
+                                    //无小数部分
+                                    if (!(counter % 3) && i != 0) {
+                                        result.unshift(',');
+                                    }
+                                }
+                                result = result.join('');
+                                return data.name + " : " + result;
+                            }
+                        },
+
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        yAxis: {
+                            type: 'value',
+                            boundaryGap: [0, 0.01]
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: CountX_1,
+                            axisLabel: {
+                                interval: 0,
+                                fontSize: 10,
+                                formatter: function (value) {
+                                    return value.split("-").join("\n\n");
+                                }
+                            }
+                        },
+                        legend: {
+                            data: ['产生订单医院数', '订单数']
+                        },
+                        series: [
+                            {
+                                name: '产生订单医院数',
+                                type: 'bar',
+                                barWidth: 40,//柱图宽度
+                                barGap: 0.2,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: function (params) {
+                                        return params.value.replace(/(?=(...)+$)/g, ",");
+                                    }
+                                },
+                                data: CountY_1
+                            },
+                            {
+                                name: '订单数',
+                                type: 'bar',
+                                barWidth: 40,//柱图宽度
+                                barGap: 0.2,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: function (params) {
+                                        return params.value.replace(/(?=(...)+$)/g, ",");
+                                    }
+                                },
+                                data: CountY_2
+                            }
+                        ]
+                    };
+                    return option
+                }
+            });
+        });
+
+    </script>
+}
+<div class="tool_bar">
+    <label>HT订单分析</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;border: solid 1px #ddd;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding" style="border-bottom:0px;">
+            <div class="container margin-little-left">
+                <div class="line" style="padding-top:10px;">
+                    <label class="border-small label-block">
+                        年月筛选
+                        <select id="sltYear" name="sltYear" class="input input-small" style="width:100px;"></select>
+                        <select id="sltMonth" name="sltMonth" class="input input-small" style="width:100px;">
+                            <option value="01" selected="selected">1月</option>
+                            <option value="02">2月</option>
+                            <option value="03">3月</option>
+                            <option value="04">4月</option>
+                            <option value="05">5月</option>
+                            <option value="06">6月</option>
+                            <option value="07">7月</option>
+                            <option value="08">8月</option>
+                            <option value="09">9月</option>
+                            <option value="10">10月</option>
+                            <option value="11">11月</option>
+                            <option value="12">12月</option>
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        HT类型
+                        <select class="input input-small" style="width:180px;" id="sltHTType" name="sltHTType">
+                            <option value="1" selected="selected">院内HT</option>
+                            <option value="2">院外HT</option>
+
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        数据层级
+                        <select class="selectpicker bla bla bli" style="width:180px;" id="sltTA" name="sltTA" multiple></select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:35px;">
+                        <button class="button button-small bg-yellow fa fa-pie-chart" id="btnRefreshData">刷新</button>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="div1" style="margin-left: 20px; border: solid 1px #ddd;float:left; width:97%; display:none;padding-left:20px;" class="panel admin-panel" >
+        <div id="main" style="width: 660px;height:500px; float:left;"></div>
+        <div id="summartDiv" style="border-radius:5px;width: 280px;height:180px;float:left;border:solid 1px; background-color:lightpink; margin-left:77px;margin-top:100px;padding-left:10px; display:none;">
+            <div style="height:30px;">
+                <h4>Summary</h4>
+            </div>
+            <div id="htDiv" style="height:50px;display:none;">
+                HT: <span id="s1_ht" style="color:#F66800;"></span> orders in <span id="s2_ht" style="color:#F66800;"></span> hospitals, <br />
+                <span id="s3_ht" style="color:#F66800;"></span> of covered hospitals<span id="s4_ht" style="color:#F66800;"></span>
+            </div>
+            <div id="ohDiv" style="height:50px;display:none;">
+                OutsideHT: <span id="s1_oh" style="color:#F66800;"></span> orders in <span id="s2_oh" style="color:#F66800;"></span> hospitals, <br />
+                <span id="s3_oh" style="color:#F66800;"></span> of covered hospitals<span id="s4_oh" style="color:#F66800;"></span>
+            </div>
+        </div>
+    </div>
+    <div id="div2" style="margin-left: 20px; border: solid 1px #ddd;float:left;width:97%; display:none;padding-left:20px;padding-top:20px;" class="panel admin-panel">
+        <div id="main1" style="width: 660px;height:500px; float:left;"></div>
+    </div>
+</div>
+
+
+

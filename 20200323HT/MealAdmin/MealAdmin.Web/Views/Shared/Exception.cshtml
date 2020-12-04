@@ -1,0 +1,29 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Exception</title>
+    @if (Model.ExceptionCode == "100003")
+    {
+        <script type="text/javascript">
+        var contextUri = '@Href("~")';
+        contextUri = contextUri == '/' ? '' : contextUri;
+        var uri = '/p/Home/PerLogin';//'/Admin/Home/Index';
+        window.top.location = contextUri + uri;
+        </script>
+    }
+</head>
+<body>
+    <div>
+
+    </div>
+    <div>
+        [@(Model.ExceptionCode)]@Model.GetExceptionText()
+    </div>
+</body>
+</html>

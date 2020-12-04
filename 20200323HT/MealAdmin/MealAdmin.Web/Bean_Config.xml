@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<beans>
+  <bean name="sqlServerTemplFactory" type="XFramework.XDataBase.DbTemplateFactory" assembly="XFramework.XDataBase">
+    <property name="DataBase" value="SqlServer" beanid="" />
+    <property name="DbSetting" value="MealAdmin" beanid="" />
+  </bean>
+
+  <bean name="sqlServerTemplFactoryNonHT" type="XFramework.XDataBase.DbTemplateFactory" assembly="XFramework.XDataBase">
+    <property name="DataBase" value="SqlServer" beanid="" />
+    <property name="DbSetting" value="NonHTMealAdmin" beanid="" />
+  </bean>
+
+  <!-- 成本中心 -->
+  <bean name="costCenterDao" type="MealAdmin.Dao.CostCenterDao" assembly="MealAdmin.Dao" />
+  <bean name="costCenterService" type="MealAdmin.Service.CostCenterService" assembly="MealAdmin.Service">
+    <property name="costCenterDao" value="" beanid="costCenterDao" />
+  </bean>
+  <!-- 成本中心审批人 -->
+  <bean name="costCenterManagerDao" type="MealAdmin.Dao.CostCenterManagerDao" assembly="MealAdmin.Dao" />
+  <bean name="costCenterManagerService" type="MealAdmin.Service.CostCenterManagerService" assembly="MealAdmin.Service">
+    <property name="costCenterManagerDao" value="" beanid="costCenterManagerDao" />
+  </bean>
+
+  <!-- P流程 -->
+  <bean name="orderDao" type="MealAdmin.Dao.OrderDao" assembly="MealAdmin.Dao" />
+  <bean name="orderService" type="MealAdmin.Service.OrderService" assembly="MealAdmin.Service" />
+  <bean name="baseDataDao" type="MealAdmin.Dao.BaseDataDao" assembly="MealAdmin.Dao" />
+  <bean name="baseDataService" type="MealAdmin.Service.BaseDataService" assembly="MealAdmin.Service" />
+  <bean name="marketDao" type="MealAdmin.Dao.MarketDao" assembly="MealAdmin.Dao" />
+  <bean name="marketService" type="MealAdmin.Service.MarketService" assembly="MealAdmin.Service" />
+  <bean name="meetingDao" type="MealAdmin.Dao.MeetingDao" assembly="MealAdmin.Dao" />
+  <bean name="meetingService" type="MealAdmin.Service.MeetingService" assembly="MealAdmin.Service" />
+  <bean name="evaluateDao" type="MealAdmin.Dao.EvaluateDao" assembly="MealAdmin.Dao" />
+  <bean name="evaluateService" type="MealAdmin.Service.EvaluateService" assembly="MealAdmin.Service" />
+  <bean name="holidayDao" type="MealAdmin.Dao.HolidayDao" assembly="MealAdmin.Dao" />
+  <bean name="holidayService" type="MealAdmin.Service.HolidayService" assembly="MealAdmin.Service" />
+  <bean name="userInfoDao" type="MealAdmin.Dao.UserInfoDao" assembly="MealAdmin.Dao" />
+  <bean name="userInfoService" type="MealAdmin.Service.UserInfoService" assembly="MealAdmin.Service" />
+  <bean name="preApprovalDao" type="MealAdmin.Dao.PreApprovalDao" assembly="MealAdmin.Dao" />
+  <bean name="preApprovalService" type="MealAdmin.Service.PreApprovalService" assembly="MealAdmin.Service" />
+
+  <!-- 后台文件上传 -->
+  <bean name="uploadFileQueryDao" type="MealAdmin.Dao.UploadFileQueryDao" assembly="MealAdmin.Dao" />
+  <bean name="uploadFileQueryService" type="MealAdmin.Service.UploadFileQueryService" assembly="MealAdmin.Service" />
+  
+  <!-- fzd -->
+  <bean name="groupMemberDao" type="MealAdmin.Dao.GroupMemberDao" assembly="MealAdmin.Dao" />
+  <bean name="groupMemberService" type="MealAdmin.Service.GroupMemberService" assembly="MealAdmin.Service" />
+
+  <bean name="bizConfigDao" type="MealAdmin.Dao.BizConfigDao" assembly="MealAdmin.Dao" />
+  <bean name="bizConfigService" type="MealAdmin.Service.BizConfigService" assembly="MealAdmin.Service" />
+
+  <bean name="hospitalDao" type="MealAdmin.Dao.HospitalDao" assembly="MealAdmin.Dao" />
+  <bean name="hospitalService" type="MealAdmin.Service.HospitalService" assembly="MealAdmin.Service" />
+
+  <bean name="provinceDao" type="MealAdmin.Dao.ProvinceDao" assembly="MealAdmin.Dao" />
+  <bean name="provinceService" type="MealAdmin.Service.ProvinceService" assembly="MealAdmin.Service" />
+  
+  <!--史强-->
+  <bean name="operationAuditDao" type="MealAdmin.Dao.OperationAuditDao" assembly="MealAdmin.Dao" />
+  <bean name="operationAuditService" type="MealAdmin.Service.OperationAuditService" assembly="MealAdmin.Service" />
+
+  <!-- 姜丙寅 -->
+  <bean name="reportDao" type="MealAdmin.Dao.ReportDao" assembly="MealAdmin.Dao" />
+  <bean name="reportService" type="MealAdmin.Service.ReportService" assembly="MealAdmin.Service" />
+
+  <!--<bean name="apiClient" type="iPathFeast.API.Client.ApiV1Client" assembly="iPathFeast.API.Client">
+    <property name="apiHost" value="http://localhost:2928/ApiV1" beanid="" />
+    <property name="customer" value="iPath_test" beanid="" />
+    <property name="apiKey" value="AreyouOK?" beanid="" />
+    <property name="log4netName" value="apiClient" beanid="" />
+  </bean>-->
+
+  <!-- 生产环境 -->
+  <bean name="apiClient" type="iPathFeast.API.Client.ApiV1Client" assembly="iPathFeast.API.Client">
+    <property name="apiHost" value="http://localhost:8085/ApiV1" beanid="" />
+    <property name="customer" value="GSK_HT" beanid="" />
+    <property name="apiKey" value="GSK_HT" beanid="" />
+    <property name="log4netName" value="apiClient" beanid="" />
+  </bean>
+
+  <bean name="apiClient_meeting" type="iPathFeast.API.Client.ApiV1Client" assembly="iPathFeast.API.Client">
+    <property name="apiHost" value="http://localhost:2928/ApiV1" beanid="" />
+    <property name="customer" value="iPath_test2" beanid="" />
+    <property name="apiKey" value="iPath_test" beanid="" />
+    <property name="log4netName" value="apiClient" beanid="" />
+  </bean>
+
+  <!-- guanning start -->
+  <bean name="restaurantDao" type="MealAdmin.Dao.RestaurantDao" assembly="MealAdmin.Dao" />
+  <bean name="restaurantService" type="MealAdmin.Service.RestaurantService" assembly="MealAdmin.Service" />
+  <!-- guanning end -->
+  
+  <!-- 韩利胜 -->
+  <bean name="uploadOrderDao" type="MealAdmin.Dao.UploadOrderDao" assembly="MealAdmin.Dao" />
+  <bean name="uploadOrderService" type="MealAdmin.Service.UploadOrderService" assembly="MealAdmin.Service" />
+  
+  <!-- 费用分析-->
+  <bean name="exportManagementService" type="MealAdmin.Service.ExportManagementService" assembly="MealAdmin.Service" />
+  <bean name="exportManagementDao" type="MealAdmin.Dao.ExportManagementDao" assembly="MealAdmin.Dao" />
+
+  <bean name="analysisService" type="MealAdmin.Service.AnalysisService" assembly="MealAdmin.Service" />
+  <bean name="analysisDao" type="MealAdmin.Dao.AnalysisDao" assembly="MealAdmin.Dao" />
+
+  <bean name="BUManagementDao" type="MealAdmin.Dao.BUManagementDao" assembly="MealAdmin.Dao" />
+  <bean name="BUManagementService" type="MealAdmin.Service.BUManagementService" assembly="MealAdmin.Service" />
+</beans>

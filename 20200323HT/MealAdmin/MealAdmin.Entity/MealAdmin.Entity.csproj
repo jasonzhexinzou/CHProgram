@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{62816AFC-0B05-43FF-9FD8-4DA38B8AD21F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MealAdmin.Entity</RootNamespace>
+    <AssemblyName>MealAdmin.Entity</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="B_ADMINUSER.cs" />
+    <Compile Include="B_ADMINUSER_ROLE.cs" />
+    <Compile Include="B_PERMISSION.cs" />
+    <Compile Include="B_ROLE.cs" />
+    <Compile Include="B_ROLE_PERMISSION.cs" />
+    <Compile Include="D_COSTCENTER.cs" />
+    <Compile Include="Enum\ApproveAction.cs" />
+    <Compile Include="Enum\GroupType.cs" />
+    <Compile Include="Enum\MMCoEApproveState.cs" />
+    <Compile Include="Enum\OrderIsChange.cs" />
+    <Compile Include="Enum\OrderIsRetuen.cs" />
+    <Compile Include="Enum\OrderState.cs" />
+    <Compile Include="Enum\OrderUpload.cs" />
+    <Compile Include="Enum\PreApprovalHistoryState.cs" />
+    <Compile Include="Enum\PreApprovalState.cs" />
+    <Compile Include="Enum\UploadFileApprovalHistory.cs" />
+    <Compile Include="FoodDetail.cs" />
+    <Compile Include="Helper\P_ChooseHospital.cs" />
+    <Compile Include="Helper\P_Food.cs" />
+    <Compile Include="Helper\P_FoodItem.cs" />
+    <Compile Include="Helper\P_Meeting.cs" />
+    <Compile Include="Helper\P_Order.cs" />
+    <Compile Include="Helper\P_OrderDetails.cs" />
+    <Compile Include="Helper\P_OrderInfo.cs" />
+    <Compile Include="M_COSTCENTER.cs" />
+    <Compile Include="obj\Debug\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs" />
+    <Compile Include="obj\Debug\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs" />
+    <Compile Include="obj\Debug\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs" />
+    <Compile Include="P_AddressApproval.cs" />
+    <Compile Include="P_AddressApproveHistory.cs" />
+    <Compile Include="P_Audit.cs" />
+    <Compile Include="P_AutoTransferView.cs" />
+    <Compile Include="P_BUINFO.cs" />
+    <Compile Include="P_CITY_LIST.cs" />
+    <Compile Include="P_HospitalCoverChange.cs" />
+    <Compile Include="P_HospitalVariables.cs" />
+    <Compile Include="P_HOSPITAL_RANGE.cs" />
+    <Compile Include="P_HOSPITAL_RANGE_RESTAURANT.cs" />
+    <Compile Include="P_HOSPITAL_RANGE_RESTAURANTCOUNT.cs" />
+    <Compile Include="P_JsApiTicket.cs" />
+    <Compile Include="P_Order_Analysis.cs" />
+    <Compile Include="P_SpecialOrder.cs" />
+    <Compile Include="P_TAINFO.cs" />
+    <Compile Include="P_TERRITORY.cs" />
+    <Compile Include="P_TACode.cs" />
+    <Compile Include="P_OperationAudit.cs" />
+    <Compile Include="P_OrderApproveHistory.cs" />
+    <Compile Include="P_OTHERORDER.cs" />
+    <Compile Include="P_PreApproval.cs" />
+    <Compile Include="P_PreApprovalApproveHistory.cs" />
+    <Compile Include="P_PREUPLOADORDER.cs" />
+    <Compile Include="P_RESTAURANT_LIST.cs" />
+    <Compile Include="M_COSTCENTER_MANAGER.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="P_BIZ_CONF.cs" />
+    <Compile Include="P_CITY.cs" />
+    <Compile Include="P_EVALUATE.cs" />
+    <Compile Include="P_HOLIDAY.cs" />
+    <Compile Include="P_GROUP_MEMBER.cs" />
+    <Compile Include="P_HOSPITAL.cs" />
+    <Compile Include="P_HOSPITAL_ADDR.cs" />
+    <Compile Include="P_MARKET.cs" />
+    <Compile Include="P_MEETING.cs" />
+    <Compile Include="P_ORDER.cs" />
+    <Compile Include="P_ORDER_APPROVE.cs" />
+    <Compile Include="P_ORDER_XMS_REPORT.cs" />
+    <Compile Include="P_PO.cs" />
+    <Compile Include="P_PROVINCE.cs" />
+    <Compile Include="P_TA.cs" />
+    <Compile Include="P_UploadFileQuery_TXT.cs" />
+    <Compile Include="P_UploadFileQuery_View.cs" />
+    <Compile Include="P_UserDelegate.cs" />
+    <Compile Include="P_UserDelegateHis.cs" />
+    <Compile Include="P_UserDelegatePre.cs" />
+    <Compile Include="P_UserDelegatePreHis.cs" />
+    <Compile Include="P_USERINFO.cs" />
+    <Compile Include="SyscHospitalCallBack.cs" />
+    <Compile Include="View\Approval_State.cs" />
+    <Compile Include="View\EXCEL_HOSPITAL.cs" />
+    <Compile Include="View\HT_Order_Report.cs" />
+    <Compile Include="View\HT_ORDER_REPORT_VIEW.cs" />
+    <Compile Include="View\HT_ORDER_REPORT_VIEW_EXT.cs" />
+    <Compile Include="View\P_CITY_OUT.cs" />
+    <Compile Include="View\P_HOSPITAL_RESTAURANT.cs" />
+    <Compile Include="View\P_COUNT.cs" />
+    <Compile Include="View\P_LOADORDER_BRIEF.cs" />
+    <Compile Include="View\P_MEETING_VIEW.cs" />
+    <Compile Include="View\P_ORDER_APPROVE_VIEW.cs" />
+    <Compile Include="View\P_ORDER_DAILY_VIEW.cs" />
+    <Compile Include="View\P_ORDER_EVALUATE_VIEW.cs" />
+    <Compile Include="View\P_HOSPITAL_INFO_VIEW.cs" />
+    <Compile Include="View\P_ORDER_UPLOADORDER.cs" />
+    <Compile Include="View\P_ORDER_VIEW.cs" />
+    <Compile Include="View\P_REOPEN_VIEW.cs" />
+    <Compile Include="View\P_RESTAURANT_START_VIEW.cs" />
+    <Compile Include="View\P_SUM.cs" />
+    <Compile Include="View\P_USERINFO_VIEW.cs" />
+    <Compile Include="View\v_caterreport.cs" />
+    <Compile Include="View\v_NonHT_caterreport.cs" />
+    <Compile Include="View\V_RestaurantState.cs" />
+    <Compile Include="View\V_TerritoryHospitalMRDM.cs" />
+    <Compile Include="View\V_TerritoryRM.cs" />
+    <Compile Include="View\V_UnFinishOrder.cs" />
+    <Compile Include="V_COST_SUMMARY.cs" />
+    <Compile Include="WP_COSTCENTER.cs" />
+    <Compile Include="WP_QYDEPT.cs" />
+    <Compile Include="WP_QYDEPT_USER.cs" />
+    <Compile Include="WP_QYUSER.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\MeeingMealApi\MeetingMealEntity\MeetingMealEntity.csproj">
+      <Project>{6C38C5B0-3F26-4E09-9674-56C961CE1946}</Project>
+      <Name>MeetingMealEntity</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="obj\Debug\DesignTimeResolveAssemblyReferencesInput.cache" />
+    <None Include="obj\Debug\MealAdmin.Entity.csproj.CoreCompileInputs.cache" />
+    <None Include="obj\Debug\MealAdmin.Entity.csprojResolveAssemblyReference.cache" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="obj\Debug\MealAdmin.Entity.csproj.FileListAbsolute.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\Debug\" />
+    <Folder Include="bin\Release\" />
+    <Folder Include="obj\Debug\TempPE\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

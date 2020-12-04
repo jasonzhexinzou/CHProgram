@@ -1,0 +1,154 @@
+﻿@{
+    ViewBag.Title = "医院列表";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        var pdg;
+        $(function () {
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/Hospital/Load', paging: true });
+            pdg.QueryParams = function () {
+                return {
+                    srh_GskHospital: $('#txtGskHospital').val(),
+                    srh_HospitalName: $('#txtHospitalName').val(),
+                    srh_HospitalMarket: $('#sltHospitalMarket option:selected').val()
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+
+            $('#btnSync').bind('click', function () {
+                $showdialogForConfim(
+                    {
+                        title: '确认同步？',
+                        body: '同步会使用新数据覆盖原有数据操作？操作大概需要10分钟',
+                        ok: function () {
+                            $.PintuerPost(contextUri + '/P/Hospital/SyncHospital', {}, Load);
+                        }
+                    }
+                );
+            });
+
+            $('#btnExport').bind('click', function () {
+                $showdialogForUrl(
+                    {
+                        title: '导出医院信息',
+                        width: '450px',
+                        height: '100px',
+                        url: contextUri + '/P/Hospital/ExportHospitalList?srh_GskHospital=' + encodeURIComponent($('#txtGskHospital').val())
+                            + '&srh_HospitalName=' + encodeURIComponent($('#txtHospitalName').val())
+                            + '&srh_HospitalMarket=' + encodeURIComponent($('#sltHospitalMarket option:selected').val()),
+                        pageid: 'manager',
+                        buttons: [
+                            {
+                                cls: 'button',
+                                txt: '关闭',
+                                handler: function (e) { e.close(); }
+                            }
+                        ]
+                    }
+                );
+                //ExportSearchList
+            });
+        });
+        function ShowDetail(id) {
+            $showdialogForUrl(
+                {
+                    title: '医院详情',
+                    width: '650px',
+                    height: '320px',
+                    url: contextUri + '/P/Hospital/HospitalDetail?HospitalID=' + id,
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button',
+                            txt: '关闭',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+                }
+            );
+        }
+        function Load() {
+            pdg.Load();
+        }
+
+    </script>
+}
+<div class="tool_bar">
+    <label>医院列表</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+
+                <div class="line">
+                    <div class="x10">
+                        <input type="text" class="input input-small" style="width:100px;" id="txtGskHospital" name="txtGskHospital" placeholder="医院ID" />
+                        <input type="text" class="input input-small" style="width:100px;" id="txtHospitalName" name="txtHospitalName" placeholder="医院名称" />
+                        <select class="input input-small" style="width:100px;" id="sltHospitalMarket" name="sltHospitalMarket">
+                            <option value="" selected="selected">全部Market</option>
+                            <option value="Rx">Rx</option>
+                            <option value="Vx">Vx</option>
+                            <option value="TSKF">TSKF</option>
+                            <option value="DDT">DDT</option>
+                        </select>
+                        <button class="button button-small bg-main icon-search" id="btnLoad"> 搜索</button>
+                        <button class="button button-small bg-main icon-search" > 新增</button>
+                        <button class="button button-small bg-blue icon-refresh" id="btnSync"> 导入Rx</button>
+                        <button class="button button-small bg-blue icon-refresh" id="btnSync"> 导入Vx</button>
+                        <button class="button button-small bg-blue icon-refresh" id="btnSync"> 导入DDT</button>
+                        <button class="button button-small bg-blue icon-refresh" id="btnSync"> 导入TSKF</button>
+                        <button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>
+                        <button class="button button-small bg-blue icon-file-excel-o" > 可送餐列表</button>
+                    </div>
+                    <div class="x2">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table id="costcenter_dataTable" class="table table-hover">
+            <thead>
+                <tr>
+                    <th style="text-align:center; width:50px;">
+                        <input type="checkbox" />
+                    </th>
+                    <th>医院ID</th>
+                    <th>省</th>
+                    <th>市</th>
+                    <th>医院名称</th>
+                    <th>医院地址</th>
+                    <th>Market</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td align="center"><input type="checkbox" name="id" value="${dr.ID}$"></td>
+                    <td>${dr.GskHospital}$</td>
+                    <td>${dr.ProvinceName}$</td>
+                    <td>${dr.CityName}$</td>
+                    <td>${dr.Name}$</td>
+                    <td>${dr.Address}$</td>
+                    <td>${dr.Type}$ </td>
+                    <td><a href="javascript:;" class="button border-blue button-little icon-edit" onclick="ShowDetail('${dr.ID}$')"> 详情</a></td>
+                    @*<td>${getDateByDotNet(dr.CreateDate).pattern('yyyy-MM-dd HH:mm:ss')}$</td>*@
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="8" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+
+
+

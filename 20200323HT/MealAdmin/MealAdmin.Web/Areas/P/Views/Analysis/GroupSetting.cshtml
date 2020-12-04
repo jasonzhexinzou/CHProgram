@@ -1,0 +1,185 @@
+﻿@{
+    ViewBag.Title = ViewBag.PageTitle;
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+    <link href="~/Content/fontawesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/css/layui.css" rel="stylesheet" />
+    <script src="~/Content/js/layui.all.js"></script>
+    <script src="~/Content/js/layui.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            Load();
+        });
+        function Load() {
+            $.PintuerPost(contextUri + '/P/Analysis/LoadMarketTAData',
+                {
+                },
+                function (d) {
+                    if (d.state == 1) {
+                        var _htData = d.htData;
+                        var _ohData = d.ohData;
+                        var _nonData = d.nonData;
+                        //院内HT
+                        var html = '';
+                        for (var i = 0; i < _htData.length; i++) {
+                            html += '<tr>';
+                            html += ' <td style="text-align:center; width: 37%; vertical-align: middle">' + _htData[i].Market + '</td>';
+                            html += ' <td style="text-align:right;"><a href="javascript:;" class="button border-yellow button-little icon-trash-o" onclick="Delete(\'' + _htData[i].Market + '\',\'' + _htData[i].HTType + '\')">删除</a>';
+                            html += ' <a href="javascript:;" class="button border-blue button-little icon-edit" onclick="Modify(\'' + _htData[i].Market + '\',\'' + _htData[i].HTType + '\')">修改</a></td>';
+                            html += '</tr>';
+                        }
+                        $('#table_ht').html(html);
+
+                        //院外HT
+                        html = '';
+                        for (var j = 0; j < _ohData.length; j++) {
+                            html += '<tr>';
+                            html += ' <td style="text-align:center; width: 37%; vertical-align: middle">' + _ohData[j].Market + '</td>';
+                            html += ' <td style="text-align:right;"><a href="javascript:;" class="button border-yellow button-little icon-trash-o" onclick="Delete(\'' + _ohData[j].Market + '\',\'' + _ohData[j].HTType + '\')">删除</a>';
+                            html += ' <a href="javascript:;" class="button border-blue button-little icon-edit" onclick="Modify(\'' + _ohData[j].Market + '\',\'' + _ohData[j].HTType + '\')">修改</a></td>';
+                            html += '</tr>';
+                        }
+                        $('#table_OH').html(html);
+
+                        //NonHT
+                        html = '';
+                        for (var k = 0; k < _nonData.length; k++) {
+                            html += '<tr>';
+                            html += ' <td style="text-align:center; width: 37%; vertical-align: middle">' + _nonData[k].Market + '</td>';
+                            html += ' <td style="text-align:right;"><a href="javascript:;" class="button border-yellow button-little icon-trash-o" onclick="Delete(\'' + _nonData[k].Market + '\',\'' + _nonData[k].HTType + '\')">删除</a>';
+                            html += ' <a href="javascript:;" class="button border-blue button-little icon-edit" onclick="Modify(\'' + _nonData[k].Market + '\',\'' + _nonData[k].HTType + '\')">修改</a></td>';
+                            html += '</tr>';
+                        }
+                        $('#table_Non').html(html);
+                    }
+                });
+        }
+
+        function Delete(market, type) {
+            var mar = escape(market);
+            $showdialogForConfim(
+                {
+                    title: '确认删除',
+                    body: '删除后无法恢复，您确定要删除吗？',
+                    ok: function () {
+                        $.PintuerPost(contextUri + '/P/Analysis/DeleteGroupSetting', { Market: mar, HTType: type },
+                            function (d) {
+                                if (d.state == 1) {
+                                    $showdialog({ body: d.txt });
+                                    Load();
+                                } else {
+                                    $showdialog({ body: d.txt });
+                                }
+                            }
+                        );
+                    }
+                }
+            );
+        }
+
+        function Modify(market, type) {
+            var mar = escape(market);
+            $showdialogForUrl(
+                {
+                    title: 'Territory设置',
+                    width: '350px',
+                    height: '380px',
+                    url: contextUri + '/P/Analysis/ModifyGroupSetting?Market=' + mar + '&HTType=' + type,
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '保存',
+                            handler: function (e) {
+                                window.top.c_manager.window.btnOKClick(e, Load);
+                            }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+                }
+            );
+        }
+
+        function Add(type) {
+            $showdialogForUrl(
+                {
+                    title: 'Territory设置',
+                    width: '350px',
+                    height: '380px',
+                    url: contextUri + '/P/Analysis/AddGroupSetting?HTType=' + type,
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '保存',
+                            handler: function (e) {
+                                window.top.c_manager.window.btnOKClick(e, Load);
+                            }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+                }
+            );
+        }
+        function Return() {
+            window.location.href = contextUri + '/P/Analysis/OrderSummary';
+        }
+    </script>
+}
+<div class="tool_bar">
+    <label>分组设置</label>
+</div>
+<div class="layui-tab layui-tab-card" style="width:1480px; max-width:1480px;">
+    <div style="padding:5px 0px 5px 10px;">
+        <label class="border-small label-block" style="padding-left:10px;">
+            <button class="button button-small bg-blue fa fa-arrow-left" onclick="Return();">返回</button>
+        </label>
+    </div>
+    <ul class="layui-tab-title">
+        <li class="layui-this">院内HT</li>
+        <li>院外HT</li>
+        <li>NonHT</li>
+    </ul>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <label class="border-small label-block" style="padding-left:10px;">
+                <button class="button button-small bg-blue fa fa-plus" onclick="Add(1)">添加</button>
+            </label>
+            <div style="margin: 10px; width:66%;" class="panel admin-panel">
+                <table id="table_ht" class="table table-hover"></table>
+            </div>
+        </div>
+        <div class="layui-tab-item">
+            <label class="border-small label-block" style="padding-left:10px;">
+                <button class="button button-small bg-blue fa fa-plus" onclick="Add(2)">添加</button>
+            </label>
+            <div style="margin: 10px; width:66%;" class="panel admin-panel">
+                <table id="table_OH" class="table table-hover"></table>
+            </div>
+        </div>
+        <div class="layui-tab-item">
+            <label class="border-small label-block" style="padding-left:10px;">
+                <button class="button button-small bg-blue fa fa-plus" onclick="Add(3)">添加</button>
+            </label>
+            <div style="margin: 10px; width:66%;" class="panel admin-panel">
+                <table id="table_Non" class="table table-hover"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

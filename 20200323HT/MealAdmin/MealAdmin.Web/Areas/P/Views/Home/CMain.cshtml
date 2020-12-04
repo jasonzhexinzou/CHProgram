@@ -1,0 +1,193 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+    <link rel="stylesheet" href="~/Content/plugin/pintuer/pintuer.css" />
+    <script type="text/javascript" src="~/Content/js/jquery.js"></script>
+    <script type="text/javascript" src="~/Content/js/jquery.form.js"></script>
+    <script type="text/javascript" src="~/Content/plugin/pintuer/pintuer.js"></script>
+    <script type="text/javascript" src="~/Content/plugin/pintuer/respond.js"></script>
+    <link rel="stylesheet" href="~/Content/plugin/iPath1/iPath.css" />
+    <script type="text/javascript" src="~/Content/plugin/iPath1/iPath.js"></script>
+    <script type="text/javascript" src="~/Content/js/time.js"></script>
+
+    <script type="text/javascript" src="~/Content/js/p/admin.js"></script>
+    <link rel="stylesheet" href="~/Content/css/p/admin.css" />
+    <title>费用分析</title>
+    <link rel="icon" type="image/png" href="~/gsk-favicon.ico" />
+    <script type="text/javascript">
+        var contextUri = '@Href("~")';
+        contextUri = contextUri == '/' ? '' : contextUri;
+
+        function showLoading() {
+            iPath.LodingMask();
+        }
+
+        function hideLoading() {
+            iPath.UnLodingMask();
+        }
+    </script>
+    <script type="text/javascript">
+
+        $(function () {
+            $('#btnChangePwd').click(function () {
+                $showdialogForUrl(
+                    {
+                        title: '修改密码',
+                        width: '350px',
+                        height: '250px',
+                        url: contextUri + '/Admin/Home/ChangePwd',
+                        pageid: 'pwd',
+                        buttons: [
+                            {
+                                cls: 'button bg-green',
+                                txt: '保存',
+                                handler: function (e) { window.top.c_pwd.window.btnOKClick(e); }
+                            },
+                            {
+                                cls: 'button',
+                                txt: '取消',
+                                handler: function (e) { e.close(); }
+                            }
+                        ]
+
+                    }
+                );
+            });
+            var _src = $('#mainMenu .children a.menuname:eq(0)').addClass('checked').attr('href');
+            $('#main_frame').attr('src', _src);
+        });
+
+    </script>
+</head>
+<body>
+    <div class="layout">
+        <div class="layout_title">
+            <div class="logo"></div>
+            <div class="sysname">费用分析</div>
+            <div class="systoolbar">
+                @{
+                    var CurrentAdminUser = Session[MealAdmin.Util.ConstantHelper.CurrentAdminUser] as IamPortal.AppLogin.AdminUser;
+                }
+                欢迎您： @CurrentAdminUser.Name
+                <label><a href="~/P/Home/Exit">退出</a></label>
+            </div>
+        </div>
+        <div id="mainMenu" class="layout_left" style="overflow-y:auto;">
+            @if (this.IsPermission("00000000-0000-0000-1001-000000000000"))
+            {
+                <ul class="menu">
+                    <li>
+                        <a class="menuname">HT预申请分析</a>
+                        <div class="children">
+                            <ul>
+                                @if (this.IsPermission("00000000-0000-0000-1001-000000000001"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Analysis/PreAnalysis">预申请分析/金额数量</a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            }
+            @if (this.IsPermission("00000000-0000-0000-1002-000000000000"))
+            {
+                <ul class="menu">
+                    <li>
+                        <a class="menuname">HT订单分析</a>
+                        <div class="children">
+                            <ul>
+                                @if (this.IsPermission("00000000-0000-0000-1002-000000000001"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Analysis/OrderSummary">订单Summary</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-1002-000000000002"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Analysis/AnalysisAmountCnt">订单分析/金额数量</a>
+                                    </li>
+                                }
+                                @if (this.IsPermission("00000000-0000-0000-1002-000000000003"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Analysis/AnalysisRestaurantOrder">订单分析/餐厅订单</a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            }
+            @if (this.IsPermission("00000000-0000-0000-1003-000000000000"))
+            {
+                <ul class="menu">
+                    <li>
+                        <a class="menuname">HT订单排名</a>
+                        <div class="children">
+                            <ul>
+                                @if (this.IsPermission("00000000-0000-0000-1003-000000000001"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/Analysis/OrderRanking">订单排名</a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            }
+            @if (this.IsPermission("00000000-0000-0000-1004-000000000000"))
+            {
+                <ul class="menu">
+                    <li>
+                        <a class="menuname">HT报表管理</a>
+                        <div class="children">
+                            <ul>
+                                @if (this.IsPermission("00000000-0000-0000-1004-000000000001"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/ExportManagement/Index">报表导出</a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            }
+            @if (this.IsPermission("00000000-0000-0000-1005-000000000000"))
+            {
+                <ul class="menu">
+                    <li>
+                        <a class="menuname">BU/TA关系</a>
+                        <div class="children">
+                            <ul>
+                                @if (this.IsPermission("00000000-0000-0000-1005-000000000001"))
+                                {
+                                    <li>
+                                        <a class="menuname" target="main_frame" href="~/P/BUManagement/BUIndex">BU/TA人员</a>
+                                    </li>
+                                }
+
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            }
+        </div>
+        <div class="layout_main" _current_panel_id="">
+            <iframe id="main_frame" name="main_frame" frameborder="no" border="0" marginwidth="0" marginheight="0"
+                    src=""></iframe>
+        </div>
+    </div>
+</body>
+</html>

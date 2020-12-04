@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<error-resource>
+  <error-info id="100000" name="err">
+    <msg lang="en_US">System Error</msg>
+    <msg lang="zh_CN">系统异常</msg>
+  </error-info>
+
+  <error-info id="900001" name="err">
+    <msg lang="en_US">System Error</msg>
+    <msg lang="zh_CN">没有权限</msg>
+  </error-info>
+  
+</error-resource>

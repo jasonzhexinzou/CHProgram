@@ -1,0 +1,170 @@
+﻿
+@{
+    ViewBag.Title = "选择医院";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+
+<style type="text/css">
+    html, body {
+        width: 100%;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 100px;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .placeholder {
+        padding: 7px;
+    }
+
+    .weui-cell {
+        min-height: 45px;
+    }
+</style>
+
+<script type="text/javascript">
+
+    var IsServPause = 1 == @ViewBag.IsServPause;
+    var IsOutSideHT = 1 == @ViewBag.IsOutSideHT;
+    var _Market = '@ViewBag.Market';
+    var currentUserId='@ViewBag.CurrentUserId';
+
+</script>
+
+<script type="text/javascript" src="~/Content/js/food_choosehospital.js?v=javaScriptVersion"></script>
+
+<div class="page-main">
+
+    <div class="page-body">
+        <form id="form0" action="" _action1="~/P/Food/ChooseCN" _action2="~/P/Restaurant/ResList" method="get"></form>
+        <div class="weui-cells">
+            <div class="weui-cell weui-cell_select weui-cell_select-after">
+                <div class="weui-cell__hd">
+                    <label for="" class="weui-label"><strong>Market</strong></label>
+                </div>
+                <div class="weui-cell__bd">
+                    <select class="weui-select" name="Market" id="Market">
+                        @*<option selected='' value='-1'>请选择Market</option>
+                            @foreach (var item in ViewBag.listMarket)
+                            {
+                                <option value="@item.Name">@item.NameShow</option>
+                            }*@
+                        @if (ViewBag.Market == null || ViewBag.Market == "")
+                        {
+                            <option selected='' value=''>请选择Market</option>
+                        }
+                        @foreach (var item in ViewBag.listMarket)
+                        {
+                            <option value="@item.Name">@item.NameShow</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="weui-cell weui-cell_select weui-cell_select-after" id="TAPanel">
+                <div class="weui-cell__hd">
+                    <label for="" class="weui-label"><strong>TA</strong></label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" name="TA" id="TA" readonly="readonly" />
+                </div>
+                <div class="weui-cell__ft" style="display: none;">
+                    <i class="weui-icon-warn"></i>
+                </div>
+            </div>
+            <div class="weui-cell weui-cell_select weui-cell_select-after">
+                <div class="weui-cell__hd">
+                    <label for="" class="weui-label"><strong>省份</strong></label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" id="ProvinceName" readonly="readonly" />
+                    <input type="hidden" id="ProvinceId" />
+                </div>
+            </div>
+            <div class="weui-cell weui-cell_select weui-cell_select-after">
+                <div class="weui-cell__hd">
+                    <label for="" class="weui-label"><strong>城市</strong></label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" id="CityName" readonly="readonly" />
+                    <input type="hidden" id="CityId" />
+                </div>
+            </div>
+            <div class="weui-cell weui-cell_select weui-cell_select-after" id="HospitalPanel">
+                <div class="weui-cell__hd">
+                    <label for="" class="weui-label"><strong>医院名称</strong></label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" id="HospitalName" readonly="readonly" />
+                    <input type="hidden" id="HospitalId" />
+                </div>
+                <div class="weui-cell__ft" style="display: none;">
+                    <i class="weui-icon-warn"></i>
+                </div>
+            </div>
+            <div class="weui-cell weui-cell_select weui-cell_select-after" id="HospitalCodePanel">
+                <div class="weui-cell__hd">
+                    <label for="" class="weui-label"><strong>医院编码</strong></label>
+                </div>
+                @*<div class="weui-cell__bd">
+            <input class="weui-input" type="text" id="HospitalCode" name="HospitalCode" readonly="readonly" />
+        </div>*@
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" id="HospitalCode" name="HospitalCode" readonly="readonly" />
+                </div>
+            </div>
+            <div class="weui-cell weui-cell_select weui-cell_select-after">
+                <div class="weui-cell__hd">
+                    <label for="" class="weui-label"><strong>医院地址</strong></label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" id="Address" name="Address" readonly="readonly" placeholder="请选择医院地址" />
+                    <input type="hidden" id="AddressCode" name="AddressCode" />
+                </div>
+            </div>
+
+            <div class="weui-cells__title" style="color:red;">
+                *医院地址为系统默认, 请在”填写订单详情“页面补充送餐详细地址
+            </div>
+        </div>
+    </div>
+
+    <div class="page-foot">
+        <div class="page__bd page__bd_spacing">
+            <div class="weui-flex">
+                @*<div class="weui-flex__item">
+                    <div class="placeholder">
+                        <button id="btnChooseCN" class="weui-btn weui-btn_orange">我要订餐</button>
+                    </div>
+                </div>*@
+                <div class="weui-flex__item">
+                    <div class="placeholder">
+                        <button id="btnRestaurant" class="weui-btn weui-btn_orange">浏览餐厅</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("Chooser")
+
+
+

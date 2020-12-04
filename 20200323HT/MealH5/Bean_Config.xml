@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<beans>
+  
+  <!-- 微信操作相关 -->
+  <bean name="wxConfigManager" type="MealH5.Handler.WxConfigManager" assembly="MealH5" />
+  <bean name="wxSessionManager" type="XFramework.WeChatAPI.SessionHandlers.WxSessionManager" assembly="XFramework.WeChatAPI" />
+  <bean name="qyApiHandler" type="XFramework.WeChatAPI.SessionHandlers.QyApiHandler" assembly="XFramework.WeChatAPI">
+    <property name="wxConfigManager" value="" beanid="wxConfigManager" />
+    <property name="wxSessionManager" value="" beanid="wxSessionManager" />
+  </bean>
+  
+  <bean name="apiClient" type="iPathFeast.API.Client.ApiV1Client" assembly="iPathFeast.API.Client">
+    <property name="apiHost" value="http://localhost:2928/ApiV1" beanid="" />
+    <property name="customer" value="iPath_test" beanid="" />
+    <property name="apiKey" value="AreyouOK?" beanid="" />
+    <property name="log4netName" value="apiClient" beanid="" />
+  </bean>
+
+  <bean name="apiClient_meeting" type="iPathFeast.API.Client.ApiV1Client" assembly="iPathFeast.API.Client">
+    <property name="apiHost" value="http://localhost:2928/ApiV1" beanid="" />
+    <property name="customer" value="iPath_test2" beanid="" />
+    <property name="apiKey" value="AreyouOK?" beanid="" />
+    <property name="log4netName" value="apiClient" beanid="" />
+  </bean>
+</beans>

@@ -1,0 +1,503 @@
+﻿
+@{
+    ViewBag.Title = "选择送餐时间";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+@{
+    bool isForMenu = ViewBag.isForMenu;
+    bool isChangeOrder = ViewBag.isChange;
+    string hospitalId = ViewBag.hospitalId;
+    string supplier = ViewBag.supplier;
+    string meetingTime = ViewBag.meetingTime;
+    string restaurantId = ViewBag.restaurantId;
+    string businessHourStart = ViewBag.businessHourStart ;
+    string businessHourEnd = ViewBag.businessHourEnd ;
+    string eveningHourStart = ViewBag.eveningHourStart ;
+    string eveningHourEnd = ViewBag.eveningHourEnd ;
+    string changeSendTime = ViewBag.changeSendTime;
+    int dataState = ViewBag.dataState;
+    string restaurantName=ViewBag.restaurantName;
+    string orderCreateDate = ViewBag.orderCreateDate;
+}
+<link rel="stylesheet" href="~/Content/css/food_order.css?v=javaScriptVersion" />
+
+<style type="text/css">
+    #chooseDeliverTime {
+        background-color: #FFFFFF;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        display: none;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 8;
+    }
+</style>
+<script type="text/html" id="tmpl_delivertime">
+    <div class="close"></div>
+    <div class="chooseDeliverBody">
+        <div class="title">
+            <div class="weui-cells__title">请选择一个配送时间</div>
+
+            <div class="day_panel">
+                <div class="days">
+                    {{each delivertime}}
+                    <div class="day " _val="{{$value.time}}">
+                        <div class="month">{{$value.month}}月</div>
+                        <div class="week">{{$value.weekday}}</div>
+                        {{$value.day}}
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+        <div class="body">
+            <div class="hour_body">
+                {{each delivertime}}
+                <div _val="{{$value.time}}">
+                    {{include 'menu_days' $value}}
+                </div>
+                {{/each}}
+            </div>
+            <div class="time_body">
+                {{each delivertime}}
+                {{include 'menu_days2' $value}}
+                {{/each}}
+            </div>
+
+
+
+
+
+
+            @*{{each delivertime}}
+                <div class="weui-cells" _val="{{$value.time}}">
+                    {{include 'menu_days' $value}}
+                </div>
+                {{/each}}
+                {{each delivertime}}
+                {{include 'menu_days2' $value}}
+                {{/each}}*@
+
+            @*<div class="weui-cells" _val="2017-05-17 08">
+                    <a class="weui-cell weui-cell_access chooseTime" href="javascript:;" _val="{{$value.time}}">
+                        <div class="weui-cell__bd">
+                            <p>选个具体时间</p>
+                        </div>
+                        <div class="weui-cell__ft">{{$value.weekday}}</div>
+                    </a>
+                </div>*@
+
+        </div>
+    </div>
+</script>
+<script type="text/html" id="menu_days">
+    {{each hours}}
+    <div class="houritem choosehour" _val="{{$value.hour}}">
+        {{$value.hour.substr(11)}}时
+    </div>
+    {{/each}}
+
+</script>
+<script type="text/html" id="menu_days2">
+    {{each hours}}
+    <div class="weui-cells" _val="{{$value.hour}}">
+        {{include 'menu_times' $value}}
+    </div>
+    {{/each}}
+</script>
+<script type="text/html" id="menu_times">
+    {{each times}}
+    <a class="weui-cell weui-cell_access chooseTime" href="javascript:;" _val="{{$value.time}}">
+        <div class="weui-cell__bd">
+            <p>{{$value.time.substr(0, $value.time.length)}}</p>
+        </div>
+        <div class="weui-cell__ft">{{$value.weekday}}</div>
+    </a>
+    {{/each}}
+</script>
+
+<script type="text/javascript">
+    var isForMenu = @isForMenu;
+    var hospitalId='@hospitalId';
+    var supplier = '@supplier';
+    var isChangeOrder='@isChangeOrder';
+    var IsServPause = 1 == @ViewBag.IsServPause;
+    var meetingTime='@meetingTime';
+    var restaurantId='@restaurantId';
+    var businessHourStart = '@businessHourStart';
+    var businessHourEnd = '@businessHourEnd';
+    var eveningHourStart = '@eveningHourStart';
+    var eveningHourEnd = '@eveningHourEnd';
+    var dataState='@dataState';
+    var changeSendTime = '@changeSendTime';
+    var renderdelivertime;
+    var restaurantName='@restaurantName';
+
+    $(function () {
+        //renderdelivertime=template('tmpl_delivertime');
+        //20200213 选择送餐时间
+        $('#deliverTime').click(function () {
+            if (isForMenu == true) {
+                chooseDelivertime(meetingTime);
+            }
+            else {
+                selectDelivertime(meetingTime, businessHourStart, businessHourEnd, eveningHourStart, eveningHourEnd)
+            }
+        });
+        //20200214 已选择送餐时间点击“下一步”跳转至显示餐厅列表
+        $('#btnNext').click(function () {
+            if (isForMenu == true) {
+                var isformenu = "1";
+            }
+            var sendTime = $(deliverTime).val();
+            if (sendTime != "" && sendTime != undefined) {
+                window.sessionStorage.setItem("CacheSendTime", sendTime);
+                $('#btnNext').attr('href', $('#btnNext').attr('_href') + isformenu + '&supplier=' + supplier + '&changeOrder=' + isChangeOrder + '&sendTime=' + sendTime+'&changeSendTime='+changeSendTime);
+            }
+            else {
+                showTopMsg('请先选择送餐时间');
+                return false;
+            }
+        });
+        //20200217 已选择送餐时间点击“下一步”跳转菜单
+        $('#btnNextSend').click(function () {
+            var sendTime = $(deliverTime).val();
+            var State = dataState;
+            if (sendTime != "" && sendTime != undefined) {
+                window.sessionStorage.setItem("CacheSendTime", sendTime);
+                $('#btnNextSend').attr('href', $('#btnNextSend').attr('_href') + restaurantId + '&supplier=' + supplier + '&State=' + State + '&sendTime=' + sendTime+'&changeSendTime='+changeSendTime+'&restaurantName='+restaurantName);
+            }
+            else {
+                showTopMsg('请先选择送餐时间');
+                return false;
+            }
+        });
+    });
+
+
+    // 隐藏表单警告消息
+    function hidecell_warn(inputId) {
+        $('#' + inputId).closest('.weui-cell').removeClass('weui-cell_warn');
+        $('#' + inputId).closest('.weui-cell').find('weui-cell__ft').hide();
+    }
+
+    //20200217 判断是否在餐厅工作时间
+    function ResWoringTime(time, businessHourStart, businessHourEnd, eveningHourStart, eveningHourEnd) {
+        var businessHour = "";
+        var eveningHour = "";
+        if (businessHourStart != "") {
+            businessHour = {
+                start: businessHourStart,
+                end: businessHourEnd
+            };
+        }
+        if (eveningHourStart != "" && businessHourStart != eveningHourStart) {
+            eveningHour = {
+                start: eveningHourStart,
+                end: eveningHourEnd
+            };
+        }
+        if (businessHour != "") {
+            if (isTimeInTimespan(time, businessHour.start, businessHour.end)) {
+                return true;
+            }
+        } else {
+            // 全天候配送
+            return true;
+        }
+        if (eveningHour != "") {
+            if (isTimeInTimespan(time, eveningHour.start, eveningHour.end)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    //20200212 显示可选订餐时间
+    function chooseDelivertime(meetingTime) {
+
+        var deliverTime = new Array();
+
+        var deliverRange = meetingTime.substring(0, 10);
+
+        var timeNow = getTimeNow();
+
+        var dateNow = timeNow.pattern('yyyy-MM-dd');
+
+        //会议当天进行订单操作
+        if (dateNow == deliverRange) {
+            var _newDate = getTimeNow();
+            var HH = _newDate.getHours() + 1;
+            var mm = _newDate.getMinutes();
+            if (mm > 45) {
+                mm = 0;
+                HH = HH + 1;
+            }
+            else if (mm > 30) {
+                mm = 45;
+            }
+            else if (mm > 15) {
+                mm = 30;
+            } else {
+                mm = 15;
+            }
+            var _time = HH + ':' + mm + ':' + '00';
+            if (mm == 0) {
+                _time = HH + ':' + mm + '0:' + '00';
+            }
+            var _weekday = new Date(deliverRange.replace(/-/g, '/')).pattern('E');
+            for (; isTimeInTimespan(_time, timeConfig.sendBegin, timeConfig.sendEnd) ;) {
+                deliverTime.push({
+                    time: deliverRange + ' ' + _time,
+                    weekday: _weekday
+                });
+                _time = timeAdd(_time, timeConfig.cachetime);
+            }
+        }
+        else {
+            var _time = timeConfig.sendBegin;
+            var _weekday = new Date(deliverRange.replace(/-/g, '/')).pattern('E');
+            for (; isTimeInTimespan(_time, timeConfig.sendBegin, timeConfig.sendEnd) ;) {
+                deliverTime.push({
+                    time: deliverRange + ' ' + _time,
+                    weekday: _weekday
+                });
+                _time = timeAdd(_time, timeConfig.cachetime);
+            }
+        }
+        chooseDelivertimePicker.init('chooseDeliverTime', deliverTime, meetingTime);
+
+    }
+    //20200217 显示可选订餐时间
+    function selectDelivertime(meetingTime, businessHourStart, businessHourEnd, eveningHourStart, eveningHourEnd) {
+
+        var deliverTime = new Array();
+
+        var deliverRange = meetingTime.substring(0, 10);
+
+        var timeNow = getTimeNow();
+
+        var dateNow = timeNow.pattern('yyyy-MM-dd');
+
+        //会议当天进行订单操作
+        if (dateNow == deliverRange) {
+            var _newDate = getTimeNow();
+            var HH = _newDate.getHours() + 1;
+            var mm = _newDate.getMinutes();
+            if (mm > 45) {
+                mm = 0;
+                HH = HH + 1;
+            }
+            else if (mm > 30) {
+                mm = 45;
+            }
+            else if (mm > 15) {
+                mm = 30;
+            } else {
+                mm = 15;
+            }
+            var _time = HH + ':' + mm + ':' + '00';
+            if (mm == 0) {
+                _time = HH + ':' + mm + '0:' + '00';
+            }
+            var _weekday = new Date(deliverRange.replace(/-/g, '/')).pattern('E');
+            if (orderCreateDate == dateNow) {
+                timeConfig.sendBegin = timeConfig.todaySendBegin;
+                timeConfig.sendEnd = timeConfig.todaySendEnd;
+
+                if (HH < 12) {
+                    _time = timeConfig.todaySendBegin;
+                }
+                else if (HH == 12) {
+                    if (mm < 30) {
+                        _time = timeConfig.todaySendBegin;
+                    }
+                }
+            }
+            for (; isTimeInTimespan(_time, timeConfig.sendBegin, timeConfig.sendEnd) ;) {
+                if (ResWoringTime(_time, businessHourStart, businessHourEnd, eveningHourStart, eveningHourEnd)) {
+                    deliverTime.push({
+                        time: deliverRange + ' ' + _time,
+                        weekday: _weekday
+                    });
+                }
+                _time = timeAdd(_time, timeConfig.cachetime);
+            }
+        }
+        else {
+            var _time = timeConfig.sendBegin;
+            var _weekday = new Date(deliverRange.replace(/-/g, '/')).pattern('E');
+            for (; isTimeInTimespan(_time, timeConfig.sendBegin, timeConfig.sendEnd) ;) {
+                if (ResWoringTime(_time, businessHourStart, businessHourEnd, eveningHourStart, eveningHourEnd)) {
+                    deliverTime.push({
+                        time: deliverRange + ' ' + _time,
+                        weekday: _weekday
+                    });
+                }
+                _time = timeAdd(_time, timeConfig.cachetime);
+            }
+        }
+        chooseDelivertimePicker.init('chooseDeliverTime', deliverTime, meetingTime);
+
+    }
+    var chooseDelivertimePicker = (function () {
+        renderdelivertime=template('tmpl_delivertime');
+        var _pickerDomId;
+        var init = function (pickerDomId, deliverTime, meetingTime) {
+
+            // 过滤出日期
+            var _days = new Array();
+            var days = new Array();
+            deliverTime.forEach(function (v, i) {
+                var day = v.time.substr(0, 10);
+                if (!_days.contains(day)) {
+                    _days.push(day);
+                    var _d = {
+                        time: day,
+                        weekday: v.weekday,
+                        day: day.substr(8, 2) * 1,
+                        month: day.substr(5, 2) * 1
+                    };
+                    days.push(_d);
+                }
+            });
+
+            // 过滤每个日期下的整小时
+            var _hour = new Array();
+            for (var i in days) {
+                var day = days[i];
+                _hours = new Array();
+                day.ondayTimes = new Array();
+                // 得到每天的时间
+                deliverTime.forEach(function (v) {
+                    if (v.time.indexOf(day.time) == 0) {
+                        day.ondayTimes.push(v);
+                    }
+                });
+
+                // 得到每天的小时
+                day.hours = new Array();
+                day.ondayTimes.forEach(function (v) {
+                    var hour = v.time.substr(0, 13);
+                    if (!_hours.contains(hour)) {
+                        _hours.push(hour);
+                        var _h = {
+                            hour: hour
+                        };
+                        day.hours.push(_h);
+                    }
+                });
+
+                // 得到每个小时下时间
+                for (var j in day.hours) {
+                    var hour = day.hours[j];
+                    hour.times = new Array();
+                    day.ondayTimes.forEach(function (v) {
+                        if (v.time.indexOf(hour.hour) == 0) {
+                            hour.times.push(v);
+                        }
+
+                    });
+
+                }
+            }
+
+            var html = renderdelivertime({ delivertime: days });
+            $('#chooseDeliverTime').html(html);
+
+            _pickerDomId = pickerDomId;
+
+            var dyaswidth = $('#' + _pickerDomId + ' .days>.day').length * 90;
+            $('#' + _pickerDomId + ' .days').css('width', dyaswidth + 'px');
+
+            $('#' + _pickerDomId + ' .days>.day').addClass('checked');
+            $('#' + _pickerDomId + ' .hour_body>div').hide();
+            $('#' + _pickerDomId + ' .choosehour').removeClass('checked');
+            $('#' + _pickerDomId + ' .time_body>div').hide();
+            $('#' + _pickerDomId + ' .hour_body>div[_val="' + meetingTime.substring(0, 10) + '"]').show();
+            $('#' + _pickerDomId + ' .hour_body')[0].scrollTop = 0;
+
+
+            $('#' + _pickerDomId + ' .choosehour').click(function () {
+                var checkedDay = $(this).attr('_val');
+                $('#' + _pickerDomId + ' .time_body>div').hide();
+                $('#' + _pickerDomId + ' div[_val="' + checkedDay + '"]').show();
+                $('#' + _pickerDomId + ' .time_body')[0].scrollTop = 0;
+
+                $('#' + _pickerDomId + ' .choosehour').removeClass('checked');
+                $(this).addClass('checked');
+            });
+
+            $('#' + _pickerDomId + ' .body>div .chooseTime').click(function () {
+                var time = $(this).attr('_val');
+                //日期格式为yyyy-MM-dd HH:mm:ss
+                $('#deliverTime').val(time.substr(0, time.length));
+                $('#deliverTime').attr('_val', time);
+                // 清除红色叹号样式
+                hidecell_warn('deliverTime');
+
+                $('#chooseDeliverTime').hide();
+            });
+
+            $('#' + _pickerDomId).show();
+
+            $('#' + _pickerDomId + ' .day:eq(0)').click();
+            $('#chooseDeliverTime .close').click(function () {
+                $('#chooseDeliverTime').hide();
+            });
+        };
+
+        return {
+            init: init
+        }
+    })();
+
+    Array.prototype.contains = function (needle) {
+        for (i in this) {
+            if (this[i] == needle) return true;
+        }
+        return false;
+    }
+</script>
+
+
+<div id="page_order" class="page-main">
+    <div class="page-body">
+        <div class="weui-cells__title" style="color:red;">
+            *为保证您选择的菜品能正常供应，请先选择送餐时间
+        </div>
+        <div class="weui-cells weui-cells_form">
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">送餐时间</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" id="deliverTime" readonly="readonly" value="" placeholder="请选择一个配送时间" />
+                </div>
+                <div class="weui-cell__ft" style="display:none;">
+                    <i class="weui-icon-warn"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-foot">
+        @if (ViewBag.isForMenu==true)
+        {
+            <a id="btnNext" href="" _href="~/P/Restaurant/List?formenu=" class="weui-btn weui-btn_orange">下一步</a>
+        }
+        @if (ViewBag.isForMenu == false)
+        {
+            <a id="btnNextSend" href="" _href="~/P/Restaurant/Menu?restaurantId=" class="weui-btn weui-btn_orange">下一步</a>
+        }
+    </div>
+</div>
+
+
+
+
+
+<div id="chooseDeliverTime">
+
+</div>

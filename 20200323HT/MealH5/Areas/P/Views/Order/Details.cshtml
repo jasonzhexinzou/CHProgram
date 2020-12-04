@@ -1,0 +1,59 @@
+﻿
+@{
+    ViewBag.Title = "订单详情";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+@Html.Partial("DetailTmpl")
+
+<script type="text/javascript">
+    var orderId = '@ViewBag.orderId';
+    var fromuri = '@ViewBag.fromuri';
+    var supplier = '@ViewBag.supplier';
+    var awsUrl = '@MealH5.Handler.WebConfigHandler.AWSService';
+</script>
+<script type="text/javascript" src="~/Content/js/order_details_handler.js?v=javaScriptVersion"></script>
+
+<div class="page-main">
+    <div class="page__bd" style="height: 100%;">
+        <div class="weui-tab">
+            <div class="weui-tab__panel">
+                <div id="orderinfo"></div>
+                <div id="evaluateinfo"></div>
+            </div>
+            <div class="weui-tabbar" id="action_buttons" style="display:none;">
+                <a href="javascript:;" class="weui-tabbar__item">
+                    <p class="weui-tabbar__label" onclick="footbar1()">确认收餐</p>
+                </a>
+                <a href="javascript:;" class="weui-tabbar__item">
+                    <p class="weui-tabbar__label" onclick="footbar2()">修改订单</p>
+                </a>
+                <a href="javascript:;" class="weui-tabbar__item">
+                    <p class="weui-tabbar__label" onclick="footbar3()">退单</p>
+                </a>
+                <a href="javascript:;" class="weui-tabbar__item">
+                    <p class="weui-tabbar__label" onclick="footbar4()">未送达</p>
+                </a>
+                <a href="javascript:;" class="weui-tabbar__item">
+                    <p class="weui-tabbar__label" onclick="footbar5()">评价投诉</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="changeStep" style="display:none;">
+    <div class="weui-mask" id="iosMask" style="opacity: 1;"></div>
+    <div class="weui-actionsheet weui-actionsheet_toggle" id="iosActionsheet">
+        <div class="weui-actionsheet__menu">
+            <div class="weui-actionsheet__cell" id="changeOrder1" style="display:none;" onclick="changeOrder1()">修改餐厅</div>
+            <div class="weui-actionsheet__cell" id="changeOrder2" style="display:none;" onclick="changeOrder2()">修改餐品</div>
+            <div class="weui-actionsheet__cell" id="changeOrder3" style="display:none;" onclick="changeOrder3()">修改订单详情</div>
+            <div class="weui-actionsheet__cell" id="changeOrder4" style="display:none;" onclick="changeOrder4()">修改MMCoE审批邮件</div>
+            <div class="weui-actionsheet__cell" id="changeOrder5" style="display:none;" onclick="changeOrder5()">修改送餐时间</div>
+        </div>
+        <div class="weui-actionsheet__action">
+            <div class="weui-actionsheet__cell" id="iosActionsheetCancel" onclick="$('#changeStep').hide();">取消</div>
+        </div>
+    </div>
+</div>

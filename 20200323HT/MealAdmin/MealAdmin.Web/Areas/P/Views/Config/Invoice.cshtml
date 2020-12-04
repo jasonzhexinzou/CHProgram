@@ -1,0 +1,104 @@
+﻿@{
+    ViewBag.Title = "发票抬头";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            $('#frmData').on('click', '#btnSubmit', function () {
+                if ($validateForm('frmData') == true) {
+                    $showdialogForConfim(
+                        {
+                            title: '确认',
+                            body: '确认保存配置？',
+                            ok: function () {
+                                var _data = {
+                                    Rx: $('#txtRx').val(),
+                                    Vx: $('#txtVx').val(),
+                                    DDT: $('#txtDDT').val(),
+                                    TSKF: $('#txtTSKF').val(),
+                                    RD: $('#txtRD').val(),
+                                    RDDutyParagraph: $('#txtRDDutyParagraph').val(),
+                                    RxDutyParagraph: $('#txtRxDutyParagraph').val(),
+                                    VxDutyParagraph: $('#txtVxDutyParagraph').val(),
+                                    DDTDutyParagraph: $('#txtDDTDutyParagraph').val(),
+                                    TSKFDutyParagraph: $('#txtTSKFDutyParagraph').val()
+                                };
+                                $.PintuerPost(contextUri + '/P/Config/SaveInvoiceData', _data, function (result) {
+                                    if (result.state != 1) {
+                                        $showdialog({ body: result.txt });
+                                    }
+                                    else {
+                                        $showdialog({ body: "保存成功！" });
+                                    }
+                                });
+                            }
+                        }
+                    );
+                }
+            });
+        });
+    </script>
+}
+
+<div class="tool_bar">
+    <label>发票抬头</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;" class="panel admin-panel">
+        <div id="frmData" class="padding-big" style="width:400px;">
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtRx">Rx</label>
+                </div>
+                <div class="field">
+                    <input type="text" value="@ViewBag.Invoice.Rx" class="input" id="txtRx" name="txtRx" size="200" data-validate="required:必填" placeholder="Rx" />
+                    <input type="text" value="@ViewBag.Invoice.RxDutyParagraph" class="input" id="txtRxDutyParagraph" name="RxDutyParagraph" size="200" data-validate="required:必填" placeholder="Rx DutyParagraph" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtVx">Vx</label>
+                </div>
+                <div class="field">
+                    <input type="text" value="@ViewBag.Invoice.Vx" class="input" id="txtVx" name="txtVx" size="200" data-validate="required:必填" placeholder="Vx" />
+                    <input type="text" value="@ViewBag.Invoice.VxDutyParagraph" class="input" id="txtVxDutyParagraph" name="VxDutyParagraph" size="200" data-validate="required:必填" placeholder="Vx DutyParagraph" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtDDT">DDT</label>
+                </div>
+                <div class="field">
+                    <input type="text" value="@ViewBag.Invoice.DDT" class="input" id="txtDDT" name="txtDDT" size="200" data-validate="required:必填" placeholder="DDT" />
+                    <input type="text" value="@ViewBag.Invoice.DDTDutyParagraph" class="input" id="txtDDTDutyParagraph" name="DDTDutyParagraph" size="200" data-validate="required:必填" placeholder="DDT DutyParagraph" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtTSKF">TSKF</label>
+                </div>
+                <div class="field">
+                    <input type="text" value="@ViewBag.Invoice.TSKF" class="input" id="txtTSKF" name="txtTSKF" size="200" data-validate="required:必填" placeholder="TSKF" />
+                    <input type="text" value="@ViewBag.Invoice.TSKFDutyParagraph" class="input" id="txtTSKFDutyParagraph" name="TSKFDutyParagraph" size="200" data-validate="required:必填" placeholder="TSKF DutyParagraph" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtRD">R&D</label>
+                </div>
+                <div class="field">
+                    <input type="text" value="@ViewBag.Invoice.RD" class="input" id="txtRD" name="txtRD" size="200" data-validate="required:必填" placeholder="RD" />
+                    <input type="text" value="@ViewBag.Invoice.RDDutyParagraph" class="input" id="txtRDDutyParagraph" name="RDDutyParagraph" size="200" data-validate="required:必填" placeholder="RD DutyParagraph" />
+                </div>
+            </div>
+            <div class="form-button">
+                <a id="btnSubmit" class="button bg-green" href="javascript:;">提交</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

@@ -1,0 +1,324 @@
+﻿@{
+    ViewBag.Title = "订单Summary";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+    <link href="~/Content/fontawesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript">
+        $(function () {
+            document.getElementById("groupSetting").href = contextUri + "/P/Analysis/GroupSetting";
+            document.getElementById("imgTool").src = contextUri + "/Content/images/icon-tool.png";
+            var startYear = 2019;
+            var myDate = new Date();
+            var endYear = myDate.getFullYear();
+            var endMonth = myDate.getMonth()+1;
+            var options = document.getElementById('sltMonth').options;
+            for (i = 0; i < options.length; i++) {
+                if (options[i].value == endMonth) {
+                    options[i].selected = true;
+                    break;
+                }
+            }
+            var html;
+            $('#sltYear').html('');
+            for (var i = startYear; i <= endYear; i++) {
+                if (i == endYear)
+                    html += '<option value="' + i + '" selected="selected">' + i + '</option>';
+                else
+                    html += '<option value="' + i + '">' + i + '</option>';
+            }
+            $('#sltYear').html(html);
+            $('#btnLoadData').bind('click', function () {
+                var year = $('#sltYear').val();
+                var month = $('#sltMonth').val();
+                var htType = $('#sltHTType').val();
+
+                if (year <= 2019) {
+                    if (month < 11) {
+                        $showdialog({ body: '筛选年月需晚于2019年11月！' });
+                        return;
+                    }
+                }
+                $.PintuerPost(contextUri + '/P/Analysis/LoadOrderSummaryData',
+                    {
+                        Year: year,
+                        Month: month,
+                        HTType: htType,
+                    },
+                    function (d) {
+                        if (d.state == 1) {
+                            document.getElementById("div1").style.display = "block";
+                            document.getElementById("div2").style.display = "block";
+                            document.getElementById("div3").style.display = "block";
+                            document.getElementById("div4").style.display = "block";
+                            var _countData = d.orderOverviewData;
+                            var _feeData = d.feeOverviewData;
+                            //Order Overview
+                            var html = '';
+                            html += '<tr>';
+                            html += ' <th></th>';
+                            html += ' <th style="color:#f60;font-weight:bold;">Jan</th>';
+                            html += ' <th style="color:#f60;">Feb</th>';
+                            html += ' <th style="color:#f60;">Mar</th>';
+                            html += ' <th style="color:#f60;">Apr</th>';
+                            html += ' <th style="color:#f60;">May</th>';
+                            html += ' <th style="color:#f60;">Jun</th>';
+                            html += ' <th style="color:#f60;">Jul</th>';
+                            html += ' <th style="color:#f60;">Aug</th>';
+                            html += ' <th style="color:#f60;">Sep</th>';
+                            html += ' <th style="color:#f60;">Oct</th>';
+                            html += ' <th style="color:#f60;">Nov</th>';
+                            html += ' <th style="color:#f60;">Dec</th>';
+                            html += ' <th style="color:#f60;">YTD</th>';
+                            html += '</tr>';
+                            for (var i = 0; i < _countData.length; i++) {
+                                html += '<tr>';
+                                for (var j = 0; j < 14; j++) {
+                                    switch (j) {
+                                        case 0:
+                                            html += ' <td style="font-weight:bold;">' + _countData[i].Market + '</td>';
+                                            break;
+                                        case 1:
+                                            html += ' <td>' + _countData[i].Jan + '</td>';
+                                            break;
+                                        case 2:
+                                            html += ' <td>' + _countData[i].Feb + '</td>';
+                                            break;
+                                        case 3:
+                                            html += ' <td>' + _countData[i].Mar + '</td>';
+                                            break;
+                                        case 4:
+                                            html += ' <td>' + _countData[i].Apr + '</td>';
+                                            break;
+                                        case 5:
+                                            html += ' <td>' + _countData[i].May + '</td>';
+                                            break;
+                                        case 6:
+                                            html += ' <td>' + _countData[i].Jun + '</td>';
+                                            break;
+                                        case 7:
+                                            html += ' <td>' + _countData[i].Jul + '</td>';
+                                            break;
+                                        case 8:
+                                            html += ' <td>' + _countData[i].Aug + '</td>';
+                                            break;
+                                        case 9:
+                                            html += ' <td>' + _countData[i].Sep + '</td>';
+                                            break;
+                                        case 10:
+                                            html += ' <td>' + _countData[i].Oct + '</td>';
+                                            break;
+                                        case 11:
+                                            html += ' <td>' + _countData[i].Nov + '</td>';
+                                            break;
+                                        case 12:
+                                            html += ' <td>' + _countData[i].Dec + '</td>';
+                                            break;
+                                        case 13:
+                                            html += ' <td>' + _countData[i].YTD + '</td>';
+                                            break;
+                                    }
+                                }
+                                html += '</tr>';
+                            }
+                            $('#tb_count').html(html);
+                            //Meal Fee Overview
+                            var html = '';
+                            html += '<tr>';
+                            html += " <th style='color: #f60;'>'000 RMB</th>";
+                            html += ' <th style="color:#f60;">Jan</th>';
+                            html += ' <th style="color:#f60;">Feb</th>';
+                            html += ' <th style="color:#f60;">Mar</th>';
+                            html += ' <th style="color:#f60;">Apr</th>';
+                            html += ' <th style="color:#f60;">May</th>';
+                            html += ' <th style="color:#f60;">Jun</th>';
+                            html += ' <th style="color:#f60;">Jul</th>';
+                            html += ' <th style="color:#f60;">Aug</th>';
+                            html += ' <th style="color:#f60;">Sep</th>';
+                            html += ' <th style="color:#f60;">Oct</th>';
+                            html += ' <th style="color:#f60;">Nov</th>';
+                            html += ' <th style="color:#f60;">Dec</th>';
+                            html += ' <th style="color:#f60;">YTD</th>';
+                            html += '</tr>';
+                            for (var m = 0; m < _feeData.length; m++) {
+                                html += '<tr>';
+                                for (var n = 0; n < 14; n++) {
+                                    switch (n) {
+                                        case 0:
+                                            html += ' <td style="font-weight:bold;">' + _feeData[m].Market + '</td>';
+                                            break;
+                                        case 1:
+                                            if (_feeData[m].Jan != "")
+                                                html += ' <td>¥' + transform(_feeData[m].Jan) + '</td>';
+                                            else
+                                                html += ' <td>' + _feeData[m].Jan + '</td>';
+                                            break;
+                                        case 2:
+                                            if (_feeData[m].Feb != "")
+                                                html += ' <td>¥' + transform(_feeData[m].Feb) + '</td>';
+                                            else
+                                                html += ' <td>' + _feeData[m].Feb + '</td>';
+                                            break;
+                                        case 3:
+                                            if (_feeData[m].Mar != "")
+                                                html += ' <td>¥' + transform(_feeData[m].Mar) + '</td>';
+                                            else
+                                                html += ' <td>' + _feeData[m].Mar + '</td>';
+                                            break;
+                                        case 4:
+                                            if (_feeData[m].Apr != "")
+                                                html += ' <td>¥' + transform(_feeData[m].Apr) + '</td>';
+                                            else
+                                                html += ' <td>' + _feeData[m].Apr + '</td>';
+                                            break;
+                                        case 5:
+                                            if (_feeData[m].May != "")
+                                                html += ' <td>¥' + transform(_feeData[m].May) + '</td>';
+                                            else
+                                                html += ' <td>' + _feeData[m].May + '</td>';
+                                            break;
+                                        case 6:
+                                            if (_feeData[m].Jun != "")
+                                                html += ' <td>¥' + transform(_feeData[m].Jun) + '</td>';
+                                            else
+                                                html += ' <td>' + _feeData[m].Jun + '</td>';
+                                            break;
+                                        case 7:
+                                            if (_feeData[m].Jul != "")
+                                                html += '<td>¥' + transform(_feeData[m].Jul) + '</td>';
+                                            else
+                                                html += '<td>' + _feeData[m].Jul + '</td>';
+                                            break;
+                                        case 8:
+                                            if (_feeData[m].Aug != "")
+                                                html += ' <td>¥' + transform(_feeData[m].Aug) + '</td>';
+                                            else
+                                                html += ' <td>' + _feeData[m].Aug + '</td>';
+                                            break;
+                                        case 9:
+                                            if (_feeData[m].Sep != "")
+                                                html += ' <td>¥' + transform(_feeData[m].Sep) + '</td>';
+                                            else
+                                                html += ' <td>' + _feeData[m].Sep + '</td>';
+                                            break;
+                                        case 10:
+                                            if (_feeData[m].Oct != "")
+                                                html += ' <td>¥' + transform(_feeData[m].Oct) + '</td>';
+                                            else
+                                                html += ' <td>' + _feeData[m].Oct + '</td>';
+                                            break;
+                                        case 11:
+                                            if (_feeData[m].Nov != "")
+                                                html += ' <td>¥' + transform(_feeData[m].Nov) + '</td>';
+                                            else
+                                                html += ' <td>' + _feeData[m].Nov + '</td>';
+                                            break;
+                                        case 12:
+                                            if (_feeData[m].Dec != "")
+                                                html += ' <td>¥' + transform(_feeData[m].Dec) + '</td>';
+                                            else
+                                                html += ' <td>' + _feeData[m].Dec + '</td>';
+                                            break;
+                                        case 13:
+                                            if (_feeData[m].YTD != "")
+                                                html += ' <td>¥' + transform(_feeData[m].YTD) + '</td>';
+                                            else
+                                                html += ' <td>' + _feeData[m].YTD + '</td>';
+                                            break;
+                                    }
+                                }
+                                html += '</tr>';
+                            }
+                            $('#tb_fee').html(html);
+
+                        }
+                    });
+            });
+        });
+        function toDecimal2(x) {
+            var f = Math.round(x * 100) / 100;
+            var s = f.toString();
+            var rs = s.indexOf('.');
+            if (rs < 0) {
+                rs = s.length;
+                s += '.';
+            }
+            while (s.length <= rs + 2) {
+                s += '0';
+            }
+            return s;
+        }
+        function transform(v) {
+            var Amountstr = toDecimal2(v).toString();
+            var Amountreg = Amountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+            var res = Amountstr.replace(Amountreg, "$1,");
+            return res;
+        }
+        
+    </script>
+    
+}
+<div class="tool_bar">
+    <label>HT订单分析</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <label class="border-small label-block" >
+                        年月筛选
+                        <select id="sltYear" name="sltYear" class="input input-small" style="width:100px;"></select>
+                        <select id="sltMonth" name="sltMonth" class="input input-small" style="width:100px;">
+                            <option value="1" selected="selected">1月</option>
+                            <option value="2">2月</option>
+                            <option value="3">3月</option>
+                            <option value="4">4月</option>
+                            <option value="5">5月</option>
+                            <option value="6">6月</option>
+                            <option value="7">7月</option>
+                            <option value="8">8月</option>
+                            <option value="9">9月</option>
+                            <option value="10">10月</option>
+                            <option value="11">11月</option>
+                            <option value="12">12月</option>
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        HT类型
+                        <select class="input input-small" style="width:180px;" id="sltHTType" name="sltHTType">
+                            <option value="1" selected="selected">院内HT</option>
+                            <option value="2">院外HT</option>
+                            <option value="3">NonHT</option>
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:35px;">
+                        <button class="button button-small bg-yellow fa fa-pie-chart" aria-hidden="true" id="btnLoadData">刷新</button>
+                    </label>
+                    <label class="border-small label-block" style=" float:right; margin-right:30px;">
+                        <img id="imgTool" />&nbsp;<a id="groupSetting" style="text-decoration:underline;"><strong>分组设置</strong></a>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="div1" style="margin-left: 20px;padding-bottom:10px;padding-top:15px; display:none;">
+        <strong style="font-size: 16px;">Order Overview</strong>
+    </div>
+    <div id="div2" style="margin-left: 20px; margin-right:20px; overflow:auto; display:none;" class="panel admin-panel">
+        <table id="tb_count" class="table table-hover"></table>
+    </div>
+    <div id="div3" style="margin-left: 20px;padding-bottom:10px;padding-top:15px; display:none;">
+        <strong style="font-size: 16px;">Meal Fee Overview</strong>
+    </div>
+    <div id="div4" style="margin-left: 20px; margin-right:20px; margin-bottom:20px; overflow:auto;  display:none;" class="panel admin-panel">
+        <table id="tb_fee" class="table table-hover"></table>
+    </div>
+</div>
+
+
+

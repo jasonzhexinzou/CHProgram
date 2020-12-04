@@ -1,0 +1,262 @@
+﻿@{
+    ViewBag.Title = "发票抬头";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            $('#frmData').on('click', '#btnSubmit', function () {
+                if ($validateForm('frmData') == true) {
+                    $showdialogForConfim(
+                        {
+                            title: '确认',
+                            body: '确认保存配置？',
+                            ok: function () {
+                                var _data = {
+                                    _1_ApprovePeopleNum: $('#txtApprovePeopleNum').val(),
+                                    _2_ApprovePercapitaPrice: $('#txtApprovePercapitaPrice').val(),
+                                    _3_1_SysWorkTimeBegin: $('#txtSysWorkTimeBegin').val(),
+                                    _3_2_SysWorkTimeEnd: $('#txtSysWorkTimeEnd').val(),
+                                    _4_1_ThatDayCanOrderMealTimeBegin: $('#txtThatDayCanOrderMealTimeBegin').val(),
+                                    _4_2_ThatDayCanOrderMealTimeEnd: $('#txtThatDayCanOrderMealTimeEnd').val(),
+                                    _5_1_ThatDayCanSendMealTimeBegin: $('#txtThatDayCanSendMealTimeBegin').val(),
+                                    _5_2_ThatDayCanSendMealTimeEnd: $('#txtThatDayCanSendMealTimeEnd').val(),
+                                    _6_1_NotThatDayCanSendMealTimeBegin: $('#txtNotThatDayCanSendMealTimeBegin').val(),
+                                    _6_2_NotThatDayCanSendMealTimeEnd: $('#txtNotThatDayCanSendMealTimeEnd').val(),
+                                    _7_OrderingBufferMin: $('#txtOrderingBufferMin').val(),
+                                    _8_SendBriefReportHour: $('#txtSendBriefReportHour').val(),
+                                    _9_SyncXMSReportTime: $('#txtSyncXMSReportTime').val(),
+                                    _10_SyncHospoitalIntervalHour: $('#txtSyncHospoitalIntervalHour').val(),
+                                    _11_1_SysOperableTimeBegin: $('#txtSysOperableTimeBegin').val(),
+                                    _11_2_SysOperableTimeEnd: $('#txtSysOperableTimeEnd').val(),
+                                    _12_1_PreApprovalCanApplyMeetingTimeSpanBegin:$('#txtPreApprovalCanApplyMeetingTimeSpanBegin').val(),
+                                    _12_2_PreApprovalCanApplyMeetingTimeSpanEnd: $('#txtPreApprovalCanApplyMeetingTimeSpanEnd').val(),
+                                    _13_1_PreApprovalNextWorkDaySendTimeSpanBegin: $('#txtPreApprovalNextWorkDaySendTimeSpanBegin').val(),
+                                    _13_2_PreApprovalNextWorkDaySendTimeSpanEnd: $('#txtPreApprovalNextWorkDaySendTimeSpanEnd').val(),
+                                    _14_1_PreWorkTimeSpanBegin: $('#txtPreWorkTimeSpanBegin').val(),
+                                    _14_2_PreWorkTimeSpanEnd: $('#txtPreWorkTimeSpanEnd').val(),
+                                    _15_1_PreOperableTimeSpanBegin: $('#txtPreOperableTimeSpanBegin').val(),
+                                    _15_2_PreOperableTimeSpanEnd: $('#txtPreOperableTimeSpanEnd').val(),
+                                    _16_1_UploadWorkTimeSpanBegin: $('#txtUploadWorkTimeSpanBegin').val(),
+                                    _16_2_UploadWorkTimeSpanEnd: $('#txtUploadWorkTimeSpanEnd').val(),
+                                    _17_1_UploadOperableTimeSpanBegin: $('#txtUploadOperableTimeSpanBegin').val(),
+                                    _17_2_UploadOperableTimeSpanEnd: $('#txtUploadOperableTimeSpanEnd').val(),
+
+                                    _18_1_AddAddressTimeSpanBegin: $('#txtAddAddressTimeSpanBegin').val(),
+                                    _18_2_AddAddressTimeSpanEnd: $('#txtAddAddressTimeSpanEnd').val(),
+                                    _19_1_ResubmitAddressTimeSpanBegin: $('#txtResubmitAddressTimeSpanBegin').val(),
+                                    _19_2_ResubmitAddressTimeSpanEnd: $('#txtResubmitAddressTimeSpanEnd').val(),
+                                    _20_1_UpdateAddressTimeSpanBegin: $('#txtUpdateAddressTimeSpanBegin').val(),
+                                    _20_2_UpdateAddressTimeSpanEnd: $('#txtUpdateAddressTimeSpanEnd').val()
+                                };
+                                $.PintuerPost(contextUri + '/P/Config/SaveSystemConfig', _data, function (result) {
+                                    if (result.state != 1) {
+                                        $showdialog({ body: result.txt });
+                                    }
+                                    else {
+                                        $showdialog({ body: "保存成功！" });
+                                    }
+                                });
+                            }
+                        }
+                    );
+                }
+            });
+        });
+    </script>
+}
+
+<div class="tool_bar">
+    <label>系统参数</label>
+</div>
+<div id="frmData" name="frmData" class="main_view padding-big">
+    <div class="panel">
+        <div class="panel-head">审批参数</div>
+        <div class="panel-body">
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtApprovePeopleNum">1.MMCoE审批标准（人）</label>
+                </div>
+                <div class="field">
+                    <input type="text" value="@ViewBag.Conf._1_ApprovePeopleNum" style="width:400px;" class="input" id="txtApprovePeopleNum" name="txtApprovePeopleNum" size="30" data-validate="required:必填,plusinteger:请输入正整数" placeholder="MMCoE审批标准（人）" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtApprovePercapitaPrice">2.人均价格标准（元）</label>
+                </div>
+                <div class="field">
+                    <input type="text" value="@ViewBag.Conf._2_ApprovePercapitaPrice" style="width:400px;" class="input" id="txtApprovePercapitaPrice" name="txtApprovePercapitaPrice" size="30" data-validate="required:必填,plusdouble:请输入正小数" placeholder="人均价格标准（元）" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel">
+        <div class="panel-head">时间参数</div>
+        <div class="panel-body">
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtSysWorkTimeBegin">3.系统工作时间</label>
+                </div>
+                <div class="field input-inline clearfix">
+                    <input type="text" value="@ViewBag.Conf._3_1_SysWorkTimeBegin" style="width:200px;" class="input" id="txtSysWorkTimeBegin" name="txtSysWorkTimeBegin" size="30" data-validate="required:必填" placeholder="开始时间，例 9:00" />
+                    <input type="text" value="@ViewBag.Conf._3_2_SysWorkTimeEnd" style="width:200px;" class="input" id="txtSysWorkTimeEnd" name="txtSysWorkTimeEnd" size="30" data-validate="required:必填" placeholder="结束时间，例 23:00" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtThatDayCanOrderMealTimeBegin">4.可预订当日下午送餐的操作时间段</label>
+                </div>
+                <div class="field input-inline clearfix">
+                    <input type="text" value="@ViewBag.Conf._4_1_ThatDayCanOrderMealTimeBegin" style="width:200px;" class="input" id="txtThatDayCanOrderMealTimeBegin" name="txtThatDayCanOrderMealTimeBegin" size="30" data-validate="required:必填" placeholder="开始时间，例 9:00" />
+                    <input type="text" value="@ViewBag.Conf._4_2_ThatDayCanOrderMealTimeEnd" style="width:200px;" class="input" id="txtThatDayCanOrderMealTimeEnd" name="txtThatDayCanOrderMealTimeEnd" size="30" data-validate="required:必填" placeholder="结束时间，例 10:00" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtThatDayCanSendMealTimeBegin">5.当日预定下午可送餐时间段</label>
+                </div>
+                <div class="field input-inline clearfix">
+                    <input type="text" value="@ViewBag.Conf._5_1_ThatDayCanSendMealTimeBegin" style="width:200px;" class="input" id="txtThatDayCanSendMealTimeBegin" name="txtThatDayCanSendMealTimeBegin" size="30" data-validate="required:必填" placeholder="开始时间，例 12:30" />
+                    <input type="text" value="@ViewBag.Conf._5_2_ThatDayCanSendMealTimeEnd" style="width:200px;" class="input" id="txtThatDayCanSendMealTimeEnd" name="txtThatDayCanSendMealTimeEnd" size="30" data-validate="required:必填" placeholder="结束时间，例 23:30" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtNotThatDayCanSendMealTimeBegin">6.非当日预定可送餐的时间段</label>
+                </div>
+                <div class="field input-inline clearfix">
+                    <input type="text" value="@ViewBag.Conf._6_1_NotThatDayCanSendMealTimeBegin" style="width:200px;" class="input" id="txtNotThatDayCanSendMealTimeBegin" name="txtNotThatDayCanSendMealTimeBegin" size="30" data-validate="required:必填" placeholder="开始时间，例 8:00" />
+                    <input type="text" value="@ViewBag.Conf._6_2_NotThatDayCanSendMealTimeEnd" style="width:200px;" class="input" id="txtNotThatDayCanSendMealTimeEnd" name="txtNotThatDayCanSendMealTimeEnd" size="30" data-validate="required:必填" placeholder="结束时间，例 23:30" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtOrderingBufferMin">7.订餐操作缓冲时间（分）</label>
+                </div>
+                <div class="field">
+                    <input type="text" value="@ViewBag.Conf._7_OrderingBufferMin" class="input" style="width:400px;" id="txtOrderingBufferMin" name="txtOrderingBufferMin" size="30" data-validate="required:必填,integer:请输入整数,compare#>=0:时间区间 0 - 59,compare#<=59:时间区间 0 - 59" placeholder="订餐操作缓冲时间（分）" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtSendBriefReportHour">8.自动简报发送时间（时）</label>
+                </div>
+                <div class="field">
+                    <input type="text" value="@ViewBag.Conf._8_SendBriefReportHour" class="input" style="width:400px;" id="txtSendBriefReportHour" name="txtSendBriefReportHour" size="30" data-validate="required:必填,integer:请输入整数,compare#>=0:时间区间 0 - 23,compare#<=23:时间区间 0 - 23" placeholder="自动简报发送时间（时）" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtSyncXMSReportTime">9.执行同步小秘书日报时间</label>
+                </div>
+                <div class="field">
+                    <input type="text" value="@ViewBag.Conf._9_SyncXMSReportTime" class="input" style="width:400px;" id="txtSyncXMSReportTime" name="txtSyncXMSReportTime" size="30" data-validate="required:必填" placeholder="执行时间，例 21:30" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtSyncHospoitalIntervalHour">10.执行同步医院间隔（时）</label>
+                </div>
+                <div class="field">
+                    <input type="text" value="@ViewBag.Conf._10_SyncHospoitalIntervalHour" class="input" style="width:400px;" id="txtSyncHospoitalIntervalHour" name="txtSyncHospoitalIntervalHour" size="30" data-validate="required:必填,integer:请输入整数,compare#>=0:时间区间 0 - 23,compare#<=23:时间区间 0 - 23" placeholder="执行同步医院间隔（时）" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtSyncHospoitalIntervalHour">11.修改/退订可操作时间</label>
+                </div>
+                <div class="field input-inline clearfix">
+                    <input type="text" value="@ViewBag.Conf._11_1_SysOperableTimeBegin" style="width:200px;" class="input" id="txtSysOperableTimeBegin" name="txtSysOperableTimeBegin" size="30" data-validate="required:必填" placeholder="开始时间，例 9:00" />
+                    <input type="text" value="@ViewBag.Conf._11_2_SysOperableTimeEnd" style="width:200px;" class="input" id="txtSysOperableTimeEnd" name="txtSysOperableTimeEnd" size="30" data-validate="required:必填" placeholder="结束时间，例 23:00" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtSyncHospoitalIntervalHour">12.预申请可申请会议时间</label>
+                </div>
+                <div class="field input-inline clearfix">
+                    <input type="text" value="@ViewBag.Conf._12_1_PreApprovalCanApplyMeetingTimeSpanBegin" style="width:200px;" class="input" id="txtPreApprovalCanApplyMeetingTimeSpanBegin" name="txtPreApprovalCanApplyMeetingTimeSpanBegin" size="30" data-validate="required:必填" placeholder="开始时间，例 9:00" />
+                    <input type="text" value="@ViewBag.Conf._12_2_PreApprovalCanApplyMeetingTimeSpanEnd" style="width:200px;" class="input" id="txtPreApprovalCanApplyMeetingTimeSpanEnd" name="txtPreApprovalCanApplyMeetingTimeSpanEnd" size="30" data-validate="required:必填" placeholder="结束时间，例 23:00" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtSyncHospoitalIntervalHour">13.预申请可申请隔日会议时间</label>
+                </div>
+                <div class="field input-inline clearfix">
+                    <input type="text" value="@ViewBag.Conf._13_1_PreApprovalNextWorkDaySendTimeSpanBegin" style="width:200px;" class="input" id="txtPreApprovalNextWorkDaySendTimeSpanBegin" name="txtPreApprovalNextWorkDaySendTimeSpanBegin" size="30" data-validate="required:必填" placeholder="开始时间，例 9:00" />
+                    <input type="text" value="@ViewBag.Conf._13_2_PreApprovalNextWorkDaySendTimeSpanEnd" style="width:200px;" class="input" id="txtPreApprovalNextWorkDaySendTimeSpanEnd" name="txtPreApprovalNextWorkDaySendTimeSpanEnd" size="30" data-validate="required:必填" placeholder="结束时间，例 23:00" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtSyncHospoitalIntervalHour">14.预申请工作时间</label>
+                </div>
+                <div class="field input-inline clearfix">
+                    <input type="text" value="@ViewBag.Conf._14_1_PreWorkTimeSpanBegin" style="width:200px;" class="input" id="txtPreWorkTimeSpanBegin" name="txtPreWorkTimeSpanBegin" size="30" data-validate="required:必填" placeholder="开始时间，例 9:00" />
+                    <input type="text" value="@ViewBag.Conf._14_2_PreWorkTimeSpanEnd" style="width:200px;" class="input" id="txtPreWorkTimeSpanEnd" name="txtPreWorkTimeSpanEnd" size="30" data-validate="required:必填" placeholder="结束时间，例 23:00" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtSyncHospoitalIntervalHour">15.预申请修改工作时间</label>
+                </div>
+                <div class="field input-inline clearfix">
+                    <input type="text" value="@ViewBag.Conf._15_1_PreOperableTimeSpanBegin" style="width:200px;" class="input" id="txtPreOperableTimeSpanBegin" name="txtPreOperableTimeSpanBegin" size="30" data-validate="required:必填" placeholder="开始时间，例 9:00" />
+                    <input type="text" value="@ViewBag.Conf._15_2_PreOperableTimeSpanEnd" style="width:200px;" class="input" id="txtPreOperableTimeSpanEnd" name="txtPreOperableTimeSpanEnd" size="30" data-validate="required:必填" placeholder="结束时间，例 23:00" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtSyncHospoitalIntervalHour">16.上传文件工作时间</label>
+                </div>
+                <div class="field input-inline clearfix">
+                    <input type="text" value="@ViewBag.Conf._16_1_UploadWorkTimeSpanBegin" style="width:200px;" class="input" id="txtUploadWorkTimeSpanBegin" name="txtUploadWorkTimeSpanBegin" size="30" data-validate="required:必填" placeholder="开始时间，例 9:00" />
+                    <input type="text" value="@ViewBag.Conf._16_2_UploadWorkTimeSpanEnd" style="width:200px;" class="input" id="txtUploadWorkTimeSpanEnd" name="txtUploadWorkTimeSpanEnd" size="30" data-validate="required:必填" placeholder="结束时间，例 23:00" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtSyncHospoitalIntervalHour">17.上传文件修改工作时间</label>
+                </div>
+                <div class="field input-inline clearfix">
+                    <input type="text" value="@ViewBag.Conf._17_1_UploadOperableTimeSpanBegin" style="width:200px;" class="input" id="txtUploadOperableTimeSpanBegin" name="txtUploadOperableTimeSpanBegin" size="30" data-validate="required:必填" placeholder="开始时间，例 9:00" />
+                    <input type="text" value="@ViewBag.Conf._17_2_UploadOperableTimeSpanEnd" style="width:200px;" class="input" id="txtUploadOperableTimeSpanEnd" name="txtUploadOperableTimeSpanEnd" size="30" data-validate="required:必填" placeholder="结束时间，例 23:00" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtSyncHospoitalIntervalHour">18.新增外送地址工作时间</label>
+                </div>
+                <div class="field input-inline clearfix">
+                    <input type="text" value="@ViewBag.Conf._18_1_AddAddressTimeSpanBegin" style="width:200px;" class="input" id="txtAddAddressTimeSpanBegin" name="txtAddAddressTimeSpanBegin" size="30" data-validate="required:必填" placeholder="开始时间，例 9:00" />
+                    <input type="text" value="@ViewBag.Conf._18_2_AddAddressTimeSpanEnd" style="width:200px;" class="input" id="txtAddAddressTimeSpanEnd" name="txtAddAddressTimeSpanEnd" size="30" data-validate="required:必填" placeholder="结束时间，例 18:00" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtSyncHospoitalIntervalHour">19.重新提交外送地址工作时间</label>
+                </div>
+                <div class="field input-inline clearfix">
+                    <input type="text" value="@ViewBag.Conf._19_1_ResubmitAddressTimeSpanBegin" style="width:200px;" class="input" id="txtResubmitAddressTimeSpanBegin" name="txtResubmitAddressTimeSpanBegin" size="30" data-validate="required:必填" placeholder="开始时间，例 9:00" />
+                    <input type="text" value="@ViewBag.Conf._19_2_ResubmitAddressTimeSpanEnd" style="width:200px;" class="input" id="txtResubmitAddressTimeSpanEnd" name="txtResubmitAddressTimeSpanEnd" size="30" data-validate="required:必填" placeholder="结束时间，例 20:00" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">
+                    <label for="txtSyncHospoitalIntervalHour">20.修改外送地址工作时间</label>
+                </div>
+                <div class="field input-inline clearfix">
+                    <input type="text" value="@ViewBag.Conf._20_1_UpdateAddressTimeSpanBegin" style="width:200px;" class="input" id="txtUpdateAddressTimeSpanBegin" name="txtUpdateAddressTimeSpanBegin" size="30" data-validate="required:必填" placeholder="开始时间，例 9:00" />
+                    <input type="text" value="@ViewBag.Conf._20_2_UpdateAddressTimeSpanEnd" style="width:200px;" class="input" id="txtUpdateAddressTimeSpanEnd" name="txtUpdateAddressTimeSpanEnd" size="30" data-validate="required:必填" placeholder="结束时间，例 20:00" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-button">
+        <a id="btnSubmit" class="button bg-green" href="javascript:;">保存</a>
+    </div>
+</div>

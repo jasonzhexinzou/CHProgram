@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/Content/plugin/pintuer/pintuer.css" />
+    <script type="text/javascript" src="~/Content/js/jquery.js"></script>
+    <script type="text/javascript" src="~/Content/js/jquery.form.js"></script>
+    <script type="text/javascript" src="~/Content/plugin/pintuer/pintuer.js"></script>
+    <script type="text/javascript" src="~/Content/plugin/pintuer/respond.js"></script>
+    <script type="text/javascript" src="~/Content/js/normal.js"></script>
+    <script type="text/javascript" src="~/Content/js/ajaxfileupload.js"></script>
+    <script type="text/javascript" src="~/Content/js/jquery.qrcode.min.js"></script>
+
+    <link rel="stylesheet" href="~/Content/plugin/iPath1/iPath.css" />
+    <script type="text/javascript" src="~/Content/plugin/iPath1/iPath.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="~/Content/plugin/datetimepicker/jquery.datetimepicker.css" />
+    <script type="text/javascript" src="~/Content/plugin/datetimepicker/jquery.datetimepicker.js"></script>
+
+    <title>@ViewBag.Title</title>
+    <link rel="icon" type="image/png" href="~/gsk-favicon.ico" />
+    <script type="text/javascript">
+        var contextUri = '@Href("~")';
+        contextUri = contextUri == '/' ? '' : contextUri;
+        contextUri = contextUri[contextUri.length - 1] == '/' ? contextUri.substring(0, contextUri.length - 1) : contextUri;
+    </script>
+    <style type="text/css">
+        body, html {
+            height: auto;
+            font-size: 14px;
+        }
+
+        #costcenter_dataTable tr {
+            height: 40px;
+            vertical-align: middle;
+        }
+
+        #costcenter_dataTable td {
+            vertical-align: middle;
+        }
+    </style>
+    @RenderSection("scripts", required: false)
+</head>
+<body>
+    @RenderBody()
+</body>
+</html>

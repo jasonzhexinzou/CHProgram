@@ -1,0 +1,585 @@
+﻿@{
+    ViewBag.Title = "HT预申请";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        var pdg;
+
+        var srhParam;
+        function GetSrhParam() {
+            var _srhParam = new Object();
+            _srhParam.CN = '';
+            _srhParam.MUDID = '';
+            _srhParam.SubmitTimeBegin = '';
+            _srhParam.SubmitTimeEnd = '';
+            _srhParam.ApprovedTimeBegin = '';
+            _srhParam.ApprovedTimeEnd = '';
+            return _srhParam;
+        }
+
+        var pdg;
+        var srhParam;
+        function GetSrhParam() {
+            var _srhParam = new Object();
+            _srhParam.CreateTimeBegin = '';
+            return _srhParam;
+        }
+        $(function () {
+            srhParam = GetSrhParam();
+            pdg.QueryParams = function () {
+
+                return {
+                    CreateTimeBegin: srhParam.CreateTimeBegin
+                };
+            }
+            pdg.Load();
+        });
+    </script>
+}
+<style type="text/css">
+    html, body {
+        width: 100%;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 50px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .placeholder {
+        padding: 7px;
+    }
+
+    .weui-cell {
+        min-height: 45px;
+    }
+
+    .weui-label {
+        width: 140px !important;
+    }
+</style>
+
+<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script type="text/javascript">
+    var jsapiurl = '@MealH5.Handler.WebConfigHandler.ShortUrlService/JsApi/QyConfigJs?debug=false&url=' + UrlEncode(window.location.href);
+    document.write('<script type="text/javascript" src="' + jsapiurl + '"><\/script>');
+</script>
+<script type="text/javascript">
+    var IsServPause = 1 == @ViewBag.IsServPause;
+    var IsOutSideHT = 1 == @ViewBag.IsOutSideHT;
+    var _Market = '@ViewBag.Market';
+    var _TerritoryCode = '@ViewBag.TACODE';
+    var GroupType = '@ViewBag.GroupType';
+    var _TA = '@ViewBag.TA';
+    var awsUrl = '@MealH5.Handler.WebConfigHandler.AWSService';
+    var currentUserId='@ViewBag.CurrentUserId';
+    $(function () {
+        //getMinDate();
+        var nowDate = new Date();  //获取当前时间
+        var weekInfo = nowDate.getDay();  //获取当前天是一周中的第几天
+        var dateInfo = null;
+        var year = nowDate.getFullYear();
+        var month = nowDate.getMonth();
+        var day = nowDate.getDate()+2;
+        var dateTimeInfo = year + "/" + month + "/" + day;
+    })
+    function getMinDate() {
+        post('/P/Food/LoadNextHoliday', {},
+            function (d) {
+                var minDate;
+                var holiday = d.data.holiday;
+                holiday.StartDay = getDateByDotNet(holiday.StartDay);
+                holiday.EndDay = getDateByDotNet(holiday.EndDay);
+                var startDay = getDateByDotNet(d.data.now);
+                var endDay;
+
+                // 判断今天在那个区间1.非最后一个工作日 2.最后一个工作日 3.休息日
+                // 规则1.可以定到下一天 2、3.可以订到休假日后第二个工作日
+                var rangeType = 0;
+
+                if (holiday.StartDay.getTime() <= startDay.getTime() && startDay.getTime() <= holiday.EndDay.getTime()) {
+                    // 今天是休假日 判定为区间3
+                    rangeType = 3;
+                } else {
+                    if ((startDay.getTime() + 24 * 60 * 60 * 1000) < holiday.StartDay.getTime()) {
+                        // 明天也是工作日 判定为区间1
+                        rangeType = 1;
+                    } else {
+                        // 明天是休息日，今天是最后一个工作日 判定为区间2
+                        rangeType = 2;
+                    }
+                }
+
+                var deliverRange = new Array();
+                if (rangeType == 1) {
+                    if (isInTimespan(getTimeNow(), timeConfig.preNextBegin, timeConfig.preNextEnd)) {
+                        minDate = new Date(startDay.getTime() + oneDay).pattern('yyyy/MM/dd');
+                    }
+                    else {
+                        minDate = new Date(startDay.getTime() + oneDay + oneDay).pattern('yyyy/MM/dd');
+                    }
+                } else {
+                    minDate = new Date(holiday.EndDay.getTime() + oneDay * 2).pattern('yyyy-MM-dd');
+                }
+            })
+    }
+</script>
+
+<script type="text/javascript">
+    function outputmoney(number) {
+        number = number.replace(/\,/g, "");
+        if (isNaN(number) || number == "") return "";
+        number = Math.round(number * 100) / 100;
+        if (number < 0)
+            return '-' + outputdollars(Math.floor(Math.abs(number) - 0) + '') + outputcents(Math.abs(number) - 0);
+        else
+            return outputdollars(Math.floor(number - 0) + '') + outputcents(number - 0);
+    }
+    //格式化金额
+    function outputdollars(number) {
+        if (number.length <= 3)
+            return (number == '' ? '0' : number);
+        else {
+            var mod = number.length % 3;
+            var output = (mod == 0 ? '' : (number.substring(0, mod)));
+            for (i = 0; i < Math.floor(number.length / 3); i++) {
+                if ((mod == 0) && (i == 0))
+                    output += number.substring(mod + 3 * i, mod + 3 * i + 3);
+                else
+                    output += ',' + number.substring(mod + 3 * i, mod + 3 * i + 3);
+            }
+            return (output);
+        }
+    }
+
+    function outputcents(amount) {
+        amount = Math.round(((amount) - Math.floor(amount)) * 100);
+        return (amount < 10 ? '.0' + amount : '.' + amount);
+    }
+
+</script>
+
+<link rel="stylesheet" href="~/Content/css/preApproval_submit.css?v=javaScriptVersion" />
+<script type="text/javascript" src="~/Content/js/preApproval_submit.js?v=javaScriptVersion"></script>
+
+<div class="page-main">
+    <div class="page-body">
+        <form id="form0" action="~/PreApproval/_Submit" method="post">
+            <div class="weui-cells">
+                <div class="weui-cell weui-cell_select weui-cell_select-after">
+                    <div class="weui-cell__hd">
+                        <label class="weui-label"><strong>Market</strong></label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <select class="weui-select Group1" name="Market" id="Market">
+                            @if (ViewBag.Market == null || ViewBag.Market == "")
+                            {
+                                <option selected='' value=''>请选择Market</option>
+                            }
+                            @foreach (var item in ViewBag.listMarket)
+                            {
+                                <option value="@item.Name">@item.NameShow</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                @*20190115*@
+                <div class="weui-cell" id="VeevaMeetingPanel" style="display: none;">
+                    <div class="weui-cell__hd">
+                        <label for="" class="weui-label"><strong>VeevaMeetingID</strong></label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" id="VeevaMeetingID" name="VeevaMeetingID" maxlength="8" placeholder="请添加Veeva Meeting ID" />
+                    </div>
+                    <div class="weui-cell__ft" style="display: none;">
+                        <i class="weui-icon-warn"></i>
+                    </div>
+                </div>
+                <div class="weui-cell weui-cell_select weui-cell_select-after" id="TAPanel">
+                    <div class="weui-cell__hd">
+                        <label for="" class="weui-label Group2"><strong>TA</strong></label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input Group1 Group2" type="text" name="TA" id="TA" readonly="readonly" />
+                    </div>
+                    <div class="weui-cell__ft" style="display: none;">
+                        <i class="weui-icon-warn"></i>
+                    </div>
+                </div>
+
+                <div class="weui-cell weui-cell_select weui-cell_select-after" id="ProvincePanel">
+                    <div class="weui-cell__hd">
+                        <label for="" class="weui-label Group2"><strong>省份</strong></label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input Group2" type="text" id="ProvinceName" name="ProvinceName" readonly="readonly" />
+                        <input type="hidden" id="ProvinceId" />
+                    </div>
+                    <div class="weui-cell__ft" style="display: none;">
+                        <i class="weui-icon-warn"></i>
+                    </div>
+                </div>
+
+                <div class="weui-cell weui-cell_select weui-cell_select-after" id="CityPanel">
+                    <div class="weui-cell__hd">
+                        <label for="" class="weui-label Group2"><strong>城市</strong></label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input Group2" type="text" id="CityName" name="CityName" readonly="readonly" />
+                        <input type="hidden" id="CityId" />
+                    </div>
+                    <div class="weui-cell__ft" style="display: none;">
+                        <i class="weui-icon-warn"></i>
+                    </div>
+                </div>
+
+                <div class="weui-cell weui-cell_select weui-cell_select-after" id="HospitalPanel">
+                    <div class="weui-cell__hd">
+                        <label for="" class="weui-label Group2"><strong>医院名称</strong></label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input Group2" type="text" id="HospitalName" name="HospitalName" readonly="readonly" />
+                        @*<textarea class="weui-input"id="HospitalName" name="HospitalName" readonly="readonly" style="overflow:hidden; resize:none;"></textarea>*@
+                        <input type="hidden" id="HospitalId" name="HospitalId" />
+                    </div>
+                    <div class="weui-cell__ft" style="display: none;">
+                        <i class="weui-icon-warn"></i>
+                    </div>
+                </div>
+
+                <div class="weui-cell weui-cell_select weui-cell_select-after" id="HospitalCodePanel">
+                    <div class="weui-cell__hd">
+                        <label for="" class="weui-label Group2"><strong>医院编码</strong></label>
+                    </div>
+                    @*<div class="weui-cell__bd">
+                        <input class="weui-input" type="text" id="HospitalCode" name="HospitalCode" readonly="readonly" />
+                    </div>*@
+                    <div class="weui-cell__bd">
+                        <input class="weui-input Group2" type="text" id="HospitalCode" name="HospitalCode" readonly="readonly" />
+                    </div>
+                </div>
+
+                <div class="weui-cell weui-cell_select weui-cell_select-after" id="HospitalAddressPanel">
+                    <div class="weui-cell__hd">
+                        <label for="" class="weui-label Group2"><strong>医院地址</strong></label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        @*<input class="weui-input" type="text" id="Address" name="Address" style="text-wrap:normal;word-break:break-all;word-wrap:break-word;" TextMode="MultiLine" readonly="readonly" />
+                            <input class="weui-input" type="text" id="Address" name="Address" readonly="readonly" />*@
+                        @*<span id="spAddress"></span>*@
+                        <input class="weui-input Group2" type="text" id="Address" name="Address" readonly="readonly" placeholder="请选择医院地址"/>
+                        <input type="hidden" id="AddressCode" name="AddressCode" />
+                    </div>
+                </div>
+
+                <div class="weui-cells__title" style="color:red;">
+                    *医院地址为系统默认, 请在”填写订单详情“页面补充送餐详细地址
+                </div>
+
+                <div class="weui-cell" id="MeetingTitlePanel">
+                    <div class="weui-cell__hd">
+                        <label for="" class="weui-label"><strong>会议名称</strong></label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" id="MeetingTitle" name="MeetingTitle" maxlength="50" placeholder="请填写会议名称" />
+                    </div>
+                    <div class="weui-cell__ft" style="display: none;">
+                        <i class="weui-icon-warn"></i>
+                    </div>
+                </div>
+
+                <div class="weui-cell" id="MeetingTimePanel">
+                    <div class="weui-cell__hd">
+                        <label for="" class="weui-label"><strong>会议时间</strong></label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" id="MeetingTime" name="MeetingTime" readonly="readonly" value="" placeholder="请选择会议时间" />
+                    </div>
+                    <div class="weui-cell__ft" style="display:none;">
+                        <i class="weui-icon-warn"></i>
+                    </div>
+                </div>
+
+                <div class="weui-cell" id="AttendancePanel">
+                    <div class="weui-cell__hd">
+                        <label for="" class="weui-label"><strong>参会人数</strong></label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="number" id="Attendance" name="Attendance" value="" placeholder="请填写参会人数" pattern="[0-9]*" />
+                    </div>
+                    <div class="weui-cell__ft" style="display: none;">
+                        <i class="weui-icon-warn"></i>
+                    </div>
+                </div>
+
+                <div class="weui-cell weui-cell_select weui-cell_select-after" id="CostCenterPanel">
+                    <div class="weui-cell__hd">
+                        <label for="" class="weui-label Group2"><strong>大区区域代码</strong></label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input Group2" type="text" id="CostCenter" name="CostCenter" readonly="readonly" />
+                    </div>
+                    <div class="weui-cell__ft" style="display: none;">
+                        <i class="weui-icon-warn"></i>
+                    </div>
+                </div>
+
+                <div class="weui-cell weui-cell_select weui-cell_select-after">
+                    <div class="weui-cell__hd">
+                        <label class="weui-label"><strong>HT形式</strong></label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <select class="weui-select" name="HTType" id="HTType">
+                            <option value=""></option>
+                            <option value="1">线上HT</option>
+                            <option value="0">线下HT</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="weui-cell" id="BudgetPanel">
+                    <div class="weui-cell__hd">
+                        <label for="" class="weui-label"><strong>预算金额</strong></label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        @*<input class="weui-input" type="text" id="Budget" name="Budget" oninput="formatter(this)" onpropertychange="formatter(this)" value="" placeholder="请填写预算金额（RMB）" />*@
+                        <input class="weui-input" type="text" id="Budget" name="Budget" value="" onblur="this.value=outputmoney(this.value);" placeholder="请填写预算金额（RMB）" />
+                    </div>
+                    <div class="weui-cell__ft" style="display: none;">
+                        <i class="weui-icon-warn"></i>
+                    </div>
+                </div>
+
+                <div class="weui-cell" id="FollowVisitPanel">
+                    <div class="weui-cell__hd">
+                        <label for="" class="weui-label"><strong>直线经理是否随访</strong></label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input type="radio" name="FollowVisit" id="VisitOne" value="1" style="float:left;margin-top:5px;margin-left:20%"><p style="margin-right:25px;float:left;">是</p>
+                        <input type="radio" name="FollowVisit" id="VisitTwo" value="2" style="float:left;margin-top:5px;margin-left:10%"><p>否</p>
+                    </div>
+                    <div class="weui-cell__ft" style="display: none;">
+                        <i class="weui-icon-warn"></i>
+                    </div>
+                </div>
+
+                <div class="weui-cell" id="dvSpeakerPanel">
+                    <div class="weui-cell__hd" style="background-color:#e5e5e5;">
+                        <label for="" class="weui-label"><strong>外部免费讲者来讲</strong></label>
+                    </div>
+                    <div class="weui-cell__bd" style="background-color:#e5e5e5;">
+                        <a>
+                            <input type="radio" name="Speaker" id="rbSpeaker1" value="1" style="float:left;margin-top:5px;margin-left:20%"><p style="margin-right:25px;float:left;">是</p>
+                        </a>
+                        <input type="radio" name="Speaker" id="rbSpeaker2" value="0" style="float:left;margin-top:5px;margin-left:10%"><p>否</p>
+                    </div>
+                    <div class="weui-cell__ft" style="display: none;">
+                        <i class="weui-icon-warn"></i>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="page-foot">
+        <div class="page__bd page__bd_spacing">
+            <div class="weui-flex">
+                <div class="weui-flex__item">
+                    <div class="placeholder">
+                        <form id="form1" action="~/P/Food/MMCoE" method="get"></form>
+                        <button id="btnSubmitApplication" class="weui-btn weui-btn_orange Group3">提交预申请</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style type="text/css">
+    #chooseDeliverTime {
+        background-color: #FFFFFF;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        display: none;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 8;
+    }
+</style>
+
+<style type="text/css">
+    #dvUploadSpeakerFile {
+        background-color: #FFFFFF;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        display: none;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9;
+    }
+    .my_weui_uploader_input_wrp {
+        float: left;
+        position: relative;
+        margin-right: 9px;
+        margin-bottom: 9px;
+        width: 70px;
+        height: 70px;
+        border: 2px #D9D9D9;
+        border-radius: 10px;
+    }
+</style>
+
+<script type="text/html" id="tmpl_delivertime">
+    <div class="close"></div>
+    <div class="chooseDeliverBody">
+        <div class="title">
+            <div class="weui-cells__title">请选择会议时间</div>
+            <div class="weui-cells__title">
+                <div class="years" style="float:left;width:50%">
+                    <select class="" style="width:95%;float:left;height:32px;padding:6px 6px;margin-top:10px;margin-right:4px;margin-left:4px;" id="years">
+                        {{each years}}
+                        {{if $value==yearNow}}
+                        <option value="{{$value}}" selected="selected">{{$value}}年</option>
+                        {{else}}
+                        <option value="{{$value}}">{{$value}}年</option>
+                        {{/if}}
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="months" style="float:left;width:50%">
+                    <select class="" style="width:95%;float:left;height:32px;padding:6px 6px;margin-top:10px;margin-right:4px;margin-left:4px;" id="months">
+                        {{each months}}
+                        {{if $value==monthNow}}
+                        <option value="{{$value}}" selected="selected">{{$value}}月</option>
+                        {{else}}
+                        <option value="{{$value}}">{{$value}}月</option>
+                        {{/if}}
+                        {{/each}}
+                    </select>
+                </div>
+            </div>
+            <div class="day_panel">
+                <div class="days">
+                    {{each delivertime}}
+                    <div class="day " _val="{{$value.time}}">
+                        <div class="month">{{$value.month}}月</div>
+                        <div class="week">{{$value.weekday}}</div>
+                        {{$value.day}}
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+        <div class="body">
+            <div class="hour_body">
+                {{each delivertime}}
+                <div _val="{{$value.time}}">
+                    {{include 'menu_days' $value}}
+                </div>
+                {{/each}}
+            </div>
+            <div class="time_body">
+                {{each delivertime}}
+                {{include 'menu_days2' $value}}
+                {{/each}}
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="menu_days">
+    {{each hours}}
+    <div class="houritem choosehour" _val="{{$value.hour}}">
+        {{$value.hour.substr(11)}}时
+    </div>
+    {{/each}}
+</script>
+
+<script type="text/html" id="menu_days2">
+    {{each hours}}
+    <div class="weui-cells" _val="{{$value.hour}}">
+        {{include 'menu_times' $value}}
+    </div>
+    {{/each}}
+</script>
+
+<script type="text/html" id="menu_times">
+    {{each times}}
+    <a class="weui-cell weui-cell_access chooseTime" href="javascript:;" _val="{{$value.time}}">
+        <div class="weui-cell__bd">
+            <p>{{$value.time.substr(0, $value.time.length-3)}}</p>
+        </div>
+        <div class="weui-cell__ft">{{$value.weekday}}</div>
+    </a>
+    {{/each}}
+</script>
+
+<div id="chooseDeliverTime">
+</div>
+
+<div id="dvUploadSpeakerFile">
+    <div class="close"></div>
+    <div id="dvUploadFile" class="UploadFileBody">
+        <div class="page-body">
+            <div class="weui-cells__title"><h4>请上传演讲服务协议：</h4></div>
+            <div class="weui-cells">
+                <div class="weui-uploader">
+                    <div class="weui-uploader__bd">
+                        <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="chooseUploadServiceImage">
+                            <div id="dvUploaderServiceImage" class="weui-uploader__input-box" style="margin-top:5px;" onclick="UploadServiceImage()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="weui-cells__title"><h4>请上传利益冲突声明：</h4></div>
+            <div class="weui-cells">
+                <div class="weui-uploader">
+                    <div class="weui-uploader__bd">
+                        <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="chooseUploadBenefitImage">
+                            <div id="dvUploaderBenefitImage" class="weui-uploader__input-box" style="margin-top:5px;" onclick="UploadBenefitImage()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-left:20px;margin-top:20px;"><span style="font-size:14px;font-weight:bold;color:red;">*请确保上传文件的清晰度</span></div>
+        </div>
+        <div class="page-foot">
+            <div class="page__bd page__bd_spacing">
+                <div class="weui-flex">
+                    <div class="weui-flex__item">
+                        <div class="placeholder">
+                            <form id="form1" action="~/P/Food/MMCoE" method="get"></form>
+                            <button id="btnSaveSpeakFile" class="weui-btn weui-btn_orange">上传文件</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("../Food/Chooser")
+

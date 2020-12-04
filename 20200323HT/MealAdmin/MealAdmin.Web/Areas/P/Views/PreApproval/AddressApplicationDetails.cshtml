@@ -1,0 +1,123 @@
+﻿
+@{
+    ViewBag.Title = "外送地址申请详情";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+@section scripts{
+    <script type="text/javascript">
+        var id = '@ViewBag.id';
+        $(function () {
+            $.PintuerPost(contextUri + '/P/PreApproval/AddressDetailsLoad', { id: id }, function (d) {
+                var AddressData = d.AddressData;
+                var HistoryData = d.HistoryData;
+                var html = '';
+                for (var i = 0; i < HistoryData.length; i++) {
+
+                    html += '<tr>';
+                    html += ' <td id="UserName">' + HistoryData[i].UserName + '</td>';
+                    var str ='';
+                    if (HistoryData[i].ActionType == 0) {
+                        str = '外送地址申请提交成功';
+                    }
+                    else if (HistoryData[i].ActionType == 1 || HistoryData[i].ActionType == 5 || HistoryData[i].ActionType == 7)
+                        str = '外送地址申请审批通过';
+                    else if (HistoryData[i].ActionType == 2 || HistoryData[i].ActionType == 6 || HistoryData[i].ActionType == 8)
+                        str = '外送地址申请审批驳回';
+                    else if (HistoryData[i].ActionType == 3)
+                        str = '外送地址申请已失效';
+                    else if (HistoryData[i].ActionType == 4)
+                        str = '外送地址申请取消';
+                    else if (HistoryData[i].ActionType == 9)
+                        str = '外送地址申请修改成功';
+                    else if (HistoryData[i].ActionType == 10)
+                        str = '外送地址重新提交成功';
+                    else if (HistoryData[i].ActionType == 11)
+                        str = '删除外送地址';
+
+                    html += ' <td id="ActionType">' + str + '</td>';
+                    var comment = HistoryData[i].Comments == null ? "" : HistoryData[i].Comments;
+                    html += ' <td id="Comments">' + comment + '</td>';
+                    html += ' <td id="ApproveDate">' + getDateByDotNet(HistoryData[i].ApproveDate).pattern('yyyy-MM-dd HH:mm:ss') + '</td>';
+                    html += '</tr>';
+                }
+                $('#txttbody').html(html);
+                if (HistoryData) {
+                    $('#UserName').html(HistoryData.UserName);
+                    $('#ActionType').html(HistoryData.ActionType);
+                    $('#Comments').html(HistoryData.Comments);
+                    $('#ApproveDate').html(HistoryData.ApproveDate);
+                }
+
+                $('#txtHospitalName').val(AddressData.HospitalName);
+                $('#txtGskHospital').val(AddressData.GskHospital);
+                $('#txtHospitalAddress').val(AddressData.MainHospitalAddress);
+
+                var dis = "";
+                $('#txtNewAddress').val(AddressData.AddAddress);
+                if (AddressData.OtherAddressDistance != "") {
+                    dis = AddressData.OtherAddressDistance.replace(/;+/g, '米；');
+                }
+                $('#txtDistance').val('主地址 ' + AddressData.Distance + "米；" + dis);
+
+
+            });
+
+
+        });
+    </script>
+}
+<div style="padding: 15px;">
+    <form action="" id='form0' method="post">
+        <input name="ID" value="@ViewBag.id" type="hidden" />
+        <div class="form-group">
+            <div class="form-group">
+                <div class="label"><label for="txtHospitalName">医院名称</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtHospitalName" name="txtHospitalName" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtGskHospital">医院编码</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtGskHospital" name="txtGskHospital" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="label"><label for="txtHospitalAddress">医院地址</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtHospitalAddress" name="txtHospitalAddress" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtNewAddress">新增地址</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtNewAddress" name="txtNewAddress" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label"><label for="txtDistance">距离</label></div>
+                <div class="field">
+                    <input type="text" class="input" id="txtDistance" name="txtDistance" value="" autocomplete="off" readonly="readonly" />
+                </div>
+            </div>
+            <div class="label"><label for="txtIsReAssign">审批流程：</label></div>
+            <table id="costcenter_dataTable" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>操作人</th>
+                        <th>操作</th>
+                        <th>审批意见</th>
+                        <th>审批时间</th>
+                    </tr>
+                </thead>
+                <tbody id="txttbody"></tbody>
+                <tfoot>
+                </tfoot>
+
+            </table>
+        </div>                                                                                                              
+</form>
+</div>
+
+

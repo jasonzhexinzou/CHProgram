@@ -1,0 +1,83 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@MealH5.Handler.WebConfigHandler.ProgramTitle</title>
+    <script type="text/javascript" src="~/Content/js/fastclick.js"></script>
+    <script type="text/javascript" src="~/Content/js/jquery.js"></script>
+    <script type="text/javascript" src="~/Content/js/gpshelper.js"></script>
+    <script type="text/javascript" src="~/Content/js/json2.js"></script>
+
+    <script type="text/javascript" src="~/Content/plugin/iPath1/iPath.js"></script>
+    <link rel="stylesheet" href="~/Content/plugin/iPath1/iPath.css" />
+
+    <script type="text/javascript" src="~/Content/plugin/star/iPath_Star.js"></script>
+    <link rel="stylesheet" href="~/Content/plugin/star/iPath_Star.css" />
+
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.3&key=1302d9c42d11fd6b5cfb707856ddd60b"></script>
+
+    <script type="text/javascript" src="~/Content/js/foodindex.js"></script>
+    <script type="text/javascript" src="~/Content/js/restaurantList.js"></script>
+    <script type="text/javascript" src="~/Content/js/addressList.js"></script>
+    <script type="text/javascript" src="~/Content/js/foodList.js"></script>
+    <script type="text/javascript" src="~/Content/js/submitorder.js"></script>
+
+    <script type="text/javascript" src="~/Content/js/citys.js"></script>
+
+    <link rel="stylesheet" href="~/Content/css/loadgps.css" />
+    <link rel="stylesheet" href="~/Content/css/foodindex.css" />
+    <link rel="stylesheet" href="~/Content/css/restaurant_info.css" />
+
+    <script type="text/javascript">
+        var contextUri = '@Href("~")';
+        contextUri = contextUri == '/' ? '' : contextUri;
+
+        globalCache.currentuser = {
+            name: '猫凯撒',
+            phone: '15641190204',
+            id: '848B4AFA-7EE2-403A-9D57-0ECA27466604'
+        };
+
+        $(function () {
+            foodHadnler.init();
+        });
+
+    </script>
+
+    <style type="text/css">
+        html, body {
+            height: 100%;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="loadgeo">
+        <div class="logo"></div>
+        <div class="loading">
+            <strong>正在拼命获取GPS坐标...</strong>
+        </div>
+    </div>
+    <div id="container" class="container">
+    </div>
+    <div id="hidecontainer" style="display: none;">
+        @Html.Partial("Restaurant")
+        @Html.Partial("Address")
+        @Html.Partial("Food")
+        @Html.Partial("Order")
+    </div>
+</body>
+</html>

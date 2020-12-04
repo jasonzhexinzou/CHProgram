@@ -1,0 +1,70 @@
+﻿
+@{
+    ViewBag.Title = "Pop";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+<script>
+     function btnOKClick(e, callback) {
+        var htCode = '@ViewBag.HTCode';
+        var state = '@ViewBag.Stade';
+
+        var reason = $('#SpecialOrderReason').val();
+        if (reason == 0) {
+            alert("请选择标识特殊订单原因");
+            return;
+        }
+        var remark = $('#SpecialRemarksProjectTeam').val();
+        if (remark.length < 8) {
+            alert("请输入特殊订单备注，至少8个字以上");
+            return;
+        }
+        
+        var text = $('#SpecialOrderReason option:selected').text();
+        $.post(contextUri + '/P/OrderMnt/Save', {
+            htCode: htCode,
+            state: state,
+            reason: reason,
+            text:text,
+            remark: remark
+            },function (data) {
+                $showdialog({ body: '提交成功' });
+                callback();
+            });
+    }
+
+    function FindByUserId() {
+
+        var userId = $('#txtBUHeadMUDID').val();
+        $.post(contextUri + '/P/UploadFileManagement/Find', {
+            userId: userId
+        }, function (d) {
+            var user = d.data;
+            $('#txtBUHeadMUDID').val(user.UserId);
+            $('#txtBUHeadName').val(user.Name);
+        });
+    }
+</script>
+
+<div style="padding: 15px;">
+    <form action="" id='form0' method="post">
+        <div style="width:40%;float:left;">
+            <span>HT编号</span><br /><br />
+            <span>订单状态</span><br /><br />
+            <span>特殊订单原因</span><br /><br />
+            <span>特殊订单备注</span>
+        </div>
+        <div style="width:60%;float:left;">
+            <span id="HTCode" name="HTCode"> @ViewBag.HTCode</span><br /><br />
+            <span id="Stade" name="Stade">@ViewBag.Stade</span><br /><br />
+            <select style="width:100%" id="SpecialOrderReason"name="SpecialOrderReason">
+                <option name="SpecialOrderReason" value="0">请选择标识特殊订单原因</option>
+                <option name="SpecialOrderReason" value="1">呼叫中心操作退单</option>
+                @*<option name="SpecialOrderReason" value="2">呼叫中心操作退单</option>*@
+                <option name="SpecialOrderReason" value="2">会议支持文件丢失</option>
+            </select><br /><br />
+            <textarea style="width:100%;" rows="4" id="SpecialRemarksProjectTeam" name="SpecialRemarksProjectTeam"></textarea>
+        </div>
+    </form>
+</div>
+
+

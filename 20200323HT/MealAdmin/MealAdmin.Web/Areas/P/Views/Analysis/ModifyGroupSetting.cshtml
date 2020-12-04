@@ -1,0 +1,69 @@
+﻿@{
+    ViewBag.Title = "Territory设置";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+
+    <script type="text/javascript">
+        var _htType = '@ViewBag.HTType';
+        var _orderIndex = '@ViewBag.OrderIndex';
+        var _oldMarket = '@Html.Raw(ViewBag.Market)';
+        $(function () {
+            var _tas = '@ViewBag.TAS';
+            var taList = _tas.split(',');
+            var _ckTas = '@ViewBag.CHKTAS';
+            var html = '';
+            if (taList.length > 0) {
+                for (var i in taList) {
+                    html += '<tr>';
+                    if (_ckTas.indexOf(taList[i]) != -1) 
+                        html += ' <td style="text-align:center;"><input type="checkbox" checked name="ck_ta" value="' + taList[i] + '"></td>';
+                    else
+                        html += ' <td style="text-align:center;"><input type="checkbox" name="ck_ta" value="' + taList[i] + '"></td>';
+                    html += ' <td style="text-align:center;">' + taList[i] + '</td>';
+                    html += '</tr>';
+                }
+            }
+            $('#table_ta').html(html);
+        });
+        function btnOKClick(e, callback) {
+            var _name = $('#txtName').val();
+            if (_name == "") {
+                $showdialog({ body: '请输入名称！' });
+                return;
+            }
+            var _ta = document.getElementsByName('ck_ta');
+            var arr = new Array();
+            for (var i = 0; i < _ta.length; i++) {
+                if (_ta[i].checked)
+                    arr.push(_ta[i].value);
+            }
+            if (arr < 1) {
+                $showdialog({ body: '请勾选TA！' });
+                return;
+            }
+            $.PintuerPost(contextUri + '/P/Analysis/UpdateGroupSetting', { Name: _name, TAS: arr.toString(), HTType: _htType, OrderIndex: _orderIndex, OldMarket: _oldMarket }, function (result) {
+                if (result.state != 1) {
+                    $showdialog({ body: result.txt });
+                }
+                else {
+                    $showdialog({ body: result.txt });
+                    e.close();
+                }
+
+                if (callback != undefined) {
+                    callback();
+                }
+            });
+        }
+
+    </script>
+}
+<div style="padding: 15px;">
+    <label for="txtName">名称</label>
+    <input type="text" class="input" id="txtName" name="txtName" size="200" data-validate="required:必填" value="@ViewBag.Market" placeholder="" />
+    <div style="padding-top:10px;">
+        <table id="table_ta" class="table table-hover" style="padding-top:10px;"></table>
+    </div>
+</div>

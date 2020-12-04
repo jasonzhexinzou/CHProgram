@@ -1,0 +1,575 @@
+﻿
+@{
+    ViewBag.Title = "个人中心";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+<style>
+    button.weui-btn, input.weui-btn {
+        width: 80%;
+    }
+
+    .weui-select {
+        padding-left: 0px;
+    }
+
+    img {
+        width: 156px;
+        height: 156px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .weui-cell__bd {
+        margin-left: 25px;
+    }
+
+    .weui-dialog {
+        visibility: visible !important;
+        opacity: 1;
+    }
+
+    .weui-mask {
+        visibility: visible !important;
+        opacity: 1;
+    }
+</style>
+<script type="text/javascript">
+    var userId = '@ViewBag.UserId';
+    var userName = '@ViewBag.Name';
+    var market, phoneNumber, startTime, endTime, isEnable, delegateUserMUDIDr, startTimeSecond, endTimeSecond, isEnableSecond, secondDelegateUserMUDID, tacode;
+    var delegateUserName = '';
+    var secondDelegateUserName = '';
+    var isAgent = 0;
+    var isAgentSecond = 0;
+    $(function () {
+        var market = '@ViewBag.Market';
+        var Tacode = '@ViewBag.TACode';
+        if (market != '') {
+            $('#Market').val(market);
+            LoadTaByMarket(Tacode);
+        }
+    });
+
+    function LoadTaByMarket(Tacode) {
+        market = $('#Market').val();
+        var UserId = '@ViewBag.UserId'.toLocaleLowerCase();
+        post('/P/Other/LoadTa', { Market: market, UserId: UserId }, function (d) {
+            var taList = d.data;
+            //var html = '<option value="" selected="selected">全部Territory TA</option>';
+            if (taList.length > 0) {
+                $('#TACode').html('');
+                var html = '';
+                //var html = '<option value="' + Tacode + '" selected="selected">' + Tacode + '</option>';
+                for (var i in taList) {
+                    if(Tacode == ""){
+                        var html = '<option value="" selected="selected">' + Tacode + '</option>';
+                    }
+                    if (taList[i].Name == Tacode) {
+                        html += '<option value="' + taList[i].Name + '" selected="selected">' + taList[i].Name + '</option>';
+                    } else {
+                        html += '<option value="' + taList[i].Name + '">' + taList[i].Name + '</option>';
+                    }
+
+                }
+            }
+            $('#TACode').html(html);
+        }, 'json')
+    }
+
+    function submit() {
+        market = $('#Market').val();
+        tacode = $('#TACode').val();
+        phoneNumber = $('#phone').val();
+        if (phoneNumber == '' || phoneNumber.length != 11) {
+            showTopMsg(MSG_NEEDPHONE);
+            return;
+        }
+        var AgentMudid = $('#DelegateUserMUDID').val().toLocaleLowerCase();
+        var UserID = '@ViewBag.UserId'.toLocaleLowerCase();
+        if (AgentMudid == UserID) {
+            showTopMsg("请不要将自己设为代理人。");
+            return;
+        }
+        var dateNow = CurentTime();
+        DelegateID = $('#DelegateID').val();
+        SecondDelegateID = $('#SecondDelegateID').val();
+        startTime = $('#datetime-start').val();
+        endTime = $('#datetime-end').val();
+        isEnable = $("input[name='IsEnable']:checked").val();
+        startTimeSecond = $('#datetime-start-second').val();
+        endTimeSecond = $('#datetime-end-second').val();
+        if ((startTime != "" && startTime < dateNow) || (startTimeSecond != "" && startTimeSecond < dateNow)) {
+            showTopMsg("开始日期不可小于当前日期。");
+            return;
+        }
+        if ((endTime != "" && endTime < dateNow) || (endTimeSecond != "" && endTimeSecond < dateNow)) {
+            showTopMsg("结束日期不可小于当前日期。");
+            return;
+        }
+
+        if ((endTime != "" && startTime != "") && (endTime < startTime) || (endTimeSecond != "" && startTimeSecond != "") && (endTimeSecond < startTimeSecond)) {
+            showTopMsg("结束日期不可小于开始日期。");
+            return;
+        }
+        isEnableSecond = $("input[name='IsEnable_Second']:checked").val();
+        delegateUserMUDID = $('#DelegateUserMUDID').val();
+        secondDelegateUserMUDID = $('#SecondDelegateUserMUDID').val();
+        //if (delegateUserMUDID != '' && delegateUserName == '') {
+        //    post('/P/Other/ShowName', { AgentMudid: delegateUserMUDID, UserId: userId }, function (d) {
+        //        if (d.ishave == 1) {
+        //            delegateUserName = d.res.Name;
+        //            if (isAgent == 1) {
+        //                //if (delegateUserMUDID == '' && delegateUserName == '' && startTime == '' && endTime == '') {
+        //                //    Edit();
+        //                //    return;
+        //                //}
+        //                if (delegateUserMUDID == '' || delegateUserName == '' || startTime == '' || endTime == '') {
+        //                    showTopMsg('请完整填写代理人信息');
+        //                    return;
+        //                }
+        //            }
+        //            Edit();
+        //        }
+        //        if (d.ishave == 0) {
+        //            showTopMsg(d.txt);
+        //        }
+        //    }, 'json');
+        //    return;
+        //}
+        delegateUserName = $('#DelegateUserName').val();
+        if (isAgent == 1) {
+            if (delegateUserMUDID == '' && delegateUserName == '' && startTime == '' && endTime == '') {
+                //Edit();
+                //return;
+            }
+            else if (delegateUserMUDID == '' || delegateUserName == '' || startTime == '' || endTime == '') {
+                showTopMsg('请完整填写代理人信息');
+                return;
+            }
+        }
+        //if (secondDelegateUserMUDID != '' && secondDelegateUserName == '') {
+        //    post('/P/Other/ShowSecondName', { AgentMudid: secondDelegateUserMUDID, UserId: userId }, function (d) {
+        //        if (d.ishave == 1) {
+        //            secondDelegateUserName = d.res.Name;
+        //            if (isAgentSecond == 1) {
+        //                if (secondDelegateUserMUDID == '' && secondDelegateUserName == '' && startTime == '' && endTime == '') {
+        //                    Edit();
+        //                    return;
+        //                }
+        //                if (secondDelegateUserMUDID == '' || secondDelegateUserName == '' || startTime == '' || endTime == '') {
+        //                    showTopMsg('请完整填写二线代理人信息');
+        //                    return;
+        //                }
+        //            }
+        //            Edit();
+        //        }
+        //        if (d.ishave == 0) {
+        //            showTopMsg(d.txt);
+        //        }
+        //    }, 'json');
+        //    return;
+        //}
+        secondDelegateUserName = $('#SecondDelegateUserName').val();
+        if (isAgentSecond == 1) {
+            if (secondDelegateUserMUDID == '' && secondDelegateUserName == '' && startTimeSecond == '' && endTimeSecond == '') {
+                //Edit();
+                //return;
+            }
+            else if (secondDelegateUserMUDID == '' || secondDelegateUserName == '' || startTimeSecond == '' || endTimeSecond == '') {
+                showTopMsg('请完整填写二线代理人信息');
+                return;
+            }
+        }
+        Edit();
+
+    }
+
+    function Edit() {
+        post('/P/Other/Edit',
+            {
+                userId: userId,
+                userName: userName,
+                phoneNumber: phoneNumber,
+                DelegateID: DelegateID,
+                SecondDelegateID: SecondDelegateID,
+                delegateUserMUDID: delegateUserMUDID,
+                delegateUserName: delegateUserName,
+                secondDelegateUserMUDID: secondDelegateUserMUDID,
+                secondDelegateUserName: secondDelegateUserName,
+                startTime: startTime,
+                endTime: endTime,
+                isEnable: isEnable,
+                startTimeSecond: startTimeSecond,
+                endTimeSecond: endTimeSecond,
+                isEnableSecond: isEnableSecond,
+                market: market,
+                tacode: tacode
+            },
+            function (d) {
+                showDlg('提交成功', '返回', function () {
+                    WeixinJSBridge.call('closeWindow');
+                }, 'success');
+            }, 'json');
+    }
+
+    function ShowName() {
+        var AgentMudid = $('#DelegateUserMUDID').val().toLocaleLowerCase();
+        var UserID = '@ViewBag.UserId'.toLocaleLowerCase();
+        debugger;
+        if (AgentMudid == UserID) {
+            showTopMsg("请不要将自己设为代理人。");
+            return;
+        }
+        $('#DelegateUserName').val('');
+        var UserId = '@ViewBag.UserId';
+        if (AgentMudid != null && AgentMudid != "") {
+            post('/P/Other/ShowName', { AgentMudid: AgentMudid, UserId: UserId }, function (d) {
+                if (d.ishave == 1) {
+                    $('#DelegateUserName').val(d.res.Name);
+                }
+                if (d.ishave == 0) {
+                    showTopMsg(d.txt);
+                    $('#DelegateUserName').val('');
+                }
+            }, 'json')
+        }
+        return;
+
+    }
+
+    function ShowSecondName() {
+        var AgentMudid = $('#SecondDelegateUserMUDID').val().toLocaleLowerCase();
+        var UserID = '@ViewBag.UserId'.toLocaleLowerCase();
+        debugger;
+        if (AgentMudid == UserID) {
+            showTopMsg("请不要将自己设为二线代理人。");
+            return;
+        }
+        $('#SecondDelegateUserName').val('');
+        var UserId = '@ViewBag.UserId';
+        if (AgentMudid != null && AgentMudid != "") {
+            post('/P/Other/ShowSecondName', { AgentMudid: AgentMudid, UserId: UserId }, function (d) {
+                if (d.ishave == 1) {
+                    $('#SecondDelegateUserName').val(d.res.Name);
+                }
+                if (d.ishave == 0) {
+                    showTopMsg(d.txt);
+                    $('#SecondDelegateUserName').val('');
+                }
+            }, 'json')
+        }
+        return;
+
+    }
+
+    $(function () {
+
+        if ('@ViewBag.listTACode.Count' == '0') {
+            $('#TACode').attr("disabled", "disabled");
+            $('#TAPanel').css("color", "rgba(0, 0, 0, 0.3)");
+        }else if(@ViewBag.listTACode.Count > 1){
+            $('#TAPanel').addClass('weui-cell_select');
+            $('#TAPanel').addClass('weui-cell_select-after');
+        }
+
+        if (@ViewBag.listMarket.Count > 1) {
+            //$('#MarketPanel').attr("disabled", "disabled");
+            $('#MarketPanel').addClass('weui-cell_select');
+            $('#MarketPanel').addClass('weui-cell_select-after');
+        }
+
+        post('/P/Other/ExistentAgent', { userId: userId }, function (d) {
+
+            if (d.isAgent == 1) {
+                isAgent = 1;
+                $('#agent').css('display', 'block');
+                if (d.data) {
+                    $('#DelegateID').val(d.data.ID);
+                    //var strStartTime = getDateByDotNet(d.data.StartTime).pattern('yyyy-MM-dd');
+                    //var strEndTime = getDateByDotNet(d.data.EndTime).pattern('yyyy-MM-dd');
+                    //var strDateNow = CurentTime();
+                    //if (d.data.IsEnable == 1 && strStartTime <= strDateNow && strEndTime >= strDateNow) {
+                    if (d.data.IsEnable == 1) {
+                        $('#DelegateUserMUDID').val(d.data.DelegateUserMUDID);
+                        $('#DelegateUserName').val(d.data.DelegateUserName);
+                        var strStartTime = getDateByDotNet(d.data.StartTime).pattern('yyyy-MM-dd');
+                        $('#datetime-start').val(strStartTime);
+                        var strEndTime = getDateByDotNet(d.data.EndTime).pattern('yyyy-MM-dd');
+                        console.log(strEndTime)
+                        $('#datetime-end').val(strEndTime);
+                        if (d.data.IsEnable == 1) {
+                            $('#1').attr('checked', true);
+                        }
+                        if (d.data.IsEnable == 0) {
+                            $('#0').attr('checked', true);
+                        }
+                    }
+
+                }
+            }
+            return;
+
+        });
+
+        post('/P/Other/ExistentSecondAgent', { userId: userId }, function (d) {
+
+            if (d.isAgent == 1) {
+                isAgentSecond = 1;
+                $('#SecondAgent').css('display', 'inline');
+                if (d.data) {
+                    $('#SecondDelegateID').val(d.data.ID);
+                    //var strStartTime = getDateByDotNet(d.data.StartTime).pattern('yyyy-MM-dd');
+                    //var strEndTime = getDateByDotNet(d.data.EndTime).pattern('yyyy-MM-dd');
+                    //var strDateNow = CurentTime();
+                    //if (d.data.IsEnable == 1 && strStartTime <= strDateNow && strEndTime >= strDateNow) {
+                    if (d.data.IsEnable == 1) {
+                        $('#SecondDelegateUserMUDID').val(d.data.DelegateUserMUDID);
+                        $('#SecondDelegateUserName').val(d.data.DelegateUserName);
+                        var strStartTime = getDateByDotNet(d.data.StartTime).pattern('yyyy-MM-dd');
+                        $('#datetime-start-second').val(strStartTime);
+                        var strEndTime = getDateByDotNet(d.data.EndTime).pattern('yyyy-MM-dd');
+                        console.log(strEndTime)
+                        $('#datetime-end-second').val(strEndTime);
+                        if (d.data.IsEnable == 1) {
+                            $('#1_Second').attr('checked', true);
+                        }
+                        if (d.data.IsEnable == 0) {
+                            $('#0_Second').attr('checked', true);
+                        }
+                    }
+
+                }
+            }
+            return;
+
+        });
+    });
+
+    //function Redistribute() {
+    //    var d = agent_data;
+    //    $('#agent').css('display', 'block');
+    //    $('#agentButton').css('display', 'none');
+    //    if (d.data) {
+    //        $('#DelegateID').val(d.data.ID);
+    //        $('#DelegateUserMUDID').val(d.data.DelegateUserMUDID);
+    //        $('#DelegateUserName').val(d.data.DelegateUserName);
+    //        var strStartTime = getDateByDotNet(d.data.StartTime).pattern('yyyy-MM-dd HH:mm:ss');
+    //        $('#datetime-start').val(strStartTime);
+    //        var strEndTime = getDateByDotNet(d.data.EndTime).pattern('yyyy-MM-dd HH:mm:ss');
+    //        $('#datetime-end').val(strEndTime);
+    //        if (d.data.IsEnable == 1) {
+    //            $('#1').attr('checked', true);
+    //        }
+    //        if (d.data.IsEnable == 0) {
+    //            $('#0').attr('checked', true);
+    //        }
+    //    }
+    //}
+
+    function CurentTime() {
+        var now = new Date();
+
+        var year = now.getFullYear();       //年
+        var month = now.getMonth() + 1;     //月
+        var day = now.getDate();            //日
+
+        var clock = year + "-";
+
+        if (month < 10)
+            clock += "0";
+
+        clock += month + "-";
+
+        if (day < 10)
+            clock += "0";
+
+        clock += day;
+        return (clock);
+    }
+
+</script>
+
+
+<div class="page-main" style="overflow-y:auto;">
+    <div style="text-align:center;">
+        <img src="~/Content/image/u3234.png" />
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">姓名</label></div>
+        <div class="weui-cell__bd">
+            @ViewBag.Name
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">MUDID</label></div>
+        <div class="weui-cell__bd">
+            @ViewBag.UserId
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">手机号</label></div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" type="number" pattern="[0-9]*" maxlength="11" id="phone" value="@ViewBag.PhoneNumber" />
+        </div>
+    </div>
+    <div class="weui-cell" id="MarketPanel">
+        <div class="weui-cell__hd"><label class="weui-label">Market</label></div>
+        <div class="weui-cell__bd">
+            <select class="weui-select" name="Market" id="Market" onchange="LoadTaByMarket()">
+                @if (ViewBag.Market == null || ViewBag.Market == "")
+                {
+                    <option selected='' value=''>请选择Market</option>
+                }
+                @foreach (var item in ViewBag.listMarket)
+                {
+                    <option value="@item.Name">@item.NameShow</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="weui-cell" id="TAPanel">
+        <div class="weui-cell__hd"><label class="weui-label">个人区域编码</label></div>
+        <div class="weui-cell__bd">
+            <select class="weui-select" name="TACode" id="TACode">
+                @if (ViewBag.TACODE == null || ViewBag.TACODE == "")
+                {
+
+                }
+                @foreach (var item in ViewBag.listTACode)
+            {
+                    <option value="@item.Name">@item.NameShow</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    @*<div id="agentButton" style="display:none">
+            <button type="button" class="weui-btn weui-btn_orange" style="margin-top:20px;margin-bottom:20px;" onclick="Redistribute()">是否分配代理人</button>
+        </div>*@
+    <div id="agent" style="display:none">
+        <input type="hidden" id="DelegateID" value="" />
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">审批代理人Ⅰ<BR />MUDID（包含：直线经理审批)</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="DelegateUserMUDID" value="" onchange="ShowName()" placeholder="请输入代理人MUDID" />
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">审批代理人Ⅰ<BR />姓名</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="DelegateUserName" name="DelegateUserName" disabled="disabled" />
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">开始时间</label></div>
+            <div class="weui-cell__bd">
+                <input type="date" id='datetime-start' style="height:25px; border-radius:4px;" />
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">结束时间</label></div>
+            <div class="weui-cell__bd">
+                <input type="date" id='datetime-end' style="height:25px; border-radius:4px;" />
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">是否启用</label></div>
+            <div class="weui-cell__bd">
+                <input name="IsEnable" type="radio" value="1" id="1" /><span>是</span>&nbsp;&nbsp;&nbsp;&nbsp;<input name="IsEnable" type="radio" value="0" id="0" checked><span>否</span>
+            </div>
+        </div>
+    </div>
+    <div id="SecondAgent" style="display:none">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">审批代理人Ⅱ<BR />MUDID（包含：预申请)</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="SecondDelegateUserMUDID" value="" onchange="ShowSecondName()" placeholder="请输入代理人MUDID" />
+            </div>
+        </div>
+        <input type="hidden" id="SecondDelegateID" value="" />
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">审批代理人Ⅱ<BR />姓名</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="SecondDelegateUserName" name="SecondDelegateUserName" disabled="disabled" />
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">开始时间</label></div>
+            <div class="weui-cell__bd">
+                <input type="date" id='datetime-start-second' style="height:25px; border-radius:4px;" />
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">结束时间</label></div>
+            <div class="weui-cell__bd">
+                <input type="date" id='datetime-end-second' style="height:25px; border-radius:4px;" />
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">是否启用</label></div>
+            <div class="weui-cell__bd">
+                <input name="IsEnable_Second" type="radio" value="1" id="1_Second" /><span>是</span>&nbsp;&nbsp;&nbsp;&nbsp;<input name="IsEnable_Second" type="radio" value="0" id="0_Second" checked><span>否</span>
+            </div>
+        </div>
+    </div>
+    <div class="js_dialog" id="dlgAlear" style="display: none; z-index: 15000;">
+        <div class="weui-mask"></div>
+        <div class="weui-dialog">
+            <div class="weui-dialog__bd">
+                <div class="icon">
+                    <i class="weui-icon-success weui-icon_msg" style="color: rgba(242, 106, 32, 1);"></i>
+                </div>
+                <div class="body">
+
+                </div>
+            </div>
+            <div class="weui-dialog__ft">
+                <a href="javascript:;" class="weui-dialog__btn weui-dialog__btn_primary btnOK" style="color: rgba(242, 106, 32, 1);">确定</a>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="weui-btn weui-btn_orange" style="margin-top:20px;margin-bottom:20px;" onclick="submit()">保存</button>
+</div>
+
+<script>
+
+
+    function showDlg(txt, btnTxt, btnCallback, icon) {
+        $('#dlgAlear .weui-dialog__bd .body').html(txt);
+
+        if (btnTxt == undefined) {
+            btnTxt = '确定';
+        }
+        $('#dlgAlear .btnOK').html(btnTxt);
+
+        $('#dlgAlear .btnOK').unbind('click');
+        $('#dlgAlear .btnOK').click(function () {
+            if (btnCallback != undefined) {
+                btnCallback();
+            }
+            $('#dlgAlear').hide();
+        });
+
+        if (icon == undefined) {
+            icon = 'info';
+        }
+
+        $('#dlgAlear .weui-dialog__bd .icon').hide();
+        if (icon == 'success') {
+            $('#dlgAlear .weui-dialog__bd .icon').show();
+            $('#dlgAlear .weui-dialog__bd .icon').html('<i class="weui-icon-success weui-icon_msg" style="color: rgba(242, 106, 32, 1);"></i>');
+        } else if (icon == 'info') {
+            $('#dlgAlear .weui-dialog__bd .icon').show();
+            $('#dlgAlear .weui-dialog__bd .icon').html('<i class="weui-icon-info weui-icon_msg" style="color: rgba(242, 106, 32, 1);"></i>');
+        } else if (icon == 'warn') {
+            $('#dlgAlear .weui-dialog__bd .icon').show();
+            $('#dlgAlear .weui-dialog__bd .icon').html('<i class="weui-icon-warn weui-icon_msg" style="color: rgba(242, 106, 32, 1);"></i>');
+        } else if (icon == 'cancel') {
+            $('#dlgAlear .weui-dialog__bd .icon').show();
+            $('#dlgAlear .weui-dialog__bd .icon').html('<i class="weui-icon-cancel weui-icon_msg" style="color: red;"></i>');
+        }
+
+
+        $('#dlgAlear').show();
+    }
+</script>

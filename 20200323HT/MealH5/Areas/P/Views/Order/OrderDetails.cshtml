@@ -1,0 +1,678 @@
+﻿
+@{
+    ViewBag.Title = "HT订单详情";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+<link rel="stylesheet" href="~/Content/css/food_order.css?v=javaScriptVersion" />
+
+<script type="text/javascript">
+    var orderId = '@ViewBag.orderId';
+    var fromuri = '@ViewBag.fromuri';
+   // var awsUrl = '@MealH5.Handler.WebConfigHandler.AWSService';
+    var awsUrl = '';
+    var supplier = '@ViewBag.supplier';
+    var render;
+    var renderMMCoE;
+    var orderInfo;
+    var _contextUri = contextUri;
+    var evaluate;
+
+    $(function () {
+            render = template('tmpl_order');
+            renderMMCoE = template('tmpl_images');
+
+            post('/P/Order/LoadHTOrderInfo', { id: orderId },
+                function (d) {
+                    orderInfo = d.data;
+                    orderInfo.DeliverTime = getDateByDotNet(orderInfo.DeliverTime);
+                    orderInfo.CreateDate = getDateByDotNet(orderInfo.CreateDate);
+                    orderInfo.MMCoE = getMMCoEState(orderInfo.MMCoEApproveState);
+
+                    var json = d.data.Detail;
+                    if (d.data.IsChange == 1) {
+                        json = d.data.ChangeDetail;
+                    }
+                    var _orderInfo = JSON.parse(json);
+                    _orderInfo.details.deliverTime = _orderInfo.details.deliverTime.toString().replace(/T/g, ' ').substring(0, 16);
+
+                    orderInfo.Detail = _orderInfo;
+                    var _channel = orderInfo.Channel;
+                    if (_channel == 'xms') {
+                        _channel = 'XMS';
+                    } else {
+                        _channel = 'BDS';
+                    }
+                    orderInfo.Channel = _channel;
+                    var html = render(orderInfo);
+                    $('#orderinfo').html(html);
+
+                    if (_orderInfo.mmCoE != null && _orderInfo.mmCoE != undefined && _orderInfo.mmCoE != '') {
+                        var images = _orderInfo.mmCoE.split(',');
+                        images.forEach(function (v, i) {
+                            images[i] = awsUrl + images[i];
+                        });
+
+                        var html = $(renderMMCoE({ items: images }));
+                        var imageUrls = new Array();
+                        var http = location.protocol + '//' + location.host;
+                        for (var i in images) {
+                            var _url = images[i];
+                            imageUrls.push(_url);
+                        }
+                        $('#mmCoEImages').html(html);
+                        $('#mmCoEImages img').each(function (i, e) {
+                            $(this).click(function () {
+                                WeixinJSBridge.invoke('imagePreview', {
+                                    'current': imageUrls[i],
+                                    'urls': imageUrls
+                                });
+                            });
+                        });
+                    }
+
+                    if (orderInfo.State == 9 || orderInfo.State == 8) {
+                        post('/P/Order/LoadEvaluate', { id: orderId },
+                            function (d) {
+                                evaluate = d.data;
+                                if (orderInfo.State == 9) {
+                                    var render9 = template('tmpl_evaluate');
+                                    evaluate.OnTimeName = getState1(evaluate.OnTime);
+                                    evaluate.IsSafe = getState2(evaluate.IsSafe);
+                                    evaluate.Health = getState3(evaluate.Health);
+                                    evaluate.Pack = getState3(evaluate.Pack);
+                                    evaluate.CostEffective = getState3(evaluate.CostEffective);
+                           
+                                    var html = render9(evaluate);
+                                    $('#evaluateinfo').html(html);
+                                    iPath.Star();
+                                    if (evaluate.SafeImage != null && evaluate.SafeImage != undefined && evaluate.SafeImage != '') {
+                                        var images = evaluate.SafeImage.split(',');
+                                        images.forEach(function (v, i) {
+                                            images[i] = awsUrl + images[i];
+                                        });
+                                        var html = $(renderMMCoE({ items: images }));
+                                        var safeImageUrls = new Array();
+                                        var http = location.protocol + '//' + location.host;
+                                        for (var i in images) {
+                                            var _safeImageUrl = images[i];
+                                            safeImageUrls.push(_safeImageUrl);
+                                        }
+                                        $('#safeImage').html(html);
+                                        $('#safeImage img').each(function (i, e) {
+                                            $(this).click(function () {
+                                                WeixinJSBridge.invoke('imagePreview', {
+                                                    'current': safeImageUrls[i],
+                                                    'urls': safeImageUrls
+                                                });
+                                            });
+                                        });
+                                    }
+
+                                    if (evaluate.HealthImage != null && evaluate.HealthImage != undefined && evaluate.HealthImage != '') {
+                                        var images = evaluate.HealthImage.split(',');
+                                        images.forEach(function (v, i) {
+                                            images[i] = awsUrl + images[i];
+                                        });
+                                        var html = $(renderMMCoE({ items: images }));
+                                        var healthImageUrls = new Array();
+                                        var http = location.protocol + '//' + location.host;
+                                        for (var i in images) {
+                                            var _url = images[i];
+                                            healthImageUrls.push(_url);
+                                        }
+                                        $('#healthImage').html(html);
+                                        $('#healthImage img').each(function (i, e) {
+                                            $(this).click(function () {
+                                                WeixinJSBridge.invoke('imagePreview', {
+                                                    'current': healthImageUrls[i],
+                                                    'urls': healthImageUrls
+                                                });
+                                            });
+                                        });
+                                    }
+
+                                    if (evaluate.PackImage != null && evaluate.PackImage != undefined && evaluate.PackImage != '') {
+                                        var images = evaluate.PackImage.split(',');
+                                        images.forEach(function (v, i) {
+                                            images[i] = awsUrl + images[i];
+                                        });
+                                        var html = $(renderMMCoE({ items: images }));
+                                        var packImageUrls = new Array();
+                                        var http = location.protocol + '//' + location.host;
+                                        for (var i in images) {
+                                            var _url = images[i];
+                                            packImageUrls.push(_url);
+                                        }
+                                        $('#packImage').html(html);
+                                        $('#packImage img').each(function (i, e) {
+                                            $(this).click(function () {
+                                                WeixinJSBridge.invoke('imagePreview', {
+                                                    'current': packImageUrls[i],
+                                                    'urls': packImageUrls
+                                                });
+                                            });
+                                        });
+                                    }
+
+                                    if (evaluate.CostEffectiveImage != null && evaluate.CostEffectiveImage != undefined && evaluate.CostEffectiveImage != '') {
+                                        var images = evaluate.CostEffectiveImage.split(',');
+                                        images.forEach(function (v, i) {
+                                            images[i] = awsUrl + images[i];
+                                        });
+                                        var html = $(renderMMCoE({ items: images }));
+                                        var costEffectiveImageUrls = new Array();
+                                        var http = location.protocol + '//' + location.host;
+                                        for (var i in images) {
+                                            var _url = images[i];
+                                            costEffectiveImageUrls.push(_url);
+                                        }
+                                        $('#costEffectiveImage').html(html);
+                                        $('#costEffectiveImage img').each(function (i, e) {
+                                            $(this).click(function () {
+                                                WeixinJSBridge.invoke('imagePreview', {
+                                                    'current': costEffectiveImageUrls[i],
+                                                    'urls': costEffectiveImageUrls
+                                                });
+                                            });
+                                        });
+                                    }
+                                } else {
+                                    var render8 = template('tmpl_undelivered');
+                                    var html = render8(evaluate);
+                                    $('#evaluateinfo').html(html);
+                                }
+                            }, 'json');
+                    }
+
+                    // 控制底部按钮显隐可用状态
+                    onOrderLoadSuccess();
+
+                }, 'json');
+
+        });
+    
+    function getMMCoEState(state) {
+            var res;
+            switch (state) {
+                case 0:
+                    res = '不需要审批';
+                    break;
+                case 1:
+                    res = '等待审批';
+                    break;
+                case 2:
+                    res = '审批拒绝';
+                    break;
+                case 3:
+                    res = '审批通过';
+                    break;
+            }
+            return res;
+        }
+    
+    function getState1(state) {
+            var res;
+            switch (state) {
+        
+                case 1:
+                    res = '迟到60分钟及以上';
+                    break;
+                case 2:
+                    res = '迟到60分钟以内';
+                    break;
+                case 3:
+                    res = '早到';
+                    break;
+                case 4:
+                    res = '准点';
+                    break;
+                case 5:
+                    res = '迟到60分及以上';
+                    break;
+                case 6:
+                    res = '迟到30-60分钟';
+                    break;
+                case 7:
+                    res = '迟到30分钟以内';
+                    break;
+                case 8:
+                    res = '早到30分钟及以上';
+                    break;
+                case 9:
+                    res = '早到30分钟以内';
+                    break;
+                case 10:
+                    res = '准点';
+                    break;
+                default:
+                    res = '';
+                    break;
+            }
+            return res;
+        }
+    
+    function getState2(state) {
+            var res;
+            if (state == 1) {
+                res = '有问题';
+            }
+            else if (state == 2) {
+                res = '无问题';
+            }
+            else {
+                res = '';
+            }
+            return res;
+        }
+    
+    function getState3(state) {
+            var res;
+            switch (state) {
+                case 1:
+                    res = '好';
+                    break;
+                case 2:
+                    res = '中';
+                    break;
+                case 3:
+                    res = '差';
+                    break;
+                default:
+                    res = ''
+                    break;
+            }
+            return res;
+        }
+    
+    onOrderLoadSuccess = function () { };
+
+</script>
+
+<style type="text/css">
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 60px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 55px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .weui-btn + .weui-btn {
+        margin-top: 0px;
+    }
+
+    .weui-btn {
+        font-size: 10px;
+    }
+
+    .weui-tabbar {
+        background-color: #FFFFFF;
+    }
+
+    .weui-tabbar__item {
+        padding: 10px 5px 10px 0px;
+    }
+
+        .weui-tabbar__item:first-child {
+            padding-left: 5px;
+        }
+
+    .weui-tabbar__label {
+        color: #ffffff;
+        background-color: rgb(255,102,2);
+        border-radius: 5px;
+        font-size: 14px;
+        padding: 5px 0px;
+    }
+
+    .weui-tabbar__label_disabled {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .my_weui-cells__title {
+        color: rgba(242, 106, 32, 1);
+        font-weight: bold;
+    }
+
+    .weui-label {
+        width: 160px;
+    }
+</style>
+
+
+<script type="text/html" id="tmpl_order">
+
+    <div class="weui-cells__title">
+        基本信息
+        {{if ReceiveCode}}
+        <div class="code" style="float:right;">收餐码：{{ReceiveCode}}</div>
+        {{/if}}
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">CN号</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.CnCode}}
+            </div>
+        </div>
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">Market</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.hospital.market}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">供应商</label></div>
+            <div class="weui-cell__bd">
+                {{Channel}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">呼叫中心</label></div>
+            {{if Channel=='XMS'}}
+            <a href="tel:400-820-5577">400-820-5577</a>
+            {{else}}
+            <a href="tel:400-6868-912">400-6868-912</a>
+            {{/if}}
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">MUDID</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.meeting.userId}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">会议人数</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.details.attendCount}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">预定金额</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.foods.allPrice}}
+            </div>
+        </div>
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">实际金额</label></div>
+            <div class="weui-cell__bd">
+                {{if XmsTotalPrice > 0 && XmsTotalPrice != Detail.foods.allPrice}}
+                {{XmsTotalPrice}}
+                {{else}}
+                {{Detail.foods.allPrice}}
+                {{/if}}
+            </div>
+        </div>
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">金额调整原因</label></div>
+            <div class="weui-cell__bd">
+                {{ChangeTotalPriceReason}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">医院名称</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.hospital.hospitalName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">送餐地址</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.hospital.address}} {{Detail.details.deliveryAddress}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">收餐人</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.details.consignee}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联系电话</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.details.phone}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">送餐时间</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.details.deliverTime}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">会议名称</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.meeting.title}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">备注</label></div>
+            <div class="weui-cell__bd">
+                {{Detail.details.remark}}
+            </div>
+        </div>
+    </div>
+    <div class="foodinfo">
+        <div class="supplier">
+            <span>{{Detail.foods.resName}}</span>
+            <span>总价：{{Detail.foods.allPrice}}元</span>
+        </div>
+        <div class="details">
+            {{each Detail.foods.foods}}
+            <div>
+                <span>￥{{$value.price}}</span>
+                <span>x{{$value.count}}</span>
+                <div>
+                    {{$value.foodName}}
+                </div>
+            </div>
+            {{/each}}
+        </div>
+        <div class="other">
+            <div>
+                <span>￥{{Detail.foods.sendFee}}</span>
+                <div>
+                    配送费
+                </div>
+            </div>
+            <div>
+                <span>￥{{Detail.foods.packageFee}}</span>
+                <div>
+                    包装费
+                </div>
+            </div>
+        </div>
+    </div>
+    {{if Detail.mmCoE}}
+    <div class="weui-cells__title">
+        MMCoE
+        <div class="code" style="float:right;">{{MMCoE}}</div>
+    </div>
+    <div class="weui-cells">
+        <div class="weui-uploader__bd">
+            <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="mmCoEImages">
+
+            </div>
+        </div>
+    </div>
+    {{/if}}
+
+</script>
+
+<script type="text/html" id="tmpl_images">
+    {{each items}}
+    <img class="weui-uploader__input-box choosedwximage" src="{{$value}}" style="margin:10px 0 16px 10px;" />
+    {{/each}}
+</script>
+
+<script type="text/html" id="tmpl_evaluate">
+    <div class="weui-cells weui-cells_form">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">评分</label></div>
+            <div class="star_panel" data="{{Star}}">
+                @for (var i = 0; i < 5; i++)
+                {
+                    <div class="star">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title my_weui-cells__title">
+        准点率
+        <div class="code" style="float:right;">{{OnTimeName}}</div>
+    </div>
+    <div class="weui-cells">
+        {{if OnTime == 1 }}
+        <div class="weui-cell" id="_describe">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" placeholder="情况描述" rows="3" maxlength="200" readonly="readonly">{{OnTimeDiscrpion}}</textarea>
+            </div>
+        </div>
+        {{/if}}
+    </div>
+
+    <div class="weui-cells__title my_weui-cells__title">
+        食品安全存在问题
+        <div class="code" style="float:right;">{{IsSafe}}</div>
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" readonly="readonly">{{SafeDiscrpion}}</textarea>
+            </div>
+        </div>
+        <div class="weui-cells">
+            <div class="weui-uploader__bd">
+                <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="safeImage">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title my_weui-cells__title">
+        餐品卫生及新鲜
+        <div class="code" style="float:right;">{{Health}}</div>
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" readonly="readonly">{{HealthDiscrpion}}</textarea>
+            </div>
+        </div>
+        <div class="weui-cells">
+            <div class="weui-uploader__bd">
+                <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="healthImage">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title my_weui-cells__title">
+        餐品包装
+        <div class="code" style="float:right;">{{Pack}}</div>
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" readonly="readonly">{{PackDiscrpion}}</textarea>
+            </div>
+        </div>
+        <div class="weui-cells">
+            <div class="weui-uploader__bd">
+                <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="packImage">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title my_weui-cells__title">
+        餐品性价比
+        <div class="code" style="float:right;">{{CostEffective}}</div>
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" readonly="readonly">{{CostEffectiveDiscrpion}}</textarea>
+            </div>
+        </div>
+        <div class="weui-cells">
+            <div class="weui-uploader__bd">
+                <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="costEffectiveImage">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title my_weui-cells__title">其他评价</div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" readonly="readonly">{{OtherDiscrpion}}</textarea>
+            </div>
+        </div>
+    </div>
+
+</script>
+
+<script type="text/html" id="tmpl_undelivered">
+    <div class="weui-cells__title">未送达情况描述</div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" readonly="readonly" rows="5">{{OnTimeDiscrpion}}</textarea>
+            </div>
+        </div>
+    </div>
+</script>
+
+
+<div class="page-main">
+    <div class="page__bd" style="height: 100%;">
+        <div class="weui-tab">
+            <div class="weui-tab__panel">
+                <div id="orderinfo"></div>
+                <div id="evaluateinfo"></div>
+            </div>
+            <div class="weui-tabbar" id="action_buttons">
+                <a href="javascript:;" class="weui-tabbar__item">
+                    <p class="weui-tabbar__label weui-tabbar__label_disabled">确认收餐</p>
+                </a>
+                <a href="javascript:;" class="weui-tabbar__item">
+                    <p class="weui-tabbar__label weui-tabbar__label_disabled">修改订单</p>
+                </a>
+                <a href="javascript:;" class="weui-tabbar__item">
+                    <p class="weui-tabbar__label weui-tabbar__label_disabled">退订</p>
+                </a>
+                <a href="javascript:;" class="weui-tabbar__item">
+                    <p class="weui-tabbar__label weui-tabbar__label_disabled">未送达</p>
+                </a>
+                <a href="javascript:;" class="weui-tabbar__item">
+                    <p class="weui-tabbar__label weui-tabbar__label_disabled">评价投诉</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

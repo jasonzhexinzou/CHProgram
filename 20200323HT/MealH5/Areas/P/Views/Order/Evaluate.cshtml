@@ -1,0 +1,921 @@
+﻿@{
+    ViewBag.Title = "评价投诉";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<style type="text/css">
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 60px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    img {
+        width: 77px;
+        height: 77px;
+        margin-top: 5px;
+        margin-right: 8px;
+    }
+
+    .weui-uploader__input-box {
+        background-size: 100% 100%;
+        margin-top: 20px;
+        margin-right: 20px;
+        margin-bottom: 20px;
+    }
+
+    .choosedwximage:before, .choosedwximage:after {
+        content: none;
+    }
+
+    .my_weui-cells {
+        margin-top: 0px;
+    }
+
+    .weui-cells__title {
+        color: rgba(242, 106, 32, 1);
+        font-weight: bold;
+    }
+</style>
+
+<style>
+    .u_topmenu {
+        height: 44px;
+        width: 100%;
+        position: relative;
+        background: rgba(242, 106, 32, 1);
+        padding-left: 10px;
+        padding-right: 10px;
+        box-sizing: border-box;
+        z-index: 1;
+        opacity: 1;
+        top: 0;
+        border-bottom: #eee solid 1px;
+        margin-top: 1.17647059em;
+    }
+
+        .u_topmenu .slider_wrap.line {
+            overflow: hidden;
+            overflow-x: scroll;
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+
+            .u_topmenu .slider_wrap.line li {
+                display: inline-block;
+                height: 39px;
+                width: 16%;
+                overflow: hidden;
+                position: relative;
+            }
+
+        .u_topmenu .slider_wrap.box {
+            overflow: hidden;
+            width: 100%;
+        }
+
+            .u_topmenu .slider_wrap.box li {
+                float: left;
+                width: 16%;
+                height: 44px;
+            }
+
+        .u_topmenu .slider_wrap::-webkit-scrollbar {
+            display: none;
+        }
+
+        .u_topmenu .u_c_items {
+            white-space: nowrap;
+        }
+
+            .u_topmenu .u_c_items a {
+                font-family: MicrosoftYaHei;
+                font-size: 15px;
+                letter-spacing: 1px;
+                color: #ffffff;
+                line-height: 44px;
+                white-space: nowrap;
+                display: block;
+                -webkit-tap-highlight-color: #ffffff;
+                text-align: center;
+                cursor: pointer;
+            }
+
+            .u_topmenu .u_c_items .on {
+                border-bottom: #ffffff solid 2px;
+            }
+</style>
+
+<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+
+<script type="text/javascript">
+    /**/
+    var jsapiurl = '@MealH5.Handler.WebConfigHandler.ShortUrlService/JsApi/QyConfigJs?debug=false&url=' + UrlEncode(window.location.href);
+    /**/
+    document.write('<script type="text/javascript" src="' + jsapiurl + '"><\/script>');
+</script>
+
+<script type="text/javascript">
+    /**/
+    var orderID = '@ViewBag.OrderId';
+    /**/
+    /**/
+    var restaurantId = '@ViewBag.resId';
+    /**/
+    var stars = 0;
+    var orderEvaluate = false;
+
+    $(function () {
+
+        //默认显示准点率
+        $('#zhundian').show();
+        $('#anquan').hide();
+        $('#weisheng').hide();
+        $('#baozhuang').hide();
+        $('#xingjiabi').hide();
+        $('#qita').hide();
+        $('#divNext').show();
+        $('#divSubmit').hide();
+
+
+        //显示星级
+        $("#star_level").find('.clickstar:lt(' + stars + ')').addClass('clickstar_checked');
+
+        //评星
+        $('.clickstar').click(function () {
+            stars = $(this).index();
+            stars++;
+            $(this).parent().find('.clickstar').removeClass('clickstar_checked');
+            $(this).parent().find('.clickstar:lt(' + stars + ')').addClass('clickstar_checked');
+        });
+
+
+
+        $('#btnSubmit').on('click', function () {
+            if (orderEvaluate) {
+                return;
+            }
+            //orderEvaluate = true;
+            submitEvaluate();
+        });
+
+        $('#btnReturn').on('click', function () {
+            window.history.go(-1);
+        });
+
+        $('#safeDiscepion').on('click', function () {
+            $('#_safeDiscepion').hide();
+        });
+        $('#onTimeDiscripion').on('click', function () {
+            $('#_onTimeDiscepion').hide();
+        });
+
+        $('#btnNext').on('click', function () {
+
+            var tableName = $('.on').text();
+            var onTime = $('input[name="onTime"]:checked').length > 0 ? $('input[name="onTime"]:checked').val() : 0;
+            var isSafe = $('input[name="isSafe"]:checked').length > 0 ? $('input[name="isSafe"]:checked').val() : 0;
+            var health = $('input[name="health"]:checked').length > 0 ? $('input[name="health"]:checked').val() : 0;
+            var pack = $('input[name="packDiscrpion"]:checked').length > 0 ? $('input[name="packDiscrpion"]:checked').val() : 0;
+            var costEffective = $('input[name="costEffective"]:checked').length > 0 ? $('input[name="costEffective"]:checked').val() : 0;
+            var onTimeDiscripion = $('#onTimeDiscripion').val();
+            var safeDiscepion = $('#safeDiscepion').val();
+
+
+
+            if (tableName == "准点率") {
+                if (onTime == 5 && onTimeDiscripion.length < 8) {
+                    $('#_onTimeDiscepion').show();
+                    showTopMsg('请填写具体迟到的时间和情况描述，至少八个字以上');
+                    return;
+                }
+                if (onTime == 0) {
+                    showTopMsg('请选择准点率');
+                    return;
+                }
+                else {
+                    $('li').removeClass('on');
+                    $("li[_name='安全']").addClass('on');
+                    $('#zhundian').hide();
+                    $('#anquan').show();
+                    $('#weisheng').hide();
+                    $('#baozhuang').hide();
+                    $('#xingjiabi').hide();
+                    $('#qita').hide();
+                }
+            }
+            if (tableName == "食品安全") {
+                if (isSafe == 1 && safeDiscepion.length < 8) {
+                    $('#_safeDiscepion').show();
+                    showTopMsg('请填写具体食品安全投诉详情，至少八个字以上');
+                    return;
+                }
+                if (isSafe == 0) {
+                    showTopMsg('请选择食品安全');
+                    return;
+                }
+                else {
+                    $('li').removeClass('on');
+                    $("li[_name='卫生']").addClass('on');
+                    $('#zhundian').hide();
+                    $('#anquan').hide();
+                    $('#weisheng').show();
+                    $('#baozhuang').hide();
+                    $('#xingjiabi').hide();
+                    $('#qita').hide();
+                }
+            }
+            if (tableName == "卫生及新鲜") {
+                if (health == 0) {
+                    showTopMsg('请选择餐品卫生及新鲜');
+                    return;
+                }
+                else {
+                    $('li').removeClass('on');
+                    $("li[_name='包装']").addClass('on');
+                    $('#zhundian').hide();
+                    $('#anquan').hide();
+                    $('#weisheng').hide();
+                    $('#baozhuang').show();
+                    $('#xingjiabi').hide();
+                    $('#qita').hide();
+                }
+            }
+            if (tableName == "餐品包装") {
+                if (pack == 0) {
+                    showTopMsg('请选择餐品包装');
+                    return;
+                }
+                else {
+                    $('li').removeClass('on');
+                    $("li[_name='性价比']").addClass('on');
+                    $('#zhundian').hide();
+                    $('#anquan').hide();
+                    $('#weisheng').hide();
+                    $('#baozhuang').hide();
+                    $('#xingjiabi').show();
+                    $('#qita').hide();
+                }
+            }
+            if (tableName == "性价比") {
+                if (costEffective == 0) {
+                    showTopMsg('请选择餐品性价比');
+                    return;
+                }
+                else {
+                    $('li').removeClass('on');
+                    $("li[_name='其他']").addClass('on');
+                    $('#zhundian').hide();
+                    $('#anquan').hide();
+                    $('#weisheng').hide();
+                    $('#baozhuang').hide();
+                    $('#xingjiabi').hide();
+                    $('#qita').show();
+                    $('#divNext').hide();
+                    $('#divSubmit').show();
+                }
+            }
+
+            if (tableName == "其他评价") {
+                $('li').removeClass('on');
+                $("li[_name='准点']").addClass('on');
+                $('#zhundian').show();
+                $('#anquan').hide();
+                $('#weisheng').hide();
+                $('#baozhuang').hide();
+                $('#xingjiabi').hide();
+                $('#qita').hide();
+                $('#divNext').show();
+                $('#divSubmit').hide();
+            }
+
+            if (onTime != 0 && isSafe != 0 && health != 0 && pack != 0 && costEffective != 0) {
+                $('#divNext').hide();
+                $('#divSubmit').show();
+            }
+            else {
+                $('#divNext').show();
+                $('#divSubmit').hide();
+            }
+
+        });
+
+    });
+
+    //控制显示的标签
+    function selectType(name) {
+        switch (name) {
+            case '准点':
+                $('li').removeClass('on');
+                $("li[_name='" + name + "']").addClass('on');
+                $('#zhundian').show();
+                $('#anquan').hide();
+                $('#weisheng').hide();
+                $('#baozhuang').hide();
+                $('#xingjiabi').hide();
+                $('#qita').hide();
+                break;
+            case '安全':
+                $('li').removeClass('on');
+                $("li[_name='" + name + "']").addClass('on');
+                $('#zhundian').hide();
+                $('#anquan').show();
+                $('#weisheng').hide();
+                $('#baozhuang').hide();
+                $('#xingjiabi').hide();
+                $('#qita').hide();
+                break;
+            case '卫生':
+                $('li').removeClass('on');
+                $("li[_name='" + name + "']").addClass('on');
+                $('#zhundian').hide();
+                $('#anquan').hide();
+                $('#weisheng').show();
+                $('#baozhuang').hide();
+                $('#xingjiabi').hide();
+                $('#qita').hide();
+                break;
+            case '包装':
+                $('li').removeClass('on');
+                $("li[_name='" + name + "']").addClass('on');
+                $('#zhundian').hide();
+                $('#anquan').hide();
+                $('#weisheng').hide();
+                $('#baozhuang').show();
+                $('#xingjiabi').hide();
+                $('#qita').hide();
+                break;
+            case '性价比':
+                $('li').removeClass('on');
+                $("li[_name='" + name + "']").addClass('on');
+                $('#zhundian').hide();
+                $('#anquan').hide();
+                $('#weisheng').hide();
+                $('#baozhuang').hide();
+                $('#xingjiabi').show();
+                $('#qita').hide();
+                break;
+            case '其他':
+                $('li').removeClass('on');
+                $("li[_name='" + name + "']").addClass('on');
+                $('#zhundian').hide();
+                $('#anquan').hide();
+                $('#weisheng').hide();
+                $('#baozhuang').hide();
+                $('#xingjiabi').hide();
+                $('#qita').show();
+                break;
+        }
+    }
+
+</script>
+
+<script type="text/javascript">
+
+    function to_change() {
+        var isSafe = $('input[name="isSafe"]:checked').length > 0 ? $('input[name="isSafe"]:checked').val() : 0;
+        if (isSafe == 1) {
+            if ($(safeDiscepion_image1).val() == '' && $(safeDiscepion_image2).val() == '') {
+
+                showConfim('', '请您上传照片，以便订餐供应商与餐厅沟通此投诉', function () {
+                    var safeupload = document.getElementById('divsafeupload');
+                    chooseWxImage(safeupload, 'safeDiscepion_image1');
+
+                }, '上传照片', '不上传', function () {
+
+                });
+            }
+            //showConfim('', '您正在进行食品安全问题的严重投诉，请在文本框填写至少八个文字以上的详细描述。', function () {
+
+            //}, '继续', '放弃', function () {
+            //    for (var i = 0; i < $('input[name="isSafe"]:checked').length; i++) {
+            //        if ($('input[name="isSafe"]:checked')[i].checked == true) {
+            //            $('input[name="isSafe"]:checked')[i].checked = false;
+            //        }
+            //    }
+            //});
+        }
+    }
+    function to_check(safeid) {
+        var notsafe = safeid;
+        var issafecheck = '';
+        if (notsafe == 'notsafe') {
+            var $issafecheck = document.getElementById('issafecheck');
+            $issafecheck.checked = true;
+            issafecheck = '1';
+        }
+        else {
+            var $safecheck = document.getElementById('safecheck');
+            $safecheck.checked = true;
+            issafecheck = '2';
+        }
+        if (issafecheck == 1) {
+            if ($(safeDiscepion_image1).val() == '' && $(safeDiscepion_image2).val() == '') {
+
+                showConfim('', '请您上传照片，以便订餐供应商与餐厅沟通此投诉', function () {
+                    var safeupload = document.getElementById('divsafeupload');
+                    chooseWxImage(safeupload, 'safeDiscepion_image1');
+
+                }, '上传照片', '不上传', function () {
+
+                });
+            }
+        }
+    }
+
+    function badcheck() {
+        var $isbadcheck = document.getElementById('checkbad');
+        $isbadcheck.checked = true;
+        if ($(packDiscrpion_image1).val() == '' && $(packDiscrpion_image2).val() == '') {
+
+            showConfim('', '请您上传照片，以便订餐供应商与餐厅沟通此投诉', function () {
+                var badupload = document.getElementById('divbadupload');
+                chooseWxImage(badupload, 'packDiscrpion_image1');
+
+            }, '上传照片', '不上传', function () {
+
+            });
+        }
+    }
+
+    function chooseWxImage(dom, domId) {
+
+        var $btnUploadImage = $(dom);
+
+        wx.chooseImage({
+            count: 1,
+            sizeType: ['original', 'compressed'],
+            sourceType: ['album', 'camera'],
+            success: function (res) {
+                var localId = res.localIds[0];
+                wx.uploadImage({
+                    localId: localId,
+                    isShowProgressTips: 1,
+                    success: function (res) {
+                        var serverId = res.serverId;
+
+                        post('/FileService/Save', { id: serverId }, function (d) {
+                            $btnUploadImage.addClass('choosedwximage');
+                            $btnUploadImage.css('background-image', 'url(' + '@MealH5.Handler.WebConfigHandler.AWSService' + d.data + ')');
+                            $btnUploadImage.find("i").show();
+                            $('#' + domId).val(d.data);
+                        }, 'json');
+                    },
+                    fail: function (res) { showDlg(MSG_UPLOADIMAGE); }
+                });
+            }
+        });
+    }
+
+    function removeWxImage(dom, domId) {
+        var $btnUploadImage = $(dom).parent();
+        $btnUploadImage.css("background-image", "");
+        $btnUploadImage.removeClass("choosedwximage");
+        $btnUploadImage.find("i").hide();
+        $('#' + domId).val('');
+    }
+
+    function getImageByFun(funId) {
+        var vals = new Array();
+        $('input[name="' + funId + '"]').each(function () {
+            var _val = $(this).val();
+            if (_val.length > 0) {
+                vals.push(_val);
+            }
+        });
+        return vals.toString();
+    }
+
+    function submitEvaluate() {
+        var onTime = $('input[name="onTime"]:checked').length > 0 ? $('input[name="onTime"]:checked').val() : 0;
+        var isSafe = $('input[name="isSafe"]:checked').length > 0 ? $('input[name="isSafe"]:checked').val() : 0;
+        var health = $('input[name="health"]:checked').length > 0 ? $('input[name="health"]:checked').val() : 0;
+        var pack = $('input[name="packDiscrpion"]:checked').length > 0 ? $('input[name="packDiscrpion"]:checked').val() : 0;
+        var costEffective = $('input[name="costEffective"]:checked').length > 0 ? $('input[name="costEffective"]:checked').val() : 0;
+
+        if (stars == 0) {
+            showTopMsg('请选择星级');
+            return;
+        }
+        if (onTime == 0) {
+            showTopMsg('请选择准点率');
+            return;
+        }
+        if (isSafe == 0) {
+            showTopMsg('请选择食品安全');
+            return;
+        }
+        if (health == 0) {
+            showTopMsg('请选择餐品卫生及新鲜');
+            return;
+        }
+        if (pack == 0) {
+            showTopMsg('请选择餐品包装');
+            return;
+        }
+        if (costEffective == 0) {
+            showTopMsg('请选择餐品性价比');
+            return;
+        }
+        var onTimeDiscripion = $('#onTimeDiscripion').val();
+
+        var safeDiscepion = $('#safeDiscepion').val();
+        var safeImage = getImageByFun('safeDiscepionImage');
+
+        var healthDiscrpion = $('#healthDiscrpion').val();
+        var healthImage = getImageByFun('healthDiscepionImage');
+
+        var packDiscrpion = $('#packDiscrpion').val();
+        var packImage = getImageByFun('packDiscepionImage');
+
+        var costEffectiveDiscrpion = $('#costEffectiveDiscrpion').val();
+        var costEffectiveImage = getImageByFun('costEffectiveDiscepionImage');
+
+        var otherDiscrpion = $('#otherDiscrpion').val();
+
+        if (onTime == 5 && onTimeDiscripion.length < 8) {
+            $('#_onTimeDiscepion').show();
+            showTopMsg('请填写具体迟到的时间和情况描述，至少八个字以上');
+            return;
+        }
+
+        if (isSafe == 1 && safeDiscepion.length < 8) {
+            $('#_safeDiscepion').show();
+            showTopMsg('请填写具体食品安全投诉详情，至少八个字以上');
+            return;
+        }
+
+        orderEvaluate = true;
+
+        post('/P/Order/Add',
+        {
+            orderID: orderID,
+            restaurantId: restaurantId,
+            star: stars,
+            onTime: onTime,
+            onTimeDiscripion: onTimeDiscripion,
+            isSafe: isSafe,
+            safeDiscepion: safeDiscepion,
+            safeImage: safeImage,
+            health: health,
+            healthDiscrpion: healthDiscrpion,
+            healthImage: healthImage,
+            pack: pack,
+            packDiscrpion: packDiscrpion,
+            packImage: packImage,
+            costEffective: costEffective,
+            costEffectiveDiscrpion: costEffectiveDiscrpion,
+            costEffectiveImage: costEffectiveImage,
+            otherDiscrpion: otherDiscrpion
+        },
+        function (d) {
+            showDlg('提交成功', '确定', function () {
+                WeixinJSBridge.call('closeWindow');
+            }, 'success');
+        }, 'json');
+
+    }
+
+
+</script>
+
+
+
+<div class="page-main" id="evaluate">
+    <div class="page-body">
+
+        <div class="weui-cells weui-cells_form">
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">评分</label></div>
+                <div>
+                    <span id="star_level">
+                        <span class="clickstar"></span>
+                        <span class="clickstar"></span>
+                        <span class="clickstar"></span>
+                        <span class="clickstar"></span>
+                        <span class="clickstar"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="u_topmenu">
+            <div class="slider_wrap line">
+                <ul class="u_c_items" id="titleList">
+                    <li onclick="selectType('准点')" class="on" _name="准点" style="width:25%;"><a href="#">准点率</a></li>
+                    <li onclick="selectType('安全')" _name="安全" style="width:25%;"><a href="#">食品安全</a></li>
+                    <li onclick="selectType('卫生')" _name="卫生" style="width:25%;"><a href="#">卫生及新鲜</a></li>
+                    <li onclick="selectType('包装')" _name="包装" style="width:25%;"><a href="#">餐品包装</a></li>
+                    <li onclick="selectType('性价比')" _name="性价比" style="width:25%;"><a href="#">性价比</a></li>
+                    <li onclick="selectType('其他')" _name="其他" style="width:25%;"><a href="#">其他评价</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tabs-container">
+                <div class="tab-content" id="zhundian">
+                    @*<div class="weui-cells__title">准点率</div>*@
+                    <div class="weui-cells weui-cells_checkbox">
+                        <label class="weui-cell weui-check__label">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="onTime" value="5">
+                            </div>
+                            <div class="weui-cell__bd">
+                                <p>迟到60分钟及以上</p>
+                            </div>
+                        </label>
+                        <div class="weui-cell" id="describe">
+                            <div class="weui-cell__bd">
+                                <textarea class="weui-textarea" placeholder="请填写具体迟到的时间和情况描述，至少八个字以上" rows="3" maxlength="200" id="onTimeDiscripion"></textarea>
+                            </div>
+                            <div class="weui-cell__ft" style="display: none;" id="_onTimeDiscepion">
+                                <i class="weui-icon-warn"></i>
+                            </div>
+                        </div>
+                        <label class="weui-cell weui-check__label">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="onTime" value="6">
+                            </div>
+                            <div class="weui-cell__bd">
+                                <p>迟到30-60分钟</p>
+                            </div>
+                        </label>
+                        <label class="weui-cell weui-check__label">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="onTime" value="7">
+                            </div>
+                            <div class="weui-cell__bd">
+                                <p>迟到30分钟以内</p>
+                            </div>
+                        </label>
+                        <label class="weui-cell weui-check__label">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="onTime" value="8">
+                            </div>
+                            <div class="weui-cell__bd">
+                                <p>早到30分钟及以上</p>
+                            </div>
+                        </label>
+                        <label class="weui-cell weui-check__label">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="onTime" value="9">
+                            </div>
+                            <div class="weui-cell__bd">
+                                <p>早到30分钟以内</p>
+                            </div>
+                        </label>
+                        <label class="weui-cell weui-check__label">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="onTime" value="10">
+                            </div>
+                            <div class="weui-cell__bd">
+                                <p>准点</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div class="tab-content" id="anquan">
+                    @*<div class="weui-cells__title" id="safeFood">食品安全存在问题</div>*@
+                    <div class="weui-cells weui-cells_checkbox">
+                        <label class="weui-cell weui-check__label" style="width:33%;float:left;">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="isSafe" value="1" id="issafecheck" onclick="to_change()">
+                            </div>
+                            <div class="weui-cell__bd" id="notsafe" onclick="to_check('notsafe')">
+                                <p>有问题</p>
+                            </div>
+                        </label>
+                        <label class="weui-cell weui-check__label" style="width:33%;float:left;">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="isSafe" value="2" id="safecheck" onclick="to_change()">
+                            </div>
+                            <div class="weui-cell__bd" id="noproblem" onclick="to_check('noproblem')">
+                                <p>无问题</p>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="weui-cells my_weui-cells">
+                        <div class="weui-cell">
+                            <div class="weui-cell__bd">
+                                <textarea class="weui-textarea" placeholder="请填写具体食品安全投诉详情，至少八个字以上" rows="3" id="safeDiscepion"></textarea>
+                            </div>
+                            <div class="weui-cell__ft" style="display: none;" id="_safeDiscepion">
+                                <i class="weui-icon-warn"></i>
+                            </div>
+                        </div>
+                        <div class="weui-cell">
+                            <div class="weui-uploader__bd">
+                                <div class="weui_cell weui_cells_ex" style="margin-top: 1px;">
+                                    <div id="divsafeupload" class="weui-uploader__input-box" onclick="chooseWxImage(this, 'safeDiscepion_image1')">
+                                        <i class="weui-icon-cancel" style="float:right; position: relative; top: -15px; right: -20px;display:none;" onclick="removeWxImage(this,'safeDiscepion_image1')"></i>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="safeDiscepion_image1" name="safeDiscepionImage" value="" />
+                            </div>
+                            <div class="weui-uploader__bd" style="margin-left:5px;">
+                                <div class="weui_cell weui_cells_ex" style="margin-top: 1px">
+                                    <div class="weui-uploader__input-box" onclick="chooseWxImage(this, 'safeDiscepion_image2')">
+                                        <i class="weui-icon-cancel" style="float:right; position: relative; top: -15px; right: -20px;display:none;" onclick="removeWxImage(this,'safeDiscepion_image2')"></i>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="safeDiscepion_image2" name="safeDiscepionImage" value="" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="weisheng">
+                    @*<div class="weui-cells__title">餐品卫生及新鲜</div>*@
+                    <div class="weui-cells weui-cells_checkbox">
+                        <label class="weui-cell weui-check__label" style="width:33%;float:left;">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="health" value="1">
+                            </div>
+                            <div class="weui-cell__bd">
+                                <p>好</p>
+                            </div>
+                        </label>
+                        <label class="weui-cell weui-check__label" style="width:33%;float:left;">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="health" value="2">
+                            </div>
+                            <div class="weui-cell__bd">
+                                <p>中</p>
+                            </div>
+                        </label>
+                        <label class="weui-cell weui-check__label" style="width:33%;float:left;">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="health" value="3">
+                            </div>
+                            <div class="weui-cell__bd">
+                                <p>差</p>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="weui-cells my_weui-cells">
+                        <div class="weui-cell">
+                            <div class="weui-cell__bd">
+                                <textarea class="weui-textarea" placeholder="情况描述" rows="3" id="healthDiscrpion"></textarea>
+                            </div>
+                        </div>
+                        <div class="weui-cell">
+                            <div class="weui-uploader__bd">
+                                <div class="weui_cell weui_cells_ex" style="margin-top: 1px">
+                                    <div class="weui-uploader__input-box" onclick="chooseWxImage(this, 'healthDiscrpion_image1')">
+                                        <i class="weui-icon-cancel" style="float:right; position: relative; top: -15px; right: -20px;display:none;" onclick="removeWxImage(this,'healthDiscrpion_image1')"></i>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="healthDiscrpion_image1" name="healthDiscepionImage" value="" />
+                            </div>
+                            <div class="weui-uploader__bd" style="margin-left:5px;">
+                                <div class="weui_cell weui_cells_ex" style="margin-top: 1px">
+                                    <div class="weui-uploader__input-box" onclick="chooseWxImage(this, 'healthDiscrpion_image2')">
+                                        <i class="weui-icon-cancel" style="float:right; position: relative; top: -15px; right: -20px;display:none;" onclick="removeWxImage(this,'healthDiscrpion_image2')"></i>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="healthDiscrpion_image2" name="healthDiscepionImage" value="" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="baozhuang">
+                    @*<div class="weui-cells__title">餐品包装</div>*@
+                    <div class="weui-cells weui-cells_checkbox">
+                        <label class="weui-cell weui-check__label" style="width:33%;float:left;">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="packDiscrpion" value="1">
+                            </div>
+                            <div class="weui-cell__bd">
+                                <p>好</p>
+                            </div>
+                        </label>
+                        <label class="weui-cell weui-check__label" style="width:33%;float:left;">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="packDiscrpion" value="2">
+                            </div>
+                            <div class="weui-cell__bd">
+                                <p>中</p>
+                            </div>
+                        </label>
+                        <label class="weui-cell weui-check__label" style="width:33%;float:left;" id="bad" onclick="badcheck()">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="packDiscrpion" value="3" id="checkbad">
+                            </div>
+                            <div class="weui-cell__bd">
+                                <p>差</p>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="weui-cells my_weui-cells">
+                        <div class="weui-cell">
+                            <div class="weui-cell__bd">
+                                <textarea class="weui-textarea" placeholder="情况描述" rows="3" id="packDiscrpion"></textarea>
+                            </div>
+                        </div>
+                        <div class="weui-cell">
+                            <div class="weui-uploader__bd">
+                                <div class="weui_cell weui_cells_ex" style="margin-top: 1px">
+                                    <div id="divbadupload" class="weui-uploader__input-box" onclick="chooseWxImage(this, 'packDiscrpion_image1')">
+                                        <i class="weui-icon-cancel" style="float:right; position: relative; top: -15px; right: -20px;display:none;" onclick="removeWxImage(this,'packDiscrpion_image1')"></i>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="packDiscrpion_image1" name="packDiscepionImage" value="" />
+                            </div>
+                            <div class="weui-uploader__bd" style="margin-left:5px;">
+                                <div class="weui_cell weui_cells_ex" style="margin-top: 1px">
+                                    <div class="weui-uploader__input-box" onclick="chooseWxImage(this, 'packDiscrpion_image2')">
+                                        <i class="weui-icon-cancel" style="float:right; position: relative; top: -15px; right: -20px;display:none;" onclick="removeWxImage(this,'packDiscrpion_image2')"></i>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="packDiscrpion_image2" name="packDiscepionImage" value="" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="xingjiabi">
+                    @*<div class="weui-cells__title">餐品性价比</div>*@
+                    <div class="weui-cells weui-cells_checkbox">
+                        <label class="weui-cell weui-check__label" style="width:33%;float:left;">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="costEffective" value="1">
+                            </div>
+                            <div class="weui-cell__bd">
+                                <p>好</p>
+                            </div>
+                        </label>
+                        <label class="weui-cell weui-check__label" style="width:33%;float:left;">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="costEffective" value="2">
+                            </div>
+                            <div class="weui-cell__bd">
+                                <p>中</p>
+                            </div>
+                        </label>
+                        <label class="weui-cell weui-check__label" style="width:33%;float:left;">
+                            <div class="weui-cell__hd">
+                                <input type="radio" name="costEffective" value="3">
+                            </div>
+                            <div class="weui-cell__bd">
+                                <p>差</p>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="weui-cells my_weui-cells">
+                        <div class="weui-cell">
+                            <div class="weui-cell__bd">
+                                <textarea class="weui-textarea" placeholder="情况描述" rows="3" id="costEffectiveDiscrpion"></textarea>
+                            </div>
+                        </div>
+                        <div class="weui-cell">
+                            <div class="weui-uploader__bd">
+                                <div class="weui_cell weui_cells_ex" style="margin-top: 1px">
+                                    <div class="weui-uploader__input-box" onclick="chooseWxImage(this, 'costEffectiveDiscrpion_image1')">
+                                        <i class="weui-icon-cancel" style="float:right; position: relative; top: -5px; right: -16px;display:none;" onclick="removeWxImage(this,'costEffectiveDiscrpion_image1')"></i>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="costEffectiveDiscrpion_image1" name="costEffectiveDiscepionImage" value="" />
+                            </div>
+                            <div class="weui-uploader__bd" style="margin-left:5px;">
+                                <div class="weui_cell weui_cells_ex" style="margin-top: 1px">
+                                    <div class="weui-uploader__input-box" onclick="chooseWxImage(this, 'costEffectiveDiscrpion_image2')">
+                                        <i class="weui-icon-cancel" style="float:right; position: relative; top: -5px; right: -16px;display:none;" onclick="removeWxImage(this,'costEffectiveDiscrpion_image2')"></i>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="costEffectiveDiscrpion_image2" name="costEffectiveDiscepionImage" value="" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="qita">
+                    @*<div class="weui-cells__title">其他评价</div>*@
+                    <div class="weui-cells">
+                        <div class="weui-cell">
+                            <div class="weui-cell__bd">
+                                <textarea class="weui-textarea" placeholder="情况描述" rows="3" id="otherDiscrpion"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-foot" id="divNext">
+        <button class="weui-btn weui-btn_orange" id="btnNext">下一步</button>
+    </div>
+    <div class="page-foot" id="divSubmit">
+        <button class="weui-btn weui-btn_orange" id="btnSubmit">提交</button>
+    </div>
+</div>

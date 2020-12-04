@@ -1,0 +1,60 @@
+﻿
+@{
+    ViewBag.Title = "代理人设置历史";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            var UserId = "@ViewBag.UserId";
+            $.PintuerPost(contextUri + '/P/OrderApprovalManagement/ApproverSecondAgentHisLoad', { UserId: UserId }, function (d) {
+                var data1 = d.data;
+                var html = '';
+                for (var i = 0; i < data1.length; i++) {
+
+                    html += '<tr>';
+                    html += ' <td>' + data1[i].UserName + '</td>';
+                    html += ' <td>' + data1[i].UserMUDID + '</td>';
+                    html += ' <td>' + data1[i].DelegateUserName + '</td>';
+                    html += ' <td>' + data1[i].DelegateUserMUDID + '</td>';
+                    html += ' <td>' + getDateByDotNet(data1[i].StartTime).pattern('yyyy-MM-dd') + '</td>';
+                    html += ' <td>' + getDateByDotNet(data1[i].EndTime).pattern('yyyy-MM-dd') + '</td>';
+                    var IsEnable = data1[i].IsEnable == 1 ? "是" : "否";
+                    html += ' <td>' + IsEnable + '</td>';
+                    html += ' <td>' + data1[i].OperatorMUDID + '</td>';
+                    html += ' <td>' + getDateByDotNet(data1[i].OperationTime).pattern('yyyy-MM-dd hh:mm:ss') + '</td>';
+                    html += '</tr>';
+                }
+                $('#txttbody').html(html);
+            });
+        });
+    </script>
+}
+<div style="padding: 15px;">
+    <form action="" id='form0' method="post">
+        <div class="form-group">
+            <div class="label"><label for="txtIsReAssign">历史明细：</label></div>
+            <table id="costcenter_dataTable" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>审批人姓名</th>
+                        <th>审批人MUDID</th>
+                        <th>代理人姓名</th>
+                        <th>代理人MUDID</th>
+                        <th>开始日期</th>
+                        <th>结束日期</th>
+                        <th>是否启用</th>
+                        <th>操作人</th>
+                        <th>操作时间</th>
+                    </tr>
+                </thead>
+                <tbody id="txttbody"></tbody>
+                <tfoot>
+                </tfoot>
+
+            </table>
+        </div>
+    </form>
+</div>
+
+

@@ -1,0 +1,58 @@
+﻿
+@{
+    ViewBag.Title = "Pop";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+<script type="text/javascript">
+
+    function btnOKClick(e, callback) {
+        var uploadID = '@ViewBag.id';
+        var userId = $('#txtBUHeadMUDID').val();
+        var name = $('#txtBUHeadName').val();
+       
+        if (name == '' || name == null || name == undefined) {
+            alert("请选择接收人");
+            return;
+        }
+
+        $.post(contextUri + '/P/UploadFileManagement/UploadTransfer',{UploadID: uploadID,
+            userId: userId,
+            userName: name
+            },function (data) {
+                $showdialog({ body: '提交成功' });
+                callback();
+            });
+    }
+
+    function FindByUserId() {
+
+        var userId = $('#txtBUHeadMUDID').val();
+        $.post(contextUri + '/P/UploadFileManagement/Find', {
+            userId: userId
+        }, function (d) {
+            var user = d.data;
+            $('#txtBUHeadMUDID').val(user.UserId);
+            $('#txtBUHeadName').val(user.Name);
+        });
+    }
+
+</script>
+
+<div style="padding: 15px;">
+    <form action="" id='form0' method="post">
+        <input name="ID" value="@ViewBag.id" type="hidden" />
+        <div class="form-group" style="margin-left:20px; margin-top:30px;">
+            <div class="label" style="float:left; height:28px;line-height:28px;"><label for="NameCn">接受人MUDID</label></div>
+            <div class="field" style="margin-left:120px;">
+                <input type="text" class="input input-small" style="width:300px;" id="txtBUHeadMUDID" name="txtBUHeadMUDID" value=""data-validate="required:必填" autocomplete="off"  onchange="FindByUserId()"/>
+            </div>
+            <div class="label" style="float:left; height:28px;line-height:28px;margin-top:40px;"><label for="NameCn">接收人姓名</label></div>
+            <div class="field" style="margin-left:120px;">
+                <input type="text" class="input input-small" style="width:300px;float:left; height:28px;line-height:28px;margin-top:40px;" id="txtBUHeadName" name="txtBUHeadName" value="" disabled="disabled" />
+            </div>
+        </div>
+    </form>
+</div>
+
+

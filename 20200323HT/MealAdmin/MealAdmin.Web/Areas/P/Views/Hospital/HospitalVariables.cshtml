@@ -1,0 +1,322 @@
+﻿@{
+    ViewBag.Title = "变量记录";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+
+    <link href="~/Content/css/layui.css" rel="stylesheet" />
+    <script src="~/Content/js/layui.all.js"></script>
+    <script src="~/Content/js/layui.js"></script>
+    <script type="text/javascript">
+        var pdg;
+        var pdgRm;
+        $(function () {
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/Hospital/LoadHospitalVariables', paging: true });
+            pdg.QueryParams = function () {
+                return {
+                    srh_GskHospital: $('#txtGskHospital').val().replace(/\s/g, ""),
+                    srh_HospitalName: $('#txtHospitalName').val().replace(/\s/g, ""),
+                    srh_HospitalMarket: $('#sltHospitalMarket option:selected').val(),
+
+                    srh_Add: $('#chkBoxAdd').prop('checked'),
+                    srh_City: $('#chkBoxCity').prop('checked'),
+                    srh_UpdateHospitalName: $('#chkBoxHospitalName').prop('checked'),
+                    srh_LatLong: $('#chkBoxLatLong').prop('checked'),
+                    srh_Address: $('#chkBoxAddress').prop('checked'),
+                    srh_Delete: $('#chkBoxDelete').prop('checked')
+                };
+            }
+            pdg.Load();
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+            $('#btnExport').bind('click', function () {
+                window.location.href = contextUri + '/P/Hospital/ExportAddressApprovalList?srh_GskHospital=' + encodeURIComponent($('#txtGskHospital').val().replace(/\s/g, ""))
+                    + '&srh_HospitalName=' + encodeURIComponent($('#txtHospitalName').val().replace(/\s/g, ""))
+                    + '&srh_HospitalMarket=' + encodeURIComponent($('#sltHospitalMarket option:selected').val())
+
+                    + '&srh_Add=' + encodeURIComponent($('#chkBoxAdd').prop('checked'))
+                    + '&srh_City=' + encodeURIComponent($('#chkBoxCity').prop('checked'))
+                    + '&srh_UpdateHospitalName=' + encodeURIComponent($('#chkBoxHospitalName').prop('checked'))
+                    + '&srh_LatLong=' + encodeURIComponent($('#chkBoxLatLong').prop('checked'))
+                    + '&srh_Address=' + encodeURIComponent($('#chkBoxAddress').prop('checked'))
+                    + '&srh_Delete=' + encodeURIComponent($('#chkBoxDelete').prop('checked'));
+            });
+
+            pdgRm = $('#costcenter_dataTable_rm').iPathDataGrid({ url: contextUri + '/P/Hospital/LoadTerritoryRMVariables', paging: true });
+            pdgRm.QueryParams = function () {
+                return {
+                    srh_Market: $('#sltHospitalMarketRm option:selected').val(),
+                    srh_Add: $('#chkBoxAddRm').prop('checked'),
+                    srh_Delete: $('#chkBoxDeleteRm').prop('checked')
+                };
+            }
+            pdgRm.Load();
+            $('#btnLoadRm').bind('click', function () {
+                pdgRm.Load();
+            });
+            $('#btnExportRm').bind('click', function () {
+                window.location.href = contextUri + '/P/Hospital/ExportTerritoryRMVariables?srh_Market=' + encodeURIComponent($('#sltHospitalMarketRm option:selected').val())
+                    + '&srh_Add=' + encodeURIComponent($('#chkBoxAddRm').prop('checked'))
+                    + '&srh_Delete=' + encodeURIComponent($('#chkBoxDeleteRm').prop('checked'));
+            });
+        });
+    </script>
+}
+<div class="tool_bar" style="width:1600px; max-width:2050px;">
+    <label>变量记录</label>
+</div>
+
+<div class="layui-tab layui-tab-card" style="width:2050px; max-width:2050px;">
+    <ul class="layui-tab-title">
+        <li class="layui-this">医院</li>
+        <li>大区区域代码</li>
+    </ul>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show" style="width:2000px; max-width:2000px;">
+            <div style="overflow:auto" class="panel admin-panel">
+                <div class="border-bottom inline form-auto padding" style="width:1998px; max-width:2000px;">
+                    <div class="container margin-little-left">
+                        <div class="line">
+                            <div class="x10">
+                                <input type="text" class="input input-small" style="width:100px;" id="txtGskHospital" name="txtGskHospital" placeholder="医院ID" />
+                                <input type="text" class="input input-small" style="width:100px;" id="txtHospitalName" name="txtHospitalName" placeholder="医院名称" />
+                                <select class="input input-small" style="width:100px;" id="sltHospitalMarket" name="sltHospitalMarket">
+                                    <option value="" selected="selected">全部Market</option>
+                                    <option value="Rx">Rx</option>
+                                    <option value="Vx">Vx</option>
+                                    <option value="TSKF">TSKF</option>
+                                    <option value="DDT">DDT</option>
+                                </select>
+                            </div>
+                            <div class="x10">
+                                变更类型：
+                                <label><input id="chkBoxAdd" name="chkBoxAdd" type="checkbox" checked="checked" />新增</label>
+                                <label><input id="chkBoxCity" name="chkBoxCity" type="checkbox" checked="checked" />省市更新</label>
+                                <label><input id="chkBoxHospitalName" name="chkBoxHospitalName" type="checkbox" checked="checked" />医院更名</label>
+                                <label><input id="chkBoxLatLong" name="chkBoxLatLong" type="checkbox" checked="checked" />更新经纬度</label>
+                                <label><input id="chkBoxAddress" name="chkBoxAddress" type="checkbox" checked="checked" />更新地址</label>
+                                <label><input id="chkBoxDelete" name="chkBoxDelete" type="checkbox" checked="checked" />删除</label>
+                                <button class="button button-small bg-main icon-search" id="btnLoad"> 搜索</button>
+                                <button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>
+
+                            </div>
+                            <div class="x2">
+                            </div>
+                        </div>
+
+                        <div>
+
+                        </div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+                <table id="costcenter_dataTable" class="table table-hover" style="width:1998px; max-width:2000px;">
+                    <thead>
+                        <tr>
+                            <th>医院ID</th>
+                            <th>省</th>
+                            <th>市</th>
+                            <th>医院名称</th>
+                            <th>医院地址</th>
+                            <th>是否为主地址</th>
+                            <th>Market</th>
+
+                            <th>经度</th>
+                            <th>纬度</th>
+                            <th>区县编码</th>
+                            <th>区县</th>
+                            <th>变更类型</th>
+                            <th>变更日期</th>
+                            <th>变更时间</th>
+                            <th>说明备注</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>${dr.GskHospital}$</td>
+                            <td>${dr.Province}$</td>
+                            <td>${dr.City}$</td>
+                            <td>${dr.HospitalName}$</td>
+                            <td>${dr.Address}$</td>
+                            <td>${dr.IsMainAdd}$</td>
+                            <td>${dr.Market}$</td>
+
+                            <td>${dr.Longitude}$</td>
+                            <td>${dr.Latitude}$</td>
+                            <td>${dr.DistrictCode}$</td>
+                            <td>${dr.District}$</td>
+                            <td>${dr.ActionDisplay}$</td>
+                            <td>${getDateByDotNet(dr.CreateDate).pattern('yyyy-MM-dd')}$</td>
+                            <td>${getDateByDotNet(dr.CreateDate).pattern('HH:mm:ss')}$</td>
+                            <td>${dr.Remarks}$</td>
+
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="80" class="paging"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+            </div>
+        </div>
+        <div class="layui-tab-item" style="width:1050px; max-width:2000px;">
+            <div class="panel admin-panel">
+                <div class="border-bottom inline form-auto padding" style="width:1048px; max-width:2000px;">
+                    <div class="container margin-little-left">
+                        <div class="line">
+                            <div class="x10">
+                                <select class="input input-small" style="width:100px;" id="sltHospitalMarketRm" name="sltHospitalMarketRm">
+                                    <option value="" selected="selected">全部Market</option>
+                                    <option value="Rx">Rx</option>
+                                    <option value="Vx">Vx</option>
+                                    <option value="TSKF">TSKF</option>
+                                    <option value="DDT">DDT</option>
+                                </select>
+                                变更类型：
+                                <label><input id="chkBoxAddRm" name="chkBoxAdd" type="checkbox"  />新增</label>
+                                <label><input id="chkBoxDeleteRm" name="chkBoxDelete" type="checkbox"  />删除</label>
+                                <button class="button button-small bg-main icon-search" id="btnLoadRm"> 搜索</button>
+                                <button class="button button-small bg-blue icon-file-excel-o" id="btnExportRm"> 导出</button>
+                            </div>
+                            <div class="x2">
+                            </div>
+                        </div>
+
+                        <div>
+
+                        </div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+                <table id="costcenter_dataTable_rm" class="table table-hover" style="width:1048px; max-width:2000px; ">
+                    <thead>
+                        <tr>
+                            <th>Market</th>
+                            <th>TERRITORY_TA</th>
+                            <th>TerritoryCode_RM</th>
+                            <th>变更类型</th>
+                            <th>变更日期</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>${dr.Market}$</td>
+                            <td>${dr.TERRITORY_TA}$</td>
+                            <td>${dr.TerritoryCode_RM}$</td>
+                            <td>${dr.Remarks}$</td>
+                            <td>${dr.createdate}$</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="80" class="paging"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+        @*<div class="main_view">
+            <div style="margin: 20px;overflow:auto" class="panel admin-panel">
+                <div class="border-bottom inline form-auto padding" style="width:2000px; max-width:2000px;">
+                    <div class="container margin-little-left">
+                        <div class="line">
+                            <div class="x10">
+                                <input type="text" class="input input-small" style="width:100px;" id="txtGskHospital" name="txtGskHospital" placeholder="医院ID" />
+                                <input type="text" class="input input-small" style="width:100px;" id="txtHospitalName" name="txtHospitalName" placeholder="医院名称" />
+                                <select class="input input-small" style="width:100px;" id="sltHospitalMarket" name="sltHospitalMarket">
+                                    <option value="" selected="selected">全部Market</option>
+                                    <option value="Rx">Rx</option>
+                                    <option value="Vx">Vx</option>
+                                    <option value="TSKF">TSKF</option>
+                                    <option value="DDT">DDT</option>
+                                </select>
+                            </div>
+                            <div class="x10">
+                                变更类型：
+                                <label><input id="chkBoxAdd" name="chkBoxAdd" type="checkbox" checked="checked" />新增</label>
+                                <label><input id="chkBoxCity" name="chkBoxCity" type="checkbox" checked="checked" />省市更新</label>
+                                <label><input id="chkBoxHospitalName" name="chkBoxHospitalName" type="checkbox" checked="checked" />医院更名</label>
+                                <label><input id="chkBoxLatLong" name="chkBoxLatLong" type="checkbox" checked="checked" />更新经纬度</label>
+                                <label><input id="chkBoxAddress" name="chkBoxAddress" type="checkbox" checked="checked" />更新地址</label>
+                                <label><input id="chkBoxDelete" name="chkBoxDelete" type="checkbox" checked="checked" />删除</label>
+                                <button class="button button-small bg-main icon-search" id="btnLoad"> 搜索</button>
+                                <button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>
+
+                            </div>
+                            <div class="x2">
+                            </div>
+                        </div>
+
+                        <div>
+
+                        </div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+                <table id="costcenter_dataTable" class="table table-hover" style="width:2000px; max-width:2000px;">
+                    <thead>
+                        <tr>
+                            <th>医院ID</th>
+                            <th>省</th>
+                            <th>市</th>
+                            <th>医院名称</th>
+                            <th>医院地址</th>
+                            <th>是否为主地址</th>
+                            <th>Market</th>
+
+                            <th>经度</th>
+                            <th>纬度</th>
+                            <th>区县编码</th>
+                            <th>区县</th>
+                            <th>变更类型</th>
+                            <th>变更日期</th>
+                            <th>变更时间</th>
+                            <th>说明备注</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>${dr.GskHospital}$</td>
+                            <td>${dr.Province}$</td>
+                            <td>${dr.City}$</td>
+                            <td>${dr.HospitalName}$</td>
+                            <td>${dr.Address}$</td>
+                            <td>${dr.IsMainAdd}$</td>
+                            <td>${dr.Market}$</td>
+
+                            <td>${dr.Longitude}$</td>
+                            <td>${dr.Latitude}$</td>
+                            <td>${dr.DistrictCode}$</td>
+                            <td>${dr.District}$</td>
+                            <td>${dr.ActionDisplay}$</td>
+                            <td>${getDateByDotNet(dr.CreateDate).pattern('yyyy-MM-dd')}$</td>
+                            <td>${getDateByDotNet(dr.CreateDate).pattern('HH:mm:ss')}$</td>
+                            <td>${dr.Remarks}$</td>
+
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="80" class="paging"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+            </div>
+        </div>*@
+
+
+

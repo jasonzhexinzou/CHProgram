@@ -1,0 +1,84 @@
+﻿@{
+    ViewBag.Title = "编辑成本中心";
+    Layout = "~/Views/Shared/_LayoutPagePanel.cshtml";
+}
+
+<script type="text/javascript">
+
+    function btnOKClick(e, callback) {
+        
+        $ajaxSubmit('form0', contextUri + '/Admin/CostCenter/Save',
+            function (data) {
+                if (callback != undefined) {
+                    callback();
+                }
+                e.close();
+            });
+    }
+
+</script>
+<script type="text/javascript">
+    $(function () {
+        $('#form0 select').each(function () {
+            var val = $(this).attr('_val');
+            if (val != undefined && val != '') {
+                $(this).val(val);
+            }
+        });
+
+    });
+</script>
+
+
+<div style="margin: 10px;">
+    <form method="post" id="form0">
+        <input type="hidden" name="ID" id="ID" value="@ViewBag.costcenter.ID" />
+        <div class="form-group">
+            <div class="label">
+                <label for="role_Name">代码</label>
+            </div>
+            <div class="field">
+                <input type="text" class="input" id="Code" name="Code" value="@ViewBag.costcenter.Code" size="20" data-validate="required:必填" autocomplete="off" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label">
+                <label for="role_Name">名称</label>
+            </div>
+            <div class="field">
+                <input type="text" class="input" id="Name" name="Name" value="@ViewBag.costcenter.Name" size="20" data-validate="required:必填" autocomplete="off" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label">
+                <label for="role_Name">余额上限</label>
+            </div>
+            <div class="field">
+                <input type="text" class="input" id="MaxMoney" name="MaxMoney" value="@ViewBag.costcenter.MaxMoney" size="20" data-validate="required:必填,plusdouble:请输入数字" autocomplete="off" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label">
+                <label for="role_Name">初始余额</label>
+            </div>
+            <div class="field">
+                <input type="text" class="input" id="LimitMoney" name="LimitMoney" value="@ViewBag.costcenter.LimitMoney" size="20" data-validate="required:必填,plusdouble:请输入数字" autocomplete="off" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label">
+                <label for="role_Name">状态</label>
+            </div>
+            <div class="field">
+                <select class="input" id="State" name="State" _val="@ViewBag.costcenter.State">
+                    <option value="0">正常</option>
+                    <option value="2">禁用</option>
+                    <option value="4">删除</option>
+                </select>
+
+            </div>
+        </div>
+    </form>
+
+</div>
+

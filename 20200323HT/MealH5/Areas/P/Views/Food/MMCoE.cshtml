@@ -1,0 +1,255 @@
+﻿
+@{
+    ViewBag.Title = "MMCoE审批";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<style type="text/css">
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 60px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .my_weui_uploader_input_wrp {
+        float: left;
+        position: relative;
+        margin-right: 9px;
+        margin-bottom: 9px;
+        width: 70px;
+        height: 70px;
+        border: 2px #D9D9D9;
+        border-radius: 10px;
+    }
+
+    .choosedwximage:before, .choosedwximage:after {
+        content: none;
+    }
+</style>
+
+
+<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script type="text/javascript">
+    var jsapiurl = '@MealH5.Handler.WebConfigHandler.ShortUrlService/JsApi/QyConfigJs?debug=false&url=' + UrlEncode(window.location.href);
+    document.write('<script type="text/javascript" src="' + jsapiurl + '"><\/script>');
+</script>
+
+<script type="text/javascript">
+    var _images = new Array();
+    var nowPreApprovalInfo;
+    var awsUrl = '@MealH5.Handler.WebConfigHandler.AWSService';
+    var preApprovalState = '@ViewBag.State';
+    $(function () {
+        post('/P/PreApproval/NowOrder', {}, function (d) {
+            nowPreApprovalInfo = d.data.preApproval;
+            if (nowPreApprovalInfo.MMCoEImage != undefined && nowPreApprovalInfo.MMCoEImage != null && nowPreApprovalInfo.MMCoEImage != '') {
+                if (!isInTimespan(getTimeNow(), timeConfig.PreOperableTimeSpanBegin, timeConfig.PreOperableTimeSpanEnd)) {
+                    showDlg(MSG_NOEDITPREAPPROVALTIME, '返回', function () {
+                        WeixinJSBridge.call('closeWindow');
+                    }, 'success')
+                }
+                var images = nowPreApprovalInfo.MMCoEImage.split(',');
+                var imageUrls = new Array();
+                var html = '';
+                for (var i in images) {
+                    html += '<div class="my_weui_uploader_input_wrp icon_sp_area" style="margin-top: 5px;margin-right: 20px;" id="' + i + '">'
+                        + '<img _src="' + images[i] + '" src="' + awsUrl + images[i] + '" style="width:100%; height:100%;margin-top: 5px;"/>'
+                        + '<i class="weui-icon-cancel" style="float:right; position: relative; top: -89px; right: -16px;" onclick="removeUploadImage(this)"></i>'
+                        + '</div>';
+                    var _url = awsUrl+images[i];
+                    imageUrls.push(_url);
+                }
+                $('#uploaderInput').before(html);
+                $('#mmCoEImages img').each(function (i, e) {
+                    $(this).click(function () {
+                        WeixinJSBridge.invoke('imagePreview', {
+                            'current': imageUrls[i],
+                            'urls': imageUrls
+                        });
+                    });
+                });
+                showAddChooseUploadImage();
+            }
+            if (nowPreApprovalInfo.State == "1" || nowPreApprovalInfo.State == "3") {
+                $("#btnSubmit").attr("disabled", "true");
+                $('#btnSubmit').css("background-color", "rgba(0, 0, 0, 0.3)");
+            }
+        }, 'json');
+
+        $('#btnSubmit').on('click', function () {
+            if ($('#chooseUploadImage>div').length == 1) {
+                showTopMsg('请上传MMCoE审批文件');
+            }
+            else {
+                submit();
+            }
+        });
+    });
+    //添加图片
+    function UploadInput() {
+        var index = 0;
+        wx.chooseImage({
+            count: 1,
+            sizeType: ['original'],
+            sourceType: ['album'],
+            success: function (res) {
+                var localId = res.localIds[0];
+                wx.uploadImage({
+                    localId: localId,
+                    isShowProgressTips: 1,
+                    success: function (res) {
+                        var serverId = res.serverId;
+                        index++;
+                        post('/FileService/Save', { id: serverId }, function (d) {
+                            var html = '<div class="my_weui_uploader_input_wrp icon_sp_area" style="margin-top: 5px;margin-right: 20px;" id="' + index + '">'
+                                            + '<img _src="' + d.data + '" src="' + awsUrl + d.data + '" style="width:100%; height:100%;margin-top: 5px;"/>'
+                                            + '<i class="weui-icon-cancel" style="float:right; position: relative; top: -89px; right: -16px;" onclick="removeUploadImage(this)"></i>'
+                                            + '</div>';
+                            $('#uploaderInput').before(html);
+                            var imageUrls = new Array();
+                            $('#mmCoEImages img').each(function (i, e) {
+                                imageUrls.push($(e).attr("src"));
+                                $(this).unbind("click");
+                                $(this).click(function () {
+                                    WeixinJSBridge.invoke('imagePreview', {
+                                        'current': imageUrls[i],
+                                        'urls': imageUrls
+                                    });
+                                });
+                            });
+                            showAddChooseUploadImage();
+                        }, 'json');
+                    },
+                    fail: function (res) { showDlg(MSG_UPLOADIMAGE); }
+                });
+
+            }
+        });
+    }
+    //图片数量最大值
+    function showAddChooseUploadImage() {
+        if ($('#chooseUploadImage>div').length > 9) {
+            $('#uploaderInput').hide();
+        } else {
+            $('#uploaderInput').show();
+        }
+    }
+    //删除图片
+    function removeUploadImage(dom) {
+        $(dom).parent().remove();
+        showAddChooseUploadImage();
+    }
+
+    var orderSuccess = false;
+    //提交审批
+    function submit() {
+        $('#chooseUploadImage img').each(function () {
+            var src = $(this).attr('_src');
+			 _images.push(src);
+        });
+        var state = 0;
+        if (nowPreApprovalInfo.State != undefined && nowPreApprovalInfo.State != null && nowPreApprovalInfo.State != '') {
+            state = 1;
+        }
+        var p = submitCheckData(state);
+        if (p == false) {
+            return;
+        }
+        if (orderSuccess) {
+            return;
+        }
+        orderSuccess = true;
+        $('#btnSubmit').unbind('click');
+        post('/P/PreApproval/MMCoE', { images: _images.toString() },
+            function (d) {
+                if (nowPreApprovalInfo.State != undefined && nowPreApprovalInfo.State != null && nowPreApprovalInfo.State != '') {
+                    trueEdit();
+                }
+                else {
+                    trueSubmit();
+                }
+                
+            }, 'json');
+
+    }
+
+    function trueSubmit() {
+        post('/P/PreApproval/_Submit', {},
+            function (d) {
+                var _msg = MSG_PREAPPROVALSUBMITSUCCESSWAITMMCOE;
+                showDlg(_msg, undefined, function () {
+                    WeixinJSBridge.call('closeWindow');
+                }, 'success')
+            }, 'json');
+    }
+
+    function trueEdit() {
+        post('/P/PreApproval/_Edit', {},
+            function (d) {
+                //var _msg = MSG_EDITPREAPPROVALSUBMITSUCCESSWAITMMCOE;
+                showDlg(d.txt, undefined, function () {
+                    WeixinJSBridge.call('closeWindow');
+                }, 'success')
+            }, 'json');
+    }
+
+    // 校验页面表单
+    function submitCheckData(state) {
+        if (state == 0) {
+            if (!isInTimespan(getTimeNow(), timeConfig.PreWorkTimeSpanBegin, timeAdd(timeConfig.PreWorkTimeSpanEnd, timeConfig.cachetime))) {
+                showDlg(MSG_NOPREAPPROVALWORKINGTIME);
+                return false;
+            }
+        }
+        else {
+            if (!isInTimespan(getTimeNow(), timeConfig.PreOperableTimeSpanBegin, timeAdd(timeConfig.PreOperableTimeSpanEnd, timeConfig.cachetime))) {
+                showDlg(MSG_NOPREAPPROVALWORKINGTIME);
+                return false;
+            }
+        }
+    }
+</script>
+
+<div class="page-main">
+    <div class="page-body">
+        <div class="weui-cells__title"><h4>由于您的会议超过60人，请上传MMCoE审批邮件。</h4></div>
+
+        <div class="weui-cells weui-cells_form">
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <div class="weui-uploader">
+                        <div class="weui-uploader__hd">
+                            <p class="weui-uploader__title">图片上传</p>
+                        </div>
+                        <div class="weui-uploader__bd" id="mmCoEImages">
+                            <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="chooseUploadImage">
+                                <div class="weui-uploader__input-box" style="margin-top: 5px;" onclick="UploadInput()" id="uploaderInput">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="page-foot">
+
+        <button class="weui-btn weui-btn_orange" id="btnSubmit">提交</button>
+
+    </div>
+</div>
+

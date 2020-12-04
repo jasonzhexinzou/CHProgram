@@ -1,0 +1,408 @@
+﻿@{
+    ViewBag.Title = "预申请查询";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+
+    <script type="text/javascript">
+        var pdg;
+        $(function () {
+            var _option = {
+                dateFormat: "yy-mm-dd",
+                closeText: "关闭",
+                prevText: "&#x3C;上月",
+                nextText: "下月&#x3E;",
+                currentText: "今天",
+                monthNames: ["一月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                dayNames: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+                dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"],
+                weekHeader: "周",
+                dateFormat: "yy-mm-dd",
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: true,
+                yearSuffix: "年"
+
+            }
+
+            var _ctBehin = $("#startBUHeadApproveDate").datepicker(_option);
+            var _ctEnd = $("#endBUHeadApproveDate").datepicker(_option);
+
+            var _stBegin = $("#startMeetingDate").datepicker(_option);
+            var _stEnd = $("#endMeetingDate").datepicker(_option);
+
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/PreApproval/Load', paging: true });
+            pdg.QueryParams = function () {
+                return {
+                    srh_HTCode: $('#txtHTCode').val().replace(/\s/g, "").replace(/，/ig, ','),
+                    srh_HospitalCode: $('#txtHospitalCode').val().replace(/\s/g, ""),//医院编码
+                    srh_CostCenter: $('#txtCostCenter').val().replace(/\s/g, ""),//成本中心
+                    srh_ApplierMUDID: $('#txtApplierMUDID').val().replace(/\s/g, ""),
+                    srh_ApplierTerritory: $('#txtApplierTerritory').val().replace(/\s/g, ""),
+                    srh_BUHeadMUDID: $('#txtBUHeadMUDID').val().replace(/\s/g, ""),
+                    srh_Market: $('#sltMaraket').val().replace(/\s/g, ""),
+                    srh_TA: $('#sltTA').val().replace(/\s/g, ""),
+                    srh_State: $('#sltState').val().replace(/\s/g, ""),
+                    srh_StartBUHeadApproveDate: $('#startBUHeadApproveDate').val().replace(/\s/g, ""),
+                    srh_EndBUHeadApproveDate: $('#endBUHeadApproveDate').val().replace(/\s/g, ""),
+                    srh_StartMeetingDate: $('#startMeetingDate').val().replace(/\s/g, ""),
+                    srh_EndMeetingDate: $('#endMeetingDate').val().replace(/\s/g, ""),
+                    srh_RD: $('#txtRD').val().replace(/\s/g, ""),
+                    srh_BudgetTotal: $('#sltBudgetTotal').val().replace(/\s/g, ""),
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+            $('#btnExport').bind('click', function () {
+                window.location.href = contextUri + '/P/PreApproval/ExportPreApprovalList?srh_HTCode=' + encodeURIComponent($('#txtHTCode').val().replace(/\s/g, ""))
+                    + '&srh_ApplierMUDID=' + encodeURIComponent($('#txtApplierMUDID').val().replace(/\s/g, "").replace(/，/ig, ','))
+                    + '&srh_ApplierTerritory=' + encodeURIComponent($('#txtApplierTerritory').val().replace(/\s/g, ""))
+                    + '&srh_HospitalCode=' + encodeURIComponent($('#txtHospitalCode').val().replace(/\s/g, ""))
+                    + '&srh_CostCenter=' + encodeURIComponent($('#txtCostCenter').val().replace(/\s/g, ""))
+                    + '&srh_BUHeadMUDID=' + encodeURIComponent($('#txtBUHeadMUDID').val().replace(/\s/g, ""))
+                    + '&srh_Market=' + encodeURIComponent($('#sltMaraket').val().replace(/\s/g, ""))
+                    + '&srh_TA=' + encodeURIComponent($('#sltTA').val().replace(/\s/g, ""))
+                    + '&srh_State=' + encodeURIComponent($('#sltState').val().replace(/\s/g, ""))
+                    + '&srh_StartBUHeadApproveDate=' + encodeURIComponent($('#startBUHeadApproveDate').val().replace(/\s/g, ""))
+                    + '&srh_EndBUHeadApproveDate=' + encodeURIComponent($('#endBUHeadApproveDate').val().replace(/\s/g, ""))
+                    + '&srh_StartMeetingDate=' + encodeURIComponent($('#startMeetingDate').val().replace(/\s/g, ""))
+                    + '&srh_EndMeetingDate=' + encodeURIComponent($('#endMeetingDate').val().replace(/\s/g, ""))
+                    + '&srh_RD=' + encodeURIComponent($('#txtRD').val().replace(/\s/g, ""))
+                    + '&srh_BudgetTotal=' + encodeURIComponent($('#sltBudgetTotal').val().replace(/\s/g, ""));
+            });
+            $('#btnSendMail').bind('click', function () {
+                if ($('#txtHTCode').val() == "" && $('#txtApplierMUDID').val() == "" && $('#txtApplierTerritory').val() == "" && $('#txtHospitalCode').val() == "" && $('#txtCostCenter').val() == "" &&
+                    $('#txtBUHeadMUDID').val() == "" && $('#sltMaraket').val() == "" && $('#sltTA').val() == "" && $('#sltState').val() == "" && $('#startBUHeadApproveDate').val() == ""
+                    && $('#endBUHeadApproveDate').val() == "" && $('#startMeetingDate').val() == "" && $('#endMeetingDate').val() == "" && $('#txtRD').val() == "" && $('#sltBudgetTotal').val() == "") {
+                    $showdialog({ body: '请添加筛选条件！' });
+                    return;
+                }
+                $showdialogForUrl(
+                    {
+                        title: '选择收件人',
+                        width: '310px',
+                        height: '310px',
+                        url: contextUri + '/P/PreApproval/AddRecipient?srh_HTCode=' + encodeURIComponent($('#txtHTCode').val().replace(/\s/g, ""))
+                            + '&srh_ApplierMUDID=' + encodeURIComponent($('#txtApplierMUDID').val().replace(/\s/g, "").replace(/，/ig, ','))
+                            + '&srh_ApplierTerritory=' + encodeURIComponent($('#txtApplierTerritory').val().replace(/\s/g, ""))
+                            + '&srh_HospitalCode=' + encodeURIComponent($('#txtHospitalCode').val().replace(/\s/g, ""))
+                            + '&srh_CostCenter=' + encodeURIComponent($('#txtCostCenter').val().replace(/\s/g, ""))
+                            + '&srh_BUHeadMUDID=' + encodeURIComponent($('#txtBUHeadMUDID').val().replace(/\s/g, ""))
+                            + '&srh_Market=' + encodeURIComponent($('#sltMaraket').val().replace(/\s/g, ""))
+                            + '&srh_TA=' + encodeURIComponent($('#sltTA').val().replace(/\s/g, ""))
+                            + '&srh_State=' + encodeURIComponent($('#sltState').val().replace(/\s/g, ""))
+                            + '&srh_StartBUHeadApproveDate=' + encodeURIComponent($('#startBUHeadApproveDate').val().replace(/\s/g, ""))
+                            + '&srh_EndBUHeadApproveDate=' + encodeURIComponent($('#endBUHeadApproveDate').val().replace(/\s/g, ""))
+                            + '&srh_StartMeetingDate=' + encodeURIComponent($('#startMeetingDate').val().replace(/\s/g, ""))
+                            + '&srh_EndMeetingDate=' + encodeURIComponent($('#endMeetingDate').val().replace(/\s/g, ""))
+                            + '&srh_RD=' + encodeURIComponent($('#txtRD').val().replace(/\s/g, ""))
+                            + '&srh_BudgetTotal=' + encodeURIComponent($('#sltBudgetTotal').val().replace(/\s/g, "")),
+                        pageid: 'manager',
+                        buttons: [
+                            {
+                                cls: 'button bg-green',
+                                txt: '发送',
+                                handler: function (e) {
+                                    window.top.c_manager.window.btnOKClick(e);
+                                    //window.location.href = contextUri + '/P/PreApproval/PdfExport?id=' + id;
+                                }
+                            },
+                            {
+                                cls: 'button',
+                                txt: '取消',
+                                handler: function (e) { e.close(); }
+                            }
+                        ]
+                    }
+                );
+            });
+
+            //点击导出图片
+            $('#btnServiceimage').bind('click', function () {
+                $showdialogForConfim(
+                    {
+                        title: '导出确认',
+                        body: '批量导出图片会耗费大量网络资源，需要时间较长，是否确认导出？',
+                        ok: function () {
+                            $.PintuerPost(contextUri + '/P/PreApproval/ExportServiceimage', {
+                                srh_HTCode: $('#txtHTCode').val().replace(/\s/g, "").replace(/，/ig, ','),
+                                srh_HospitalCode: $('#txtHospitalCode').val().replace(/\s/g, ""),//医院编码
+                                srh_CostCenter: $('#txtCostCenter').val().replace(/\s/g, ""),//成本中心
+                                srh_ApplierMUDID: $('#txtApplierMUDID').val().replace(/\s/g, ""),
+                                srh_ApplierTerritory: $('#txtApplierTerritory').val().replace(/\s/g, ""),
+                                srh_BUHeadMUDID: $('#txtBUHeadMUDID').val().replace(/\s/g, ""),
+                                srh_Market: $('#sltMaraket').val().replace(/\s/g, ""),
+                                srh_TA: $('#sltTA').val().replace(/\s/g, ""),
+                                srh_State: $('#sltState').val().replace(/\s/g, ""),
+                                srh_StartBUHeadApproveDate: $('#startBUHeadApproveDate').val().replace(/\s/g, ""),
+                                srh_EndBUHeadApproveDate: $('#endBUHeadApproveDate').val().replace(/\s/g, ""),
+                                srh_StartMeetingDate: $('#startMeetingDate').val().replace(/\s/g, ""),
+                                srh_EndMeetingDate: $('#endMeetingDate').val().replace(/\s/g, ""),
+                                srh_RD: $('#txtRD').val().replace(/\s/g, ""),
+                                srh_BudgetTotal: $('#sltBudgetTotal').val().replace(/\s/g, "")
+                            }, function (json) {
+                                if (json.state == 1) {
+                                    alert(json.message);
+                                } else {
+                                    alert("导出错误");
+                                }
+                            });
+                        }
+                    }
+                );
+            });
+
+            $('#sltTA').bind('click', function () {
+                var num = $('#sltTA option').length;
+                if (num < 2) {
+                    alert('请先选择Market');
+                }
+            });
+
+        });
+
+        function ShowDetail(id) {
+
+            $showdialogForUrl(
+                {
+                    title: '预申请详情',
+                    width: '620px',
+                    height: '600px',
+                    url: contextUri + '/P/PreApproval/PreApplicationDetails?id=' + id,
+
+                    pageid: 'manager',
+                    buttons: [
+                        {
+                            cls: 'button bg-green',
+                            txt: '导出',
+                            handler: function (e) {
+                                window.location.href = contextUri + '/P/PreApproval/PdfExport?id=' + id;
+                            }
+                        },
+                        {
+                            cls: 'button',
+                            txt: '取消',
+                            handler: function (e) { e.close(); }
+                        }
+                    ]
+                }
+            );
+        }
+
+
+        function selectMarket() {
+            var market = $('#sltMaraket').val();
+            $.post(contextUri + '/P/PreApproval/LoadTa', {
+                marketName: market
+            }, function (data) {
+                var taList = data.data;
+                $('#sltTA').html('');
+                var html = '<option value="" selected="selected"></option>';
+                if (taList.length > 0) {
+                    for (var i in taList) {
+                        html += '<option value="' + taList[i].Name + '">' + taList[i].Name + '</option>';
+                    }
+                }
+                $('#sltTA').html(html);
+            });
+        };
+
+    </script>
+}
+
+<div class="tool_bar">
+    <label>预申请查询</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;overflow:auto" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding" style="width:6000px; max-width:6000px;">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <input type="text" class="input input-small" style="width:150px;" id="txtHTCode" name="txtHTCode" placeholder="HT编号" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtApplierMUDID" name="txtApplierMUDID" placeholder="申请人MUDID" />
+                    <input type="text" class="input input-small" style="width:150px;" id="txtApplierTerritory" name="txtApplierTerritory" placeholder="申请人Territory Code" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtBUHeadMUDID" name="txtBUHeadMUDID" placeholder="审批人MUDID" />
+                    <span>Market</span>
+                    <select class="input input-small" style="width:100px;" id="sltMaraket" name="sltMarket" onchange="selectMarket()">
+                        <option value="" selected="selected"></option>
+                        <option value="Rx">Rx</option>
+                        <option value="TSKF">TSKF</option>
+                        <option value="Vx">Vx</option>
+                        <option value="DDT">DDT</option>
+                    </select>
+                    <span>TA</span>
+                    <select class="input input-small" style="width:100px;" id="sltTA" name="sltTA">
+                        <option value="" selected="selected"></option>
+                        @*<option value="RESP">RESP</option>
+                            <option value="HEP">HEP</option>
+                            <option value="CNS">CNS</option>
+                            <option value="HIV">HIV</option>
+                            <option value="VOL">VOL</option>
+                            <option value="HA">HA</option>
+                            <option value="VX">VX</option>
+                            <option value="DDT">DDT</option>
+                            <option value="TSKF">TSKF</option>*@
+                    </select>
+                    <span>预申请状态</span>
+                    <select class="input input-small" style="width:100px;" id="sltState" name="sltState">
+                        <option value="" selected="selected"></option>
+                        <option value="'0','1','3','7'">待审批</option>
+                        <option value="'5','6','9'">审批通过</option>
+                        <option value="'2','4','8'">审批驳回</option>
+                        <option value="'10'">已取消</option>
+                    </select>
+                    <span>预申请金额</span>
+                    <select class="input input-small" style="width:100px;" id="sltBudgetTotal" name="sltBudgetTotal">
+                        <option value="0" selected="selected">全部</option>
+                        <option value="1">非0元</option>
+                        <option value="2">0元</option>
+                    </select>
+                    @*<button class="button button-small bg-blue icon-file-excel-o" id="btnBenefitimage"> 导出利益冲突声明</button>*@
+                </div>
+                <div class="line">
+                    <label class="border-small label-block">
+                        审批通过日期
+                        <input type="text" class="input input-small" style="width:100px;" id="startBUHeadApproveDate" name="startBUHeadApproveDate" placeholder="开始时间" />
+                        <input type="text" class="input input-small" style="width:100px;" id="endBUHeadApproveDate" name="endBUHeadApproveDate" placeholder="结束时间" />
+                    </label>
+                    <label class="border-small label-block">
+                        会议日期
+                        <input type="text" class="input input-small" style="width:100px;" id="startMeetingDate" name="startMeetingDate" placeholder="开始时间" />
+                        <input type="text" class="input input-small" style="width:100px;" id="endMeetingDate" name="endMeetingDate" placeholder="结束时间" />
+                    </label>
+                    <input type="text" class="input input-small" style="width:100px;" id="txtHospitalCode" name="txtHospitalCode" placeholder="医院编码" />
+                    <input type="text" class="input input-small" style="width:100px;" id="txtCostCenter" name="txtCostCenter" placeholder="大区区域代码" />
+                    <input type="text" class="input input-small" style="width:110px;" id="txtRD" name="txtRD" placeholder="RD Territory Code" />
+                    <button class="button button-small bg-main icon-search" id="btnLoad"> 查询</button>
+                    <button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>
+                    <button class="button button-small bg-blue icon-file-excel-o" id="btnServiceimage"> 导出讲者协议/利益冲突声明</button>
+                    <button class="button button-small bg-blue icon-send-o" id="btnSendMail"> 发送报表</button>
+                </div>
+                <div style="display: none">
+                    <input id="fileUpload" type="file" name="file" onchange="fileChange('import', 'fileUpload')" />
+                </div>
+
+                <div style="display: none;">
+                    <form id="repor_HospitalRes" action="~/P/Restaurant/ReportHospitalResExcel" method="post" target="_blank"></form>
+                    <form id="repor_Res" action="~/P/Restaurant/ReportResExcel" method="post" target="_blank"></form>
+                </div>
+            </div>
+        </div>
+        <table id="costcenter_dataTable" class="table table-hover" style="width:6000px; max-width:6000px;">
+            <thead>
+                <tr>
+                    <th>申请人姓名</th>
+                    <th>申请人MUDID</th>
+                    <th>申请人Territory Code</th>
+                    <th>申请人职位</th>
+                    <th>申请人手机号码</th>
+                    <th>预申请申请日期</th>
+                    <th>预申请申请时间</th>
+                    <th>预申请修改日期</th>
+                    <th>预申请修改时间</th>
+                    <th>HT编号</th>
+                    <th>Market</th>
+                    <th>VeevaMeetingID</th>
+                    <th>TA</th>
+                    <th>省份</th>
+                    <th>城市</th>
+                    <th>医院编码</th>
+                    <th>医院名称</th>
+                    <th>医院地址</th>
+                    <th>会议名称</th>
+                    <th>会议日期</th>
+                    <th>会议时间</th>
+                    <th>参会人数</th>
+                    <th>大区区域代码</th>
+                    <th>HT形式</th>
+                    <th>预算金额</th>
+                    <th>直线经理是否随访</th>
+                    <th>是否由外部免费讲者来讲</th>
+                    @*<th>RD/SD姓名</th>
+                        <th>RD/SD MUDID</th>*@
+                    <th>RD Territory Code</th>
+                    <th>预申请审批人姓名</th>
+                    <th>预申请审批人MUDID</th>
+                    <th>预申请审批日期</th>
+                    <th>预申请审批时间</th>
+                    <th>预申请审批状态</th>
+                    <th>预申请是否重新分配审批人</th>
+                    <th>预申请重新分配审批人-操作人</th>
+                    <th>预申请重新分配审批人-操作人MUDID</th>
+                    <th>预申请被重新分配审批人姓名</th>
+                    <th>预申请被重新分配审批人MUDID</th>
+                    <th>预申请重新分配审批人日期</th>
+                    <th>预申请重新分配审批人时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>${dr.ApplierName}$</td>
+                    <td>${dr.ApplierMUDID}$</td>
+                    <td>${dr.MRTerritoryCode}$</td>
+                    <td>${dr.Position}$</td>
+                    @*<td>${dr.ApplierMobile}$</td>*@
+                    <td></td>
+                    <td>${dr.CreateDate}$</td>
+                    <td>${dr.CreateTime}$</td>
+                    <td>${dr.ModifyDate}$ </td>
+                    <td>${dr.ModifyTime}$ </td>
+                    <td>${dr.HTCode}$ </td>
+                    <td>${dr.Market}$ </td>
+                    <td>${dr.VeevaMeetingID==null?"":dr.VeevaMeetingID}$ </td>
+                    <td>${dr.TA}$ </td>
+                    <td>${dr.Province}$ </td>
+                    <td>${dr.City}$ </td>
+                    <td>${dr.HospitalCode}$ </td>
+                    <td>${dr.HospitalName}$ </td>
+                    <td>${dr.HospitalAddress}$ </td>
+                    <td>${dr.MeetingName}$ </td>
+                    <td>${dr.MeetingDate}$ </td>
+                    <td>${dr.MeetingTime}$ </td>
+                    <td>${dr.AttendCount}$ </td>
+                    <td>${dr.CostCenter}$ </td>
+                    <td>${dr.HTType=="1"?"线上HT": dr.HTType=="0" ? "线下HT" : ""}$ </td>
+                    <td>${dr.BudgetTotal}$ </td>
+                    <td>${dr.IsDMFollow==true?"是":"否"}$ </td>
+                    <td>${dr.IsFreeSpeaker==true?"是":"否"}$</td>
+                    @*<td>${dr.RDSDName==null?"":dr.RDSDName}$ </td>
+                        <td>${dr.RDSDMUDID==null?"":dr.RDSDMUDID}$ </td>*@
+                    <td>${dr.RDTerritoryCode}$ </td>
+                    <td>${dr.BUHeadName}$ </td>
+                    <td>${dr.BUHeadMUDID}$ </td>
+                    <td>${dr.BUHeadApproveDate}$ </td>
+                    <td>${dr.BUHeadApproveTime}$ </td>
+                    <td>${dr.State}$</td>
+                    <td>${dr.IsReAssign==true?"是":"否"}$ </td>
+                    <td>${dr.ReAssignOperatorName==null?"":dr.ReAssignOperatorName}$</td>
+                    <td>${dr.ReAssignOperatorMUDID==null?"":dr.ReAssignOperatorMUDID}$</td>
+                    <td>${dr.ReAssignBUHeadName==null?"":dr.ReAssignBUHeadName}$</td>
+                    <td>${dr.ReAssignBUHeadMUDID==null?"":dr.ReAssignBUHeadMUDID}$</td>
+                    <td>${dr.ReAssignBUHeadApproveDate==null?"":dr.ReAssignBUHeadApproveDate}$</td>
+                    <td>${dr.ReAssignBUHeadApproveTime==null?"":dr.ReAssignBUHeadApproveTime}$</td>
+                    <td><a href="javascript:;" class="button border-blue button-little icon-edit" onclick="ShowDetail('${dr.ID}$')"> 详情</a></td>
+                    @*<td>${getDateByDotNet(dr.CreateDate).pattern('yyyy-MM-dd HH:mm:ss')}$</td>*@
+
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="80" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+
+

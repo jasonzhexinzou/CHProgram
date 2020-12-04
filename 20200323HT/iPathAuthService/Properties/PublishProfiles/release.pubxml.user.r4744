@@ -1,0 +1,163 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+您 Web 项目的发布/打包进程将使用此文件。您可以通过编辑此 MSBuild 文件
+来自定义该进程的行为。若要了解与此相关的详细信息，请访问 http://go.microsoft.com/fwlink/?LinkID=208121。
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <_PublishTargetUrl>D:\publish\gsk\iPathAuthService</_PublishTargetUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <File Include="bin/Exception.xml">
+      <publishTime>04/23/2018 21:09:22</publishTime>
+    </File>
+    <File Include="bin/IamPortal.AppLogin.dll">
+      <publishTime>04/23/2018 21:09:12</publishTime>
+    </File>
+    <File Include="bin/iPathAuthService.dll">
+      <publishTime>06/29/2018 11:22:54</publishTime>
+    </File>
+    <File Include="bin/iPathAuthService.pdb">
+      <publishTime>06/29/2018 11:22:54</publishTime>
+    </File>
+    <File Include="bin/log4net.dll">
+      <publishTime>04/23/2018 21:13:35</publishTime>
+    </File>
+    <File Include="bin/MealAdmin.Entity.dll">
+      <publishTime>06/29/2018 09:45:10</publishTime>
+    </File>
+    <File Include="bin/MealAdmin.Entity.pdb">
+      <publishTime>06/29/2018 09:45:10</publishTime>
+    </File>
+    <File Include="bin/MealAdminApiClient.dll">
+      <publishTime>06/29/2018 09:45:10</publishTime>
+    </File>
+    <File Include="bin/MealAdminApiClient.dll.config">
+      <publishTime>04/23/2018 21:09:04</publishTime>
+    </File>
+    <File Include="bin/MealAdminApiClient.pdb">
+      <publishTime>06/29/2018 09:45:10</publishTime>
+    </File>
+    <File Include="bin/MeetingMealEntity.dll">
+      <publishTime>06/28/2018 16:27:41</publishTime>
+    </File>
+    <File Include="bin/MeetingMealEntity.pdb">
+      <publishTime>06/28/2018 16:27:41</publishTime>
+    </File>
+    <File Include="bin/Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll">
+      <publishTime>04/23/2018 21:10:56</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Web.Infrastructure.dll">
+      <publishTime>04/23/2018 21:11:45</publishTime>
+    </File>
+    <File Include="bin/Newtonsoft.Json.dll">
+      <publishTime>04/23/2018 21:12:45</publishTime>
+    </File>
+    <File Include="bin/roslyn/csc.exe">
+      <publishTime>04/23/2018 21:11:45</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.Build.Tasks.CodeAnalysis.dll">
+      <publishTime>04/23/2018 21:11:45</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.CodeAnalysis.CSharp.dll">
+      <publishTime>04/23/2018 21:11:45</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.CodeAnalysis.dll">
+      <publishTime>04/23/2018 21:11:45</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.CodeAnalysis.VisualBasic.dll">
+      <publishTime>04/23/2018 21:11:45</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.CSharp.Core.targets">
+      <publishTime>04/23/2018 21:11:45</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.VisualBasic.Core.targets">
+      <publishTime>04/23/2018 21:11:45</publishTime>
+    </File>
+    <File Include="bin/roslyn/System.Collections.Immutable.dll">
+      <publishTime>04/23/2018 21:11:45</publishTime>
+    </File>
+    <File Include="bin/roslyn/System.Reflection.Metadata.dll">
+      <publishTime>04/23/2018 21:11:45</publishTime>
+    </File>
+    <File Include="bin/roslyn/vbc.exe">
+      <publishTime>04/23/2018 21:11:45</publishTime>
+    </File>
+    <File Include="bin/roslyn/VBCSCompiler.exe">
+      <publishTime>04/23/2018 21:11:45</publishTime>
+    </File>
+    <File Include="bin/roslyn/VBCSCompiler.exe.config">
+      <publishTime>04/23/2018 21:11:45</publishTime>
+    </File>
+    <File Include="bin/System.Web.Helpers.dll">
+      <publishTime>04/23/2018 21:10:54</publishTime>
+    </File>
+    <File Include="bin/System.Web.Mvc.dll">
+      <publishTime>04/23/2018 21:10:48</publishTime>
+    </File>
+    <File Include="bin/System.Web.Razor.dll">
+      <publishTime>04/23/2018 21:10:51</publishTime>
+    </File>
+    <File Include="bin/System.Web.Webpages.Deployment.dll">
+      <publishTime>04/23/2018 21:10:54</publishTime>
+    </File>
+    <File Include="bin/System.Web.Webpages.dll">
+      <publishTime>04/23/2018 21:10:54</publishTime>
+    </File>
+    <File Include="bin/System.Web.Webpages.Razor.dll">
+      <publishTime>04/23/2018 21:10:54</publishTime>
+    </File>
+    <File Include="bin/XFramework.WeChatAPI.dll">
+      <publishTime>04/04/2018 17:42:52</publishTime>
+    </File>
+    <File Include="bin/XFramework.XException.dll">
+      <publishTime>06/07/2018 17:58:02</publishTime>
+    </File>
+    <File Include="bin/XFramework.XUtil.dll">
+      <publishTime>09/27/2017 17:46:20</publishTime>
+    </File>
+    <File Include="bin/zh-Hans/System.Web.Helpers.resources.dll">
+      <publishTime>01/28/2015 04:04:32</publishTime>
+    </File>
+    <File Include="bin/zh-Hans/System.Web.Mvc.resources.dll">
+      <publishTime>01/28/2015 04:02:22</publishTime>
+    </File>
+    <File Include="bin/zh-Hans/System.Web.Razor.resources.dll">
+      <publishTime>01/28/2015 04:02:34</publishTime>
+    </File>
+    <File Include="bin/zh-Hans/System.Web.Webpages.Deployment.resources.dll">
+      <publishTime>01/28/2015 04:04:32</publishTime>
+    </File>
+    <File Include="bin/zh-Hans/System.Web.Webpages.Razor.resources.dll">
+      <publishTime>01/28/2015 04:04:32</publishTime>
+    </File>
+    <File Include="bin/zh-Hans/System.Web.Webpages.resources.dll">
+      <publishTime>01/28/2015 04:04:32</publishTime>
+    </File>
+    <File Include="Exception.xml">
+      <publishTime>04/23/2018 21:09:22</publishTime>
+    </File>
+    <File Include="Global.asax">
+      <publishTime>04/23/2018 21:09:22</publishTime>
+    </File>
+    <File Include="packages.config">
+      <publishTime>06/11/2018 10:50:36</publishTime>
+    </File>
+    <File Include="Views/JsApi/Index.cshtml">
+      <publishTime>04/23/2018 21:09:22</publishTime>
+    </File>
+    <File Include="Views/JsApi/QyConfigJs.cshtml">
+      <publishTime>04/23/2018 21:09:22</publishTime>
+    </File>
+    <File Include="Views/Shared/Exception.cshtml">
+      <publishTime>04/23/2018 21:09:22</publishTime>
+    </File>
+    <File Include="Views/web.config">
+      <publishTime>04/23/2018 21:09:22</publishTime>
+    </File>
+    <File Include="Web.config">
+      <publishTime>06/29/2018 09:45:58</publishTime>
+    </File>
+  </ItemGroup>
+</Project>

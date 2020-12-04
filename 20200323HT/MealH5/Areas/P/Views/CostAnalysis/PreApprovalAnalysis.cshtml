@@ -1,0 +1,759 @@
+﻿@{
+    ViewBag.Title = "预申请分析";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+@section scripts{
+}
+<style type="text/css">
+    html, body {
+        width: 100%;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 50px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .page-head {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .placeholder {
+        padding: 7px;
+    }
+
+    .weui-cell {
+        min-height: 45px;
+        margin-top: 0px !important;
+    }
+
+    .weui-label {
+        width: 150px !important;
+    }
+
+    .weui-divlabel {
+        width: 180px !important;
+    }
+
+    .weui-rightlabel {
+        width: 100px !important;
+    }
+</style>
+<script type="text/javascript" src="~/Content/echarts/echarts.min.js"></script>
+<script type="text/javascript" src="~/Content/bootstrap/bootstrap3.3.7.js"></script>
+<link type="text/css" rel="stylesheet" href="~/Content/bootstrap/bootstrap.css" />
+<link type="text/css" rel="stylesheet" href="~/Content/fontawesome/css/font-awesome.css" />
+<link href="~/Content/css/cost_summary.css" rel="stylesheet" />
+<script src="~/Content/plugin/LCalendar/js/LCalendar.js"></script>
+<link href="~/Content/plugin/LCalendar/css/LCalendar.css" rel="stylesheet" />
+<script type="text/javascript">
+    var startdate = '@ViewBag.StartDate';
+    var enddate = '@ViewBag.EndDate';
+    //列表面板 按数量金额
+    var allshowlist = [];
+    var susshowlist = [];
+    var refshowlist = [];
+    var penshowlist = [];
+    var canshowlist = [];
+    //总金额总数量 按数量金额
+    var allLab = [];
+    var LabSus = [];
+    var LabRef = [];
+    var LabPen = [];
+    var LabCan = [];
+    //饼图 按数量金额
+    var Chartall = [];
+    var Chartsus = [];
+    var Chartref = [];
+    var Chartpen = [];
+    var Chartcan = [];
+    //列表面板 按审批状态
+    var allshow = [];
+    var susshow = [];
+    var refshow = [];
+    var penshow = [];
+    var canshow = [];
+    //总数量 按审批状态
+    var allLablist = [];
+    var LabSuslist = [];
+    var LabReflist = [];
+    var LabPenlist = [];
+    var LabCanlist = [];
+    //饼图 按审批状态
+    var Chartalllist = [];
+    var Chartsuslist = [];
+    var Chartreflist = [];
+    var Chartpenlist = [];
+    var Chartcanlist = [];
+
+    $(document).ready(function () {
+        var calendar = new LCalendar();
+        calendar.init({
+            'trigger': '#startDate', //标签id
+            'type': 'date', //date 调出日期选择 datetime 调出日期时间选择 time 调出时间选择 ym 调出年月选择,
+            'minDate': (new Date().getFullYear() - 3) + '-' + 1 + '-' + 1, //最小日期
+            'maxDate': (new Date().getFullYear() + 3) + '-' + 12 + '-' + 31 //最大日期
+        });
+
+        var calendar = new LCalendar();
+        calendar.init({
+            'trigger': '#endDate', //标签id
+            'type': 'date', //date 调出日期选择 datetime 调出日期时间选择 time 调出时间选择 ym 调出年月选择,
+            'minDate': (new Date().getFullYear() - 3) + '-' + 1 + '-' + 1, //最小日期
+            'maxDate': (new Date().getFullYear() + 3) + '-' + 12 + '-' + 31 //最大日期
+        });
+
+        $('#startDate').val(startdate);
+        $('#endDate').val(enddate);
+        $('#divBudget').hide();
+        $('#PreStatediv').hide();
+        $('#Tabdiv').hide();
+        var CountChart = echarts.init(document.getElementById('mainCount'));
+        var countData = [];
+        getJson();
+
+        function getJson() {
+            var _StartDate = $('#startDate').val();
+            var _EndDate = $('#endDate').val();
+            showLoadingToast();
+            post('/P/CostAnalysis/LoadPreApprovalData',
+                {
+                    StartDate: _StartDate,
+                    EndDate: _EndDate
+                },
+                function (d) {
+                    if (d.state == 1) {
+                        //列表面板
+                        allshowlist = d.AllList;
+                        susshowlist = d.SusList;
+                        refshowlist = d.RefList;
+                        penshowlist = d.PenList;
+                        canshowlist = d.CanList;
+                        //总金额总数量
+                        allLab = d.allLab;
+                        LabSus = d.LabSus;
+                        LabRef = d.LabRef;
+                        LabPen = d.LabPen;
+                        LabCan = d.LabCan;
+                        //饼图
+                        Chartall = d.dataCountChart;
+                        Chartsus = d.dataCountChartSus;
+                        Chartref = d.dataCountChartRef;
+                        Chartpen = d.dataCountChartPen;
+                        Chartcan = d.dataCountChartCan;
+
+                        var AmountT = '';
+                        document.getElementById('labZeroCount').innerHTML = d.allLab[0].ZeroCount.toString().trim();
+                        document.getElementById('labNonZeroCount').innerHTML = d.allLab[0].NonZeroCount.toString().trim();
+                        var str = toDecimal2(d.allLab[0].TotalPrice).toString();
+                        var reg = str.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                        AmountT = "¥" + str.replace(reg, "$1,");
+                        document.getElementById('labBudget').innerHTML = AmountT;
+
+                        var Countstr = d.allLab[0].TotalCount.toString();
+                        var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                        var CountT = Countstr.replace(Countreg, "$1,") + "单";
+
+                        //数量饼图
+                        for (var i = 0; i < d.dataCountChart.length; i++) {
+                            var obj = new Object();
+                            obj.name = d.dataCountChart[i].Name;
+                            obj.value = d.dataCountChart[i].PreCount;
+                            countData[i] = obj;
+                        }
+                        var option = DrawCountBar(countData, CountT);
+                        if (option && typeof option === "object") {
+                            CountChart.setOption(option, true);
+                        }
+                        hideLoadingToast();
+
+                        $('#AllApproval').append(FormatHtml(d.AllList, ''));
+                    }
+                }, 'json');
+
+        }
+
+        function FormatHtml(data, type) {
+            var html = ''
+            if (data.length > 0) {
+                html += '<div class="panel panel-default">';
+                for (var i = 0; i < data.length; i++) {
+                    html += '<div class="panel-heading parent-nav collapsed" style="height:120px;" data-toggle="collapse" data-target="#type' + data[i].TerritoryCode + '">';
+
+                    html += '<div><div style="float:left;"><label for="" class="weui-label"><strong>' + data[i].Name + '</strong></label></div>';
+                    html += '<div style="float:right;"><label for="" class="weui-rightlabel"><strong>0元HT</strong></label></div>'
+                    html += '<div style="float:right;"><label for="" class="weui-rightlabel"><strong>非0元HT</strong></label></div></div>'
+
+                    html += '<div><div style="float:left;"><label for="" class="weui-label">' + data[i].TerritoryCode + '</label></div>';
+                    html += '<div style="float:right;"><label for="" class="weui-rightlabel">' + data[i].ZeroProportion + '%</label></div>';
+                    html += '<div style="float:right;"><label for="" class="weui-rightlabel">' + data[i].NonZeroProportion + '%</label></div></div>';
+
+                    html += '<div><div style="float:left;"><label for="" class="weui-label">预申请数量 </label></div>';
+                    var Countstr = data[i].ZeroCount.toString();
+                    var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                    var CountT = Countstr.replace(Countreg, "$1,") + "单";
+                    html += '<div style="float:right;"><label for="" class="weui-rightlabel">' + CountT + '</label></div>';
+                    var nonCountstr = data[i].NonZeroCount.toString();
+                    var nonCountreg = nonCountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                    var nonCountT = nonCountstr.replace(nonCountreg, "$1,") + "单";
+                    html += '<div style="float:right;"><label for="" class="weui-rightlabel">' + nonCountT + '</label></div></div>';
+
+                    html += '<div><div style="float:left;"><label for="" class="weui-label">预算金额</label></div>';
+                    html += '<div style="float:right;"><label for="" class="weui-rightlabel">¥0.00元</label></div>';
+                    var Amountstr = toDecimal2(data[i].TotalPrice).toString();
+                    var Amountreg = Amountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                    var AmountT = "¥" + Amountstr.replace(Amountreg, "$1,");
+                    html += '<div style="float:right;"><label for="" class="weui-rightlabel">' + AmountT + '</label></div></div>';
+                    html += '<div><i class="fa fa-bars" aria-hidden="true"></i></div></div>'
+
+                    if (data[i].DownList.length > 0) {
+                        html += '<div id="type' + data[i].TerritoryCode + '" class="panel-collapse collapse child-nav">';
+                        for (var j = 0; j < data[i].DownList.length; j++) {
+                            html += '<div class="panel-body"><div><div style="float:left;"><label for="" class="weui-label"><strong>' + data[i].DownList[j].Name + '</strong></label></div>';
+                            html += '<div style="float:right;"><label for="" class="weui-rightlabel"><strong>0元HT</strong></label></div>';
+                            html += '<div style="float:right;"><label for="" class="weui-rightlabel"><strong>非0元HT</strong></label></div></div>';
+
+                            html += '<div><div style="float:left;"><label for="" class="weui-label">' + data[i].DownList[j].TerritoryCode + '</label></div>';
+                            html += '<div style="float:right;"><label for="" class="weui-rightlabel">' + data[i].DownList[j].ZeroProportion + '%</label></div>';
+                            html += '<div style="float:right;"><label for="" class="weui-rightlabel">' + data[i].DownList[j].NonZeroProportion + '%</label></div></div>';
+
+                            html += '<div><div style="float:left;"><label for="" class="weui-label">预申请数量 </label></div>';
+                            var Cstr = data[i].DownList[j].ZeroCount.toString();
+                            var Creg = Cstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                            var CT = Cstr.replace(Creg, "$1,") + "单";
+                            html += '<div style="float:right;"><label for="" class="weui-rightlabel">' + CT + '</label></div>';
+                            var nonstr = data[i].DownList[j].NonZeroCount.toString();
+                            var nonreg = nonstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                            var nonT = nonstr.replace(nonreg, "$1,") + "单";
+                            html += '<div style="float:right;"><label for="" class="weui-rightlabel">' + nonT + '</label></div></div>';
+
+                            html += '<div><div style="float:left;"><label for="" class="weui-label">预算金额</label></div>'
+                            html += '<div style="float:right;"><label for="" class="weui-rightlabel">¥0.00元</label></div>';
+                            var amountstr = toDecimal2(data[i].DownList[j].TotalPrice).toString();
+                            var amountreg = amountstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                            var amountT = "¥" + amountstr.replace(amountreg, "$1,");
+                            html += '<div style="float:right;"><label for="" class="weui-rightlabel">' + amountT + '</label></div></div></div>';
+                        }
+                        html += '</div>';
+                    }
+                }
+                html += '</div>';
+            }
+            return html;
+        }
+        function DrawCountBar(servicedata, TotalCount) {
+            option = {
+                title: {
+                    text: 'HT订单数量: ' + TotalCount,
+                    x: 'center',
+                    bottom: '30',
+                    textStyle: {
+                        fontSize: 13,
+                        fontStyle: 'bolder',
+                        fontWeight: 'normal',
+                    },
+                },
+                color: ['#006975', '#FF5D00'],
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b} '
+                },
+
+                series: [
+                    {
+                        name: 'HT订单数量占比',
+                        type: 'pie',
+                        radius: '50%',
+                        center: ['50%', '45%'],
+                        data: servicedata,
+                        itemStyle: {
+                            borderWidth: 3,
+                            borderColor: '#fff',
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            return option
+        }
+
+        //刷新
+        $('#btnRefresh').bind('click', function () {
+            if ($('#dpSelect').val() == "Budget") {
+                $('#divBudget').hide();
+                $('#PreStatediv').hide();
+                $('#Tabdiv').hide();
+                $('#divState').show();
+                $('#Budgetdiv').show();
+                $('#AllApproval').show();
+                getJson();
+            }
+            if ($('#dpSelect').val() == "PreState") {
+                $('#divBudget').show();
+                $('#PreStatediv').show();
+                $('#Tabdiv').show();
+                $('#divState').hide();
+                $('#Budgetdiv').hide();
+                $('#AllApproval').hide();
+                getStateJson();
+            }
+        });
+        //全部
+        $('#btnAll').bind('click', function () {
+            $('#mainCount').show();
+            $('#AllApproval').html('');
+            var AmountT = '';
+            document.getElementById('labZeroCount').innerHTML = allLab[0].ZeroCount.toString().trim();
+            document.getElementById('labNonZeroCount').innerHTML = allLab[0].NonZeroCount.toString().trim();
+            var str = toDecimal2(allLab[0].TotalPrice).toString();
+            var reg = str.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+            AmountT = "¥" + str.replace(reg, "$1,");
+            document.getElementById('labBudget').innerHTML = AmountT;
+
+            var Countstr = allLab[0].TotalCount.toString();
+            var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+            var CountT = Countstr.replace(Countreg, "$1,") + "单";
+
+            //数量饼图
+            if (Countstr != "0") {
+                for (var i = 0; i < Chartall.length; i++) {
+                    var obj = new Object();
+                    obj.name = Chartall[i].Name;
+                    obj.value = Chartall[i].PreCount;
+                    countData[i] = obj;
+                }
+                var option = DrawCountBar(countData, CountT);
+                if (option && typeof option === "object") {
+                    CountChart.setOption(option, true);
+                }
+                hideLoadingToast();
+            }
+            else {
+                $('#mainCount').hide();
+                showDlg('无全部审批状态数据。', '确定', function () {
+                    return;
+                });
+            }
+            $('#AllApproval').append(FormatHtml(allshowlist, ''));
+        });
+        //审批通过
+        $('#btnPass').bind('click', function () {
+            $('#mainCount').show();
+            $('#AllApproval').html('');
+            var AmountT = '';
+            document.getElementById('labZeroCount').innerHTML = LabSus[0].ZeroCount.toString().trim();
+            document.getElementById('labNonZeroCount').innerHTML = LabSus[0].NonZeroCount.toString().trim();
+            var str = toDecimal2(LabSus[0].TotalPrice).toString();
+            var reg = str.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+            AmountT = "¥" + str.replace(reg, "$1,");
+            document.getElementById('labBudget').innerHTML = AmountT;
+
+            var Countstr = LabSus[0].TotalCount.toString();
+            var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+            var CountT = Countstr.replace(Countreg, "$1,") + "单";
+
+            //数量饼图
+            if (Countstr != "0") {
+                for (var i = 0; i < Chartsus.length; i++) {
+                    var obj = new Object();
+                    obj.name = Chartsus[i].Name;
+                    obj.value = Chartsus[i].PreCount;
+                    countData[i] = obj;
+                }
+                var option = DrawCountBar(countData, CountT);
+                if (option && typeof option === "object") {
+                    CountChart.setOption(option, true);
+                }
+                hideLoadingToast();
+            }
+            else {
+                $('#mainCount').hide();
+                showDlg('无审批通过数据。', '确定', function () {
+                    return;
+                });
+            }
+            $('#AllApproval').append(FormatHtml(susshowlist, ''));
+        });
+        //审批驳回
+        $('#btnRefuse').bind('click', function () {
+            $('#mainCount').show();
+            $('#AllApproval').html('');
+            var AmountT = '';
+            document.getElementById('labZeroCount').innerHTML = LabRef[0].ZeroCount.toString().trim();
+            document.getElementById('labNonZeroCount').innerHTML = LabRef[0].NonZeroCount.toString().trim();
+            var str = toDecimal2(LabRef[0].TotalPrice).toString();
+            var reg = str.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+            AmountT = "¥" + str.replace(reg, "$1,");
+            document.getElementById('labBudget').innerHTML = AmountT;
+
+            var Countstr = LabRef[0].TotalCount.toString();
+            var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+            var CountT = Countstr.replace(Countreg, "$1,") + "单";
+
+            //数量饼图
+            if (Countstr != "0") {
+                for (var i = 0; i < Chartref.length; i++) {
+                    var obj = new Object();
+                    obj.name = Chartref[i].Name;
+                    obj.value = Chartref[i].PreCount;
+                    countData[i] = obj;
+                }
+                var option = DrawCountBar(countData, CountT);
+                if (option && typeof option === "object") {
+                    CountChart.setOption(option, true);
+                }
+                hideLoadingToast();
+            }
+            else {
+                $('#mainCount').hide();
+                showDlg('无审批驳回数据。', '确定', function () {
+                    return;
+                });
+            }
+            $('#AllApproval').append(FormatHtml(refshowlist, ''));
+        });
+        //待审批
+        $('#btnWait').bind('click', function () {
+            $('#mainCount').show();
+            $('#AllApproval').html('');
+            var AmountT = '';
+            document.getElementById('labZeroCount').innerHTML = LabPen[0].ZeroCount.toString().trim();
+            document.getElementById('labNonZeroCount').innerHTML = LabPen[0].NonZeroCount.toString().trim();
+            var str = toDecimal2(LabPen[0].TotalPrice).toString();
+            var reg = str.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+            AmountT = "¥" + str.replace(reg, "$1,");
+            document.getElementById('labBudget').innerHTML = AmountT;
+
+            var Countstr = LabPen[0].TotalCount.toString();
+            var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+            var CountT = Countstr.replace(Countreg, "$1,") + "单";
+
+            //数量饼图
+            if (Countstr != "0") {
+                for (var i = 0; i < Chartpen.length; i++) {
+                    var obj = new Object();
+                    obj.name = Chartpen[i].Name;
+                    obj.value = Chartpen[i].PreCount;
+                    countData[i] = obj;
+                }
+                var option = DrawCountBar(countData, CountT);
+                if (option && typeof option === "object") {
+                    CountChart.setOption(option, true);
+                }
+                hideLoadingToast();
+            }
+            else {
+                $('#mainCount').hide();
+                showDlg('无待审批数据。', '确定', function () {
+                    return;
+                });
+            }
+            $('#AllApproval').append(FormatHtml(penshowlist, ''));
+        });
+        //已取消
+        $('#btnCancel').bind('click', function () {
+            $('#mainCount').show();
+            $('#AllApproval').html('');
+            var AmountT = '';
+            document.getElementById('labZeroCount').innerHTML = LabCan[0].ZeroCount.toString().trim();
+            document.getElementById('labNonZeroCount').innerHTML = LabCan[0].NonZeroCount.toString().trim();
+            var str = toDecimal2(LabCan[0].TotalPrice).toString();
+            var reg = str.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+            AmountT = "¥" + str.replace(reg, "$1,");
+            document.getElementById('labBudget').innerHTML = AmountT;
+
+            var Countstr = LabCan[0].TotalCount.toString();
+            var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+            var CountT = Countstr.replace(Countreg, "$1,") + "单";
+
+            //数量饼图
+            if (Countstr != "0") {
+                for (var i = 0; i < Chartcan.length; i++) {
+                    var obj = new Object();
+                    obj.name = Chartcan[i].Name;
+                    obj.value = Chartcan[i].PreCount;
+                    countData[i] = obj;
+                }
+                var option = DrawCountBar(countData, CountT);
+                if (option && typeof option === "object") {
+                    CountChart.setOption(option, true);
+                }
+                hideLoadingToast();
+            }
+            else {
+                $('#mainCount').hide();
+                showDlg('无已取消数据。', '确定', function () {
+                    return;
+                });
+            }
+            $('#AllApproval').append(FormatHtml(canshowlist, ''));
+        });
+
+        function getStateJson() {
+            var _StartDate = $('#startDate').val();
+            var _EndDate = $('#endDate').val();
+            showLoadingToast();
+            post('/P/CostAnalysis/LoadPreApprovalDataByState',
+                {
+                    StartDate: _StartDate,
+                    EndDate: _EndDate
+                },
+                function (d) {
+                    if (d.state == 1) {
+                        //列表面板
+                        allshow = d.AllList;
+                        susshow = d.SusList;
+                        refshow = d.RefList;
+                        penshow = d.PenList;
+                        canshow = d.CanList;
+                        //总金额总数量
+                        allLablist = d.allLab;
+                        LabSuslist = d.LabSus;
+                        LabReflist = d.LabRef;
+                        LabPenlist = d.LabPen;
+                        LabCanlist = d.LabCan;
+                        //饼图
+                        Chartalllist = d.dataCountChart;
+                        Chartsuslist = d.dataCountChartSus;
+                        Chartreflist = d.dataCountChartRef;
+                        Chartpenlist = d.dataCountChartPen;
+                        Chartcanlist = d.dataCountChartCan;
+
+                        var AmountT = '';
+                        document.getElementById('labZeroCount').innerHTML = d.allLab[0].ZeroCount.toString().trim();
+                        document.getElementById('labNonZeroCount').innerHTML = d.allLab[0].NonZeroCount.toString().trim();
+                        var str = toDecimal2(d.allLab[0].TotalPrice).toString();
+                        var reg = str.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                        AmountT = "¥" + str.replace(reg, "$1,");
+                        document.getElementById('labBudget').innerHTML = AmountT;
+
+                        var Countstr = d.allLab[0].TotalCount.toString();
+                        var Countreg = Countstr.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+                        var CountT = Countstr.replace(Countreg, "$1,") + "单";
+
+                        //数量饼图
+                        for (var i = 0; i < d.dataCountChart.length; i++) {
+                            var obj = new Object();
+                            obj.name = d.dataCountChart[i].Name;
+                            obj.value = d.dataCountChart[i].PreCount;
+                            countData[i] = obj;
+                        }
+                        var option = DrawCountBar(countData, CountT);
+                        if (option && typeof option === "object") {
+                            CountChart.setOption(option, true);
+                        }
+                        hideLoadingToast();
+
+                        $('#AllApproval').append(FormatHtml(d.AllList, ''));
+                    }
+                }, 'json');
+
+        }
+    });
+    function toDecimal2(x) {
+        var f = Math.round(x * 100) / 100;
+        var s = f.toString();
+        var rs = s.indexOf('.');
+        if (rs < 0) {
+            rs = s.length;
+            s += '.';
+        }
+        while (s.length <= rs + 2) {
+            s += '0';
+        }
+        return s;
+    }
+</script>
+<div class="page-main">
+    <div class="page-body" style="background-color: #FFFFFF; bottom: 0px !important;">
+        <div style="background-color:#f60; height:90px;padding-left:15px;padding-top:5px;">
+            <img id="imgTool" src="~/Content/image/line-chart.png" style="height:24px;vertical-align:middle;float:left;" />&nbsp;
+            <label style="float:left;"><font color="white" style="font-size:14px;">分析维度：</font></label>
+            <select class="stateDP" id="dpSelect" style="width:50%;float:left;height:32px;padding:6px 6px;float:left;">
+                <option value="Budget" selected="selected">按0元/非0元分析</option>
+                <option value="PreState">按审批状态分析</option>
+            </select>
+            <div style="float:left;">
+                <img id="imgTool" src="~/Content/image/Calendar.png" style="height:24px;vertical-align:middle;" />
+                <input class="weui-input" style="color:white;width:75px;" id="startDate" type="text" readonly>
+                <input class="weui-input" style="color:white;width:15px;" value="--" />
+                <input class="weui-input" style="color:white;width:75px;" id="endDate" type="text" readonly>
+                <div class="cost-right">
+                    <button id="btnRefresh" style="z-index:999;color:white!important;border:none;background:none;margin-left:20px;text-decoration:underline;">刷新</button>
+                </div>
+            </div>
+            <div id="divState" style="float:left;">
+                <button id="btnAll" style="float:left;">全部</button>
+                <button id="btnPass" style="float:left;">审批通过</button>
+                <button id="btnRefuse" style="float:left;">审批驳回</button>
+                <button id="btnWait" style="float:left;">待审批</button>
+                <button id="btnCancel" style="float:left;">已取消</button>
+            </div>
+            <div id="divBudget" style="float:left;">
+                <button id="btnAllBudget" style="float:left;">全部</button>
+                <button id="btnZero" style="float:left;">0元预申请</button>
+                <button id="btnNonZero" style="float:left;">非0元预申请</button>
+            </div>
+        </div>
+        <div id="mainCount" style="width: auto;height:250px;"></div>
+        <div class="weui-cells">
+            <div class="weui-cell">
+                <label for="" class="weui-label" style="width:100% !important;"><strong id="belong">数据详情</strong></label>
+            </div>
+            <div id="Budgetdiv">
+                <div class="weui-cells" style="padding:0px 15px; position: relative; margin-top:0px !important;">
+                    <div class="weui-cell__hd" style="float:left;">
+                        <label for="" class="weui-divlabel">0元HT数量：<label id="labZeroCount"></label>单</label>
+                    </div>
+                    <div class="weui-cell__hd" style="float:right;">
+                    </div>
+                </div>
+                <div style="padding:10px 15px; position: relative;">
+                    <div class="weui-cell__hd" style="float:left;">
+                        <label for="" class="weui-divlabel">非0元HT数量：<label id="labNonZeroCount"></label>单</label>
+                    </div>
+                    <div class="weui-cell__hd" style="float:right;">
+                        <label for="" class="weui-divlabel">预算金额：<label id="labBudget"></label></label>
+                    </div>
+                </div>
+            </div>
+
+            <div id="PreStatediv">
+                <div class="weui-cells" style="padding:0px 15px; position: relative; margin-top:0px !important;">
+                    <div class="weui-cell__hd" style="float:left;">
+                        <label for="" class="weui-label">审批通过：<label id="labApprovalSuccess"></label>单</label>
+                    </div>
+                    <div class="weui-cell__hd" style="float:right;">
+                        <label for="" class="weui-label">待审批：<label id="labPending"></label>单</label>
+                    </div>
+                </div>
+                <div style="padding:10px 15px; position: relative;">
+                    <div class="weui-cell__hd" style="float:left;">
+                        <label for="" class="weui-label">审批驳回：<label id="labApprovalRefuse"></label>单</label>
+                    </div>
+                    <div class="weui-cell__hd" style="float:right;">
+                        <label for="" class="weui-label">已取消：<label id="labCancel"></label>单</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="weui-cells" style="border: solid 1px #ddd !important; margin-top: 0px !important;"></div>
+        <div class="tab-content" id="AllApproval">
+        </div>
+        <div style="margin-top:15px;padding:5px;" id="Tabdiv">
+            <ul id="myTab" class="nav nav-tabs">
+                <li class="active">
+                    <a href="#ApprovalSuccess" data-toggle="tab">
+                        审批通过
+                    </a>
+                </li>
+                <li><a href="#ApprovalRefuse" data-toggle="tab">审批驳回</a></li>
+                <li><a href="#Pending" data-toggle="tab">待审批</a></li>
+                <li><a href="#Cancel" data-toggle="tab">已取消</a></li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div class="tab-pane fade in active" id="ApprovalSuccess">
+                </div>
+                <div class="tab-pane fade" id="ApprovalRefuse">
+                </div>
+                <div class="tab-pane fade" id="Pending">
+                </div>
+                <div class="tab-pane fade" id="Cancel">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style type="text/css">
+    #chooseDeliverTime {
+        background-color: #FFFFFF;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        display: none;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 8;
+    }
+
+    #dvUploadSpeakerFile {
+        background-color: #FFFFFF;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        display: none;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9;
+    }
+
+    .my_weui_uploader_input_wrp {
+        float: left;
+        position: relative;
+        margin-right: 9px;
+        margin-bottom: 9px;
+        width: 70px;
+        height: 70px;
+        border: 2px #D9D9D9;
+        border-radius: 10px;
+    }
+
+    .panel-body {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        padding-top: 5px !important;
+        padding-bottom: 0px !important;
+    }
+
+    /*body {
+        background-color: #f5f5f5;
+        color: #444;
+    }*/
+
+    .parent-nav:after {
+        content: "\f077"; /** 箭头向上图标*/
+        font-family: FontAwesome;
+    }
+
+    /**箭头图标展开式时的样式*/
+    /** collapsed是bootstrap的属性，表示父标签展开的时候加入的图标 after表示在此后加入字体图标  */
+    .parent-nav.collapsed:after {
+        content: "\f078"; /** 箭头向下图标*/
+        font-family: FontAwesome;
+    }
+</style>
+
+

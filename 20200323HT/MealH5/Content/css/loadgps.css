@@ -1,0 +1,27 @@
+﻿.loadgeo {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background: rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+.loadgeo .logo {
+    margin-top: 120px;
+    height: 150px;
+    background: url(../../Content/image/gps.png) 50% 50% no-repeat;
+}
+.loadgeo .loading {
+    margin-top: 20px;
+    text-align: center;
+}
+.loadgeo .loading strong {
+    animation: changeloadingtext 1s  ease-in  infinite;
+    color:#f00; font-weight: bold;
+}
+@keyframes changeloadingtext {
+    0%{ text-shadow: 0 0 4px #f00}
+    50%{ text-shadow: 0 0 40px #f00}
+    100%{ text-shadow: 0 0 4px #f00}
+}

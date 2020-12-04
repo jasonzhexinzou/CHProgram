@@ -1,0 +1,250 @@
+﻿@{
+    ViewBag.Title = "费用分析";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+@section scripts{
+}
+<link href="~/Content/css/cost_summary.css" rel="stylesheet" />
+<script src="~/Content/plugin/LCalendar/js/LCalendar.js"></script>
+<link href="~/Content/plugin/LCalendar/css/LCalendar.css" rel="stylesheet" />
+<link href="~/Content/Tipso/tipso.css" rel="stylesheet" />
+<script src="~/Content/Tipso/tipso.js"></script>
+<script type="text/javascript">
+
+    var std = '@ViewBag.StartDate';
+    var ed = '@ViewBag.EndDate'; 
+   
+    $(function () {
+        
+
+        
+    })
+
+</script>
+<script src="~/Content/js/cost_summary.js"></script>
+<div class="page-main">
+    <div class="cost-head-div">
+        <img class="cost-head-img" src="~/Content/image/cost_title.jpg" />
+    </div>
+    <div class="cost-head">
+        <div class="cost-title">
+            <label class="cost-label">起始日期</label>
+        </div>
+        <div class="cost-cell" style="border-right:1px solid #c1b2b2">
+            <input class="cost-input weui-input" id="startDate" type="text" readonly>
+        </div>
+        <div class="cost-title">
+            <label class="cost-label">结束日期</label>
+        </div>
+        <div class="cost-cell">
+            <input class="cost-input weui-input" id="endDate" type="text" readonly>
+        </div>
+        <div class="cost-right">
+            <button class="cost-button" id="btnRefresh" style="z-index:999">刷新</button>
+        </div>
+    </div>
+    <div class="cost-content">
+        <div class="cost-content-row">
+            <div class="cost-content-icon" style="float:left">
+                <img class="cost-content-img" src="~/Content/image/preApproval.png" />
+            </div>
+            <div style="height:65px;float:left;">
+                <img id="tip1" class="cost-alert-icon-bottom" src="~/Content/image/info.png" onclick="tipShow('tip1')" />
+            </div>
+            <div class="cost-content-line">
+                <div style="padding-top:10px">
+                    <label class="cost-content-label">预申请分析</label>
+                </div>
+                <div class="cost-title-line">
+                    <label class="cost-label">预算金额</label>
+                </div>
+                <div class="cost-cell">
+                    <input class="cost-content-input weui-input" id="BudgetTotal" value="￥@ViewBag.CostSummary.BudgetTotal" readonly>
+                </div>
+                <div class="cost-title-line cost-title-right">
+                    <label class="cost-label">数量</label>
+                </div>
+                <div class="cost-cell">
+                    <input class="cost-content-input-right weui-input" id="PreApprovalCount" value="@ViewBag.CostSummary.PreApprovalCount" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="cost-content-row-a">
+            @if (ViewBag.Role == "RM")
+            {
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadPreUp('@ViewBag.Role')">BY DM分析</button>
+                </div>
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadPreDown('@ViewBag.Role')">BY RD分析</button>
+                </div>
+            }
+            else if (ViewBag.Role == "RD")
+            {
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadPreUp('@ViewBag.Role')">BY RM分析</button>
+                </div>
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadPreDown('@ViewBag.Role')">BY TA分析</button>
+                </div>
+            }
+            else if (ViewBag.Role == "TA")
+            {
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadPreUp('@ViewBag.Role')">BY RD分析</button>
+                </div>
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadPreDown('@ViewBag.Role')">BY BU分析</button>
+                </div>
+            }
+            else
+            {
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadPreUp('@ViewBag.Role')">BY TA分析</button>
+                </div>
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadPreDown('@ViewBag.Role')">BY BU分析</button>
+                </div>
+            }
+            
+        </div>
+
+        <div class="cost-content-row">
+            <div class="cost-content-icon" style="float:left">
+                <img class="cost-content-img" src="~/Content/image/order.png" />
+            </div>
+            <div style="height:65px;float:left;">
+                <img id="tip2" class="cost-alert-icon-bottom" src="~/Content/image/info.png" onclick="tipShow('tip2')" />
+            </div>
+            <div class="cost-content-line">
+                <div style="padding-top:10px">
+                    <label class="cost-content-label">订单分析</label>
+                </div>
+                <div class="cost-title-line">
+                    <label class="cost-label">实际金额</label>
+                </div>
+                <div class="cost-cell">
+                    <input class="cost-content-input weui-input" id="RealPrice" value="￥@ViewBag.CostSummary.RealPrice" readonly>
+                </div>
+                <div class="cost-title-line cost-title-right">
+                    <label class="cost-label">数量</label>
+                </div>
+                <div class="cost-cell">
+                    <input class="cost-content-input-right weui-input" id="OrderCount" value="@ViewBag.CostSummary.OrderCount" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="cost-content-row-a">
+            @if (ViewBag.Role == "RM")
+            {
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadOrderUp('@ViewBag.Role')">BY DM分析</button>
+                </div>
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadOrderDown('@ViewBag.Role')">BY RD分析</button>
+                </div>
+            }
+            else if (ViewBag.Role == "RD")
+            {
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadOrderUp('@ViewBag.Role')">BY RM分析</button>
+                </div>
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadOrderDown('@ViewBag.Role')">BY TA分析</button>
+                </div>
+            }
+            else if (ViewBag.Role == "TA")
+            {
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadOrderUp('@ViewBag.Role')">BY RD分析</button>
+                </div>
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadOrderDown('@ViewBag.Role')">BY BU分析</button>
+                </div>
+            }
+            else
+            {
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadOrderUp('@ViewBag.Role')">BY TA分析</button>
+                </div>
+                <div class="cost-content-right">
+                    <button class="cost-button" onclick="LoadOrderDown('@ViewBag.Role')">BY BU分析</button>
+                </div>
+            }
+            <div class="cost-content-right">
+                <button class="cost-button">预申请/订单对比</button>
+            </div>
+            <div class="cost-content-right">
+                <button class="cost-button">订单排名</button>
+            </div>
+        </div>
+
+        <div class="cost-content-row">
+            <div class="cost-content-icon" style="float:left">
+                <img class="cost-content-img" src="~/Content/image/special.png" />
+            </div>
+            <div style="height:65px;float:left;">
+                <img id="tip3" class="cost-alert-icon-top" src="~/Content/image/info.png" onclick="tipShow('tip3')" />
+            </div>
+            <div class="cost-content-line">
+                <div style="padding-top:10px">
+                    <label class="cost-content-label">特殊订单</label>
+                </div>
+                <div class="cost-title-line">
+                    <label class="cost-label">申请人数</label>
+                </div>
+                <div class="cost-cell">
+                    <input class="cost-content-input weui-input" id="SpecialOrderApplierCount" value="@ViewBag.CostSummary.SpecialOrderApplierCount" readonly>
+                </div>
+                <div class="cost-title-line cost-title-right">
+                    <label class="cost-label">数量</label>
+                </div>
+                <div class="cost-cell">
+                    <input class="cost-content-input-right weui-input" id="SpecialOrderCount" value="@ViewBag.CostSummary.SpecialOrderCount" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="cost-content-row-a">
+            <div class="cost-content-right">
+                <button class="cost-button">查看</button>
+            </div>
+        </div>
+
+        <div class="cost-content-row">
+            <div class="cost-content-icon" style="float:left">
+                <img class="cost-content-img" src="~/Content/image/unfinished.png" />
+            </div>
+            <div style="height:65px;float:left;">
+                <img id="tip4" class="cost-alert-icon-top" src="~/Content/image/info.png" onclick="tipShow('tip4')" />
+            </div>
+            <div class="cost-content-line">
+                <div style="padding-top:10px">
+                    <label class="cost-content-label">未完成订单</label>
+                </div>
+                <div class="cost-title-line">
+                    <label class="cost-label">申请人数</label>
+                </div>
+                <div class="cost-cell">
+                    <input class="cost-content-input weui-input" id="UnfinishedOrderApplierCount" value="@ViewBag.CostSummary.UnfinishedOrderApplierCount" readonly>
+                </div>
+                <div class="cost-title-line cost-title-right">
+                    <label class="cost-label">数量</label>
+                </div>
+                <div class="cost-cell">
+                    <input class="cost-content-input-right weui-input" id="UnfinishedOrderCount" value="@ViewBag.CostSummary.UnfinishedOrderCount" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="cost-content-row-a">
+            <div class="cost-content-right">
+                <button class="cost-button">查看</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+

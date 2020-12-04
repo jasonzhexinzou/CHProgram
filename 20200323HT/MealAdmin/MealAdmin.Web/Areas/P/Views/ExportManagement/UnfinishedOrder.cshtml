@@ -1,0 +1,195 @@
+﻿@{
+    ViewBag.Title = "HT报表管理";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap/bootstrap-select.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/bootstrap/bootstrap.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="~/Content/bootstrap/bootstrap-select.js"></script>
+    <script type="text/javascript" src="~/Content/bootstrap/bootstrap3.3.7.js"></script>
+    <script type="text/javascript">
+        var TAlist = '@ViewBag.TAlist';
+        $(function () {
+            var startYear = 2018;
+            var myDate = new Date();
+            var endYear = myDate.getFullYear();
+            var htmlstart;
+            var htmlend;
+            var htmlmonth;
+            var htmlendmonth;
+            var startmonth = myDate.getMonth() + 1;
+            var endmonth = myDate.getMonth() + 1;
+            $('#sltStartYear').html('');
+            for (var i = startYear; i <= endYear; i++) {
+                if (i == endYear)
+                    htmlstart += '<option value="' + i + '" selected="selected">' + i + "年" + '</option>';
+                else
+                    htmlstart += '<option value="' + i + '">' + i + "年" + '</option>';
+            }
+            $('#sltStartYear').html(htmlstart);
+            $('#sltEndYear').html('');
+            for (var i = startYear; i <= endYear; i++) {
+                if (i == endYear)
+                    htmlend += '<option value="' + i + '" selected="selected">' + i + "年" + '</option>';
+                else
+                    htmlend += '<option value="' + i + '">' + i + "年" + '</option>';
+            }
+            $('#sltEndYear').html(htmlend);
+            $('#sltStartMonth').html('');
+            for (var i = 1; i <= 12; i++) {
+                if (i == startmonth)
+                    htmlmonth += '<option value="' + i + '" selected="selected">' + i + "月" + '</option>';
+                else
+                    htmlmonth += '<option value="' + i + '">' + i + "月" + '</option>';
+            }
+            $('#sltStartMonth').html(htmlmonth);
+            $('#sltEndMonth').html('');
+            for (var i = 1; i <= 12; i++) {
+                if (i == endmonth)
+                    htmlendmonth += '<option value="' + i + '" selected="selected">' + i + "月" + '</option>';
+                else
+                    htmlendmonth += '<option value="' + i + '">' + i + "月" + '</option>';
+            }
+            $('#sltEndMonth').html(htmlendmonth);
+            $('#sltTA').html('');
+            var taList = TAlist.split(',');
+            var html = '<option value="ALL" selected="selected" style="color:black">ALL</option>';
+            if (taList.length > 0) {
+                for (var i in taList) {
+                    html += '<option value="' + taList[i] + '">' + taList[i] + '</option>';
+                }
+            }
+            $('#sltTA').html(html);
+
+            $('#btnExport').bind('click', function () {
+                var startyear = $('#sltStartYear').val();
+                var startmonth = $('#sltStartMonth').val();
+                var endyear = $('#sltEndYear').val();
+                var endmonth = $('#sltEndMonth').val();
+                var ta = $('#sltTA').val() == null ? "ALL" : $('#sltTA').val().toString();
+                var htType = $('#sltHTType').val();
+                window.location.href = contextUri + '/P/ExportManagement/ExportUnfinishedOrder?'
+                    + 'StartYear=' + startyear
+                    + '&StartMonth=' + startmonth
+                    + '&EndYear=' + endyear
+                    + '&EndMonth=' + endmonth
+                    + '&TA=' + ta
+                    + '&HTType=' + htType;
+            });
+
+            $('#btnExportData').bind('click', function () {
+                var startyear = $('#sltStartYear').val();
+                var startmonth = $('#sltStartMonth').val();
+                var endyear = $('#sltEndYear').val();
+                var endmonth = $('#sltEndMonth').val();
+                var ta = $('#sltTA').val() == null ? "ALL" : $('#sltTA').val().toString();
+                var htType = $('#sltHTType').val();
+                window.location.href = contextUri + '/P/ExportManagement/ExportUnfinishedData?'
+                    + 'StartYear=' + startyear
+                    + '&StartMonth=' + startmonth
+                    + '&EndYear=' + endyear
+                    + '&EndMonth=' + endmonth
+                    + '&TA=' + ta
+                    + '&HTType=' + htType;
+            });
+
+        });
+        function selectOption1() {
+            var item = $('#sltOption').val();
+            if (item == 1) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/SpecialOrder";
+                document.getElementById("jump").click();
+            }
+            else if (item == 2) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/SpecialInvoiceOrder";
+                document.getElementById("jump").click();
+            }
+            else if (item == 3) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/UnfinishedOrder";
+                document.getElementById("jump").click();
+            }
+            else if (item == 4) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/HospitalCoverage";
+                document.getElementById("jump").click();
+            }
+            else if (item == 5) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/OrderEvaluate";
+                document.getElementById("jump").click();
+            }
+            else if (item == 6) {
+                document.getElementById("jump").href = contextUri + "/P/ExportManagement/SpecialOrderProportion";
+                document.getElementById("jump").click();
+            }
+        };
+
+    </script>
+}
+<div class="tool_bar">
+    <label>未完成订单</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;border: solid 1px #ddd;" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <div class="x10">
+                        <span><strong>请选择要导出报表</strong></span>
+                        <select class="input input-small" style="width:180px;" id="sltOption" name="sltOption" onchange="selectOption1()">
+                            <option value="6">Special Order</option>
+                            <option value="1">特殊订单</option>
+                            <option value="2">特殊订单发票</option>
+                            <option value="3" selected="selected">未完成订单</option>
+                            <option value="4">医院覆盖率</option>
+                            <option value="5">订单评价</option>
+                        </select>
+                        <a id="jump"></a>
+                    </div>
+                    <div class="x2">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <span><strong>请筛选条件</strong></span>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        起始时间
+                        <select id="sltStartYear" name="sltStartYear" class="input input-small" style="width:80px;"></select>
+                        <select id="sltStartMonth" name="sltStartMonth" class="input input-small" style="width:80px;"></select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        终止时间
+                        <select id="sltEndYear" name="sltEndYear" class="input input-small" style="width:80px;"></select>
+                        <select id="sltEndMonth" name="sltEndMonth" class="input input-small" style="width:80px;"></select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        TA
+                        <select class="selectpicker bla bla bli" id="sltTA" name="sltTA" multiple></select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:102px;">
+                        HT类型
+                        <select class="input input-small" style="width:100px;" id="sltHTType" name="sltHTType">
+                            <option value="all">全部</option>
+                            <option value="0">院内HT</option>
+                            <option value="1">院外HT</option>
+                        </select>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        <button class="button button-small bg-blue icon-file-excel-o" id="btnExport">导出未完成订单</button>
+                    </label>
+                    <label class="border-small label-block" style="padding-left:20px;">
+                        <button class="button button-small bg-yellow icon-file-excel-o" id="btnExportData">导出分析数据</button>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

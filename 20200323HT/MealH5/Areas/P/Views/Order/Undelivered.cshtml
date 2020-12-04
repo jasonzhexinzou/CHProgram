@@ -1,0 +1,139 @@
+﻿
+@{
+    ViewBag.Title = "未送达";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<style type="text/css">
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 60px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .Memo {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+</style>
+
+<script type="text/javascript">
+    var orderID = '@ViewBag.OrderId';
+    var restaurantId = '@ViewBag.resId';
+    var supplier = '@ViewBag.supplier';
+    var htCode = '@ViewBag.HTCode';
+    var orderState = '@ViewBag.OrderState';
+    $(function () {
+        $('#discepion').on('click', function () {
+            $('#_discepion').hide();
+        });
+        if (supplier == 'xms') {
+            $("#lblBDS").hide();
+        }
+        else {
+            $("#lblXMS").hide();
+        }
+        if (orderState != "4") {
+            $("#btnUndelivered").attr("disabled", "true");
+            $('#btnUndelivered').css("background-color", "rgba(0, 0, 0, 0.3)");
+        }
+    });
+
+    function undelivered() {
+
+        var onTimeDiscripion = $('#discepion').val();
+        if (onTimeDiscripion.length < 8) {
+            $('#_discepion').show();
+            showTopMsg('请填写详细描述，至少八个字以上');
+            //window.location.hash = "#safeFood";
+            return;
+        }
+        if ($("input[name=Normal]").is(":checked") == false) {
+            showTopMsg('请选择会议是否正常召开');
+            //window.location.hash = "#safeFood";
+            return;
+        }
+        post('/P/Order/AddUndelivered',
+                {
+                    orderID: orderID,
+                    restaurantId: restaurantId,
+                    onTimeDiscripion: onTimeDiscripion,
+                    supplier: supplier,
+                    normal: $("#rbNormal1").is(":checked")==true?1:0
+                },
+                function (d) {
+                    var fileType = 0;
+                    if ($("#rbNormal1").is(":checked") ==false) {
+                        fileType = 3;
+                    }
+                    showConfim('提交成功', '', function () {
+                        location.href = contextUri + '/P/Upload/UploadFiles' + '?htCode=' + htCode + '&fileType=' + fileType;
+                    }, '上传文件', '返回', function () {
+                        WeixinJSBridge.call('closeWindow');
+                    }, 'success');
+                }, 'json');
+
+    }
+
+</script>
+
+<div class="page-main">
+    <div class="page-body">
+        <div class="weui-cells">
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">实际金额</label></div>
+                <div class="weui-cell__bd">
+                    <span style="opacity:0.6;margin-left:20%;">0.00</span>
+                </div>
+            </div>
+
+            <div class="weui-cell" id="BudgetPanel">
+                <div class="weui-cell__hd">
+                    <label for="" class="weui-label">用户确认金额</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <span style="opacity:0.6;margin-left:20%;">0.00</span>
+                </div>
+            </div>
+
+            <div class="weui-cell" id="BudgetPanel">
+                <div class="weui-cell__hd">
+                    <label for="" class="weui-label">会议正常召开</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input type="radio" name="Normal" id="rbNormal1" value="1" style="float:left;margin-top:5px;margin-left:20%"><p style="margin-right:25px;float:left;">是</p>
+                    <input type="radio" name="Normal" id="rbNormal2" value="0" style="float:left;margin-top:5px;"><p>否</p>
+                </div>
+            </div>
+        </div>
+        <div class="weui-cells__title"><h2>详细描述</h2></div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" placeholder="请填写具体未送达投诉详情，至少八个字以上" rows="5" id="discepion"></textarea>
+            </div>
+            <div class="weui-cell__ft" style="display: none;" id="_discepion">
+                <i class="weui-icon-warn"></i>
+            </div>
+        </div>
+        <p class="Memo">抱歉给您的用餐带来不便。</p>
+        <p class="Memo" id="lblBDS">如需联系BDS请拨打<a href="tel:400-6868-912">400-6868-912</a></p>
+        <p class="Memo" id="lblXMS">如需联系XMS请拨打<a href="tel:400-820-5577">400-820-5577</a></p>
+    </div>
+    <div class="page-foot">
+        <button type="button" id="btnUndelivered" class="weui-btn weui-btn_orange" onclick="undelivered()">确定</button>
+    </div>
+</div>
+

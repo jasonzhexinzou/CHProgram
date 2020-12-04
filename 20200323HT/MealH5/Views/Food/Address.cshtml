@@ -1,0 +1,60 @@
+﻿
+@{
+    Layout = null;
+}
+
+<div id="addresslist">
+    <div class="headtools">
+        <div class="city">获取中</div>
+        <div class="cityfilter">
+            <div>
+                <input id="citykeyword" type="text" />
+                <div></div>
+            </div>
+        </div>
+    </div>
+    <div class="autocompletion">
+        <ul>
+            <li _name="${item.name}$" _address="${item.address}$" _geo="${item.location.lng + ',' + item.location.lat}$">
+                <div>${item.name}$</div>
+                <div>${item.address}$</div>
+            </li>
+        </ul>
+    </div>
+    <div class="body">
+        <div id="chooseHospital">
+            <div class="linetop">
+                定位地址
+                <div id="refresh"></div>
+            </div>
+            <div class="line0">
+                查询中...
+            </div>
+            <div class="linetop">
+                常用地址
+            </div>
+            <div class="nearaddresspanel">
+                <div class="line1" name="${item.name}$" phone="${item.phone}$" geo="${item.geo}$">
+                    ${item.name}$
+                    <span>${item.address}$</span>
+                </div>
+            </div>
+        </div>
+        <div id="chooseCity">
+            <div class="quickchoose">
+                <div target="citygroup${item.name}$">${item.name}$</div>
+            </div>
+            <ul>
+                <li class="lab" id="citygroup${item.name}$">${item.name}$</li>
+                ${
+                    var htmls = '';
+                    for (var i in item.list) {
+                        var _item = item.list[i];
+                        htmls += '<li pinyin="' + _item.pinyin + '" jianpin="' + _item.jianpin + '" district="' + _item.district + '">' + _item.name + '</li>';
+                    }
+                    htmls;
+                }$
+            </ul>
+        </div>
+    </div>
+</div>

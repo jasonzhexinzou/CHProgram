@@ -1,0 +1,139 @@
+﻿@{
+    ViewBag.Title = "评价详情";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+
+
+    </script>
+    <style type="text/css">
+        #frmData .field img {
+            width: 100%;
+            border: 1px solid #808080;
+            margin-bottom: 5px;
+        }
+    </style>
+}
+<div style="padding: 15px;">
+    <div id="frmData" class="padding-big" style="width:100%">
+        <div class="form-group">
+            <div class="label">
+                <label for="txtRx">评价</label>
+            </div>
+            <div class="field">
+                @ViewBag.Evaluate.Star 星
+            </div>
+            <div class="field">
+                准点率：
+                @if (ViewBag.Evaluate.OnTime == 1)
+                {<span class="text-red">迟到超过60分钟</span>}
+                else if (ViewBag.Evaluate.OnTime == 2)
+                { <span class="text-yellow">迟到60分钟以内</span>}
+                else if (ViewBag.Evaluate.OnTime == 3)
+                {<span style="color:#DAA520;">提前到</span> }
+                else if (ViewBag.Evaluate.OnTime == 4)
+                {<span>准点</span> }
+                else if (ViewBag.Evaluate.OnTime == 5)
+                {<span class="text-red">迟到60分及以上</span> }
+                else if (ViewBag.Evaluate.OnTime == 6)
+                {<span class="text-yellow">迟到30-60分钟</span> }
+                else if (ViewBag.Evaluate.OnTime == 7)
+                {<span class="text-yellow">迟到30分钟以内</span> }
+                else if (ViewBag.Evaluate.OnTime == 8)
+                {<span style="color:#DAA520;">早到30分钟及以上</span> }
+                else if (ViewBag.Evaluate.OnTime == 9)
+                {<span style="color:#DAA520;">早到30分钟以内</span> }
+                else if (ViewBag.Evaluate.OnTime == 10)
+                {<span>准点</span>}
+            </div>
+            <div class="field border-bottom">
+                @ViewBag.Evaluate.OnTimeDiscrpion
+            </div>
+            <div class="field margin-big-top">
+                食品安全存在问题：
+                @if (ViewBag.Evaluate.IsSafe == 1)
+                {<span class="text-red">是</span>}
+                else if (ViewBag.Evaluate.IsSafe == 2)
+                { <span>否</span>}
+            </div>
+            <div class="field">
+                @ViewBag.Evaluate.SafeDiscrpion
+            </div>
+            <div class="field border-bottom">
+                @foreach (var i in ViewBag.EvaluateSafeImage)
+                {
+                    <img alt="" src="@i" />
+                }
+            </div>
+            <div class="field margin-big-top">
+                餐品卫生及新鲜：
+                @if (ViewBag.Evaluate.Health == 1)
+                {<span>好</span>}
+                else if (ViewBag.Evaluate.Health == 2)
+                { <span class="text-yellow">中</span>}
+                else if (ViewBag.Evaluate.Health == 3)
+                { <span class="text-red">差</span>}
+            </div>
+            <div class="field">
+                @ViewBag.Evaluate.HealthDiscrpion
+            </div>
+            <div class="field border-bottom">
+                @foreach (var i in ViewBag.EvaluateHealthImage)
+                {
+                    <img alt="" src="@i" />
+                }
+            </div>
+            <div class="field margin-big-top">
+                餐品包装：
+                @if (ViewBag.Evaluate.Pack == 1)
+                {<span>好</span>}
+                else if (ViewBag.Evaluate.Pack == 2)
+                { <span class="text-yellow">中</span>}
+                else if (ViewBag.Evaluate.Pack == 3)
+                { <span class="text-red">差</span>}
+
+            </div>
+            <div class="field">
+                @ViewBag.Evaluate.PackDiscrpion
+            </div>
+            <div class="field border-bottom">
+                @foreach (var i in ViewBag.EvaluatePackImage)
+                {
+                    <img alt="" src="@i" />
+                }
+            </div>
+            <div class="field margin-big-top">
+                餐品性价比：
+                @if (ViewBag.Evaluate.CostEffective == 1)
+                {<span>好</span>}
+                else if (ViewBag.Evaluate.CostEffective == 2)
+                { <span class="text-yellow">中</span>}
+                else if (ViewBag.Evaluate.CostEffective == 3)
+                { <span class="text-red">差</span>}
+            </div>
+            <div class="field">
+                @ViewBag.Evaluate.CostEffectiveDiscrpion
+            </div>
+            <div class="field border-bottom">
+                @foreach (var i in ViewBag.EvaluateCostEffectiveImage)
+                {
+                    <img alt="" src="@i" />
+                }
+            </div>
+            <div class="field margin-big-top">
+                其他评价：
+            </div>
+            <div class="field">
+                @ViewBag.Evaluate.OtherDiscrpion
+            </div>
+            <div class="field border-bottom">
+                @foreach (var i in ViewBag.EvaluateOtherDiscrpionImage)
+                {
+                    <img alt="" src="@i" />
+                }
+            </div>
+        </div>
+    </div>
+</div>

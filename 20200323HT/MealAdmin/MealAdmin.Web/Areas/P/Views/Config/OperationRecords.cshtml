@@ -1,0 +1,208 @@
+﻿
+@{
+    ViewBag.Title = "系统审计";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+@section scripts{
+    <script src="~/Content/plugin/jquidatepicker/jquery-ui.min.js"></script>
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.theme.min.css" rel="stylesheet" />
+    <link href="~/Content/plugin/jquidatepicker/jquery-ui.min.css" rel="stylesheet" />
+
+    <script type="text/javascript">
+        var pdg;
+        $(function () {
+            var _option = {
+                dateFormat: "yy-mm-dd",
+                closeText: "关闭",
+                prevText: "&#x3C;上月",
+                nextText: "下月&#x3E;",
+                currentText: "今天",
+                monthNames: ["一月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                dayNames: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+                dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"],
+                weekHeader: "周",
+                dateFormat: "yy-mm-dd",
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: true,
+                yearSuffix: "年"
+
+            }
+
+
+            var _stCostCenter = "";
+            var _stSpecialOrders1 = "";
+            var _stSpecialOrders2 = "";
+            var _stUploadFile = "";
+            var _stSystemGroup = "";
+            var _stAgentApprova = "";
+            var _stHospital = "";
+            var _stBegin = $("#starDate").datepicker(_option);
+            var _stEnd = $("#endDate").datepicker(_option);
+
+            pdg = $('#costcenter_dataTable').iPathDataGrid({ url: contextUri + '/P/Config/LoadOperationAudit', paging: true });
+            pdg.QueryParams = function () {
+                GetValue();
+                return {
+                    ApprovalMUDID:$('#ApprovalMUDID').val(),
+                    Begin: $('#starDate').val(),
+                    End: $('#endDate').val(),
+                    CostCenter: _stCostCenter,
+                    SpecialOrders1: _stSpecialOrders1,
+                    SpecialOrders2: _stSpecialOrders2,
+                    UploadFile: _stUploadFile,
+                    SystemGroup: _stSystemGroup,
+                    AgentApprova: _stAgentApprova,
+                    Hospital:_stHospital
+
+                };
+            }
+            pdg.Load();
+
+            $('#btnLoad').bind('click', function () {
+                pdg.Load();
+            });
+            $('#btnExport').bind('click', function () {
+                GetValue();
+                $showdialogForUrl(
+                    {
+                        title: '导出系统审计信息',
+                        width: '450px',
+                        height: '100px',
+                        url: contextUri + '/P/Config/ExportAudit?ApprovalMUDID=' + $('#ApprovalMUDID').val() + '&Begin=' + $('#starDate').val() + '&End=' + $('#endDate').val() + '&CostCenter=' + _stCostCenter
+                            + '&SpecialOrders1=' + _stSpecialOrders1 + '&SpecialOrders2=' + _stSpecialOrders2 + '&UploadFile=' + _stUploadFile + '&SystemGroup=' + _stSystemGroup + '&AgentApprova=' + _stAgentApprova + '&Hospital=' + _stHospital,
+                        //data:{
+                        //    ApprovalMUDID: $('#ApprovalMUDID').val(),
+                        //    Begin: $('#starDate').val(),
+                        //    End: $('#endDate').val(),
+                        //    CostCenter: _stCostCenter,
+                        //    SpecialOrders1: _stSpecialOrders1,
+                        //    SpecialOrders2: _stSpecialOrders2,
+                        //    UploadFile: _stUploadFile,
+                        //    SystemGroup: _stSystemGroup,
+                        //    AgentApprova: _stAgentApprova,
+                        //    Hospital: _stHospital
+                        //},
+                        pageid: 'manager',
+                        buttons: [
+                            {
+                                cls: 'button',
+                                txt: '关闭',
+                                handler: function (e) { e.close(); }
+                            }
+                        ]
+                    }
+                );
+                //ExportSearchList
+            });
+            function GetValue() {
+                 _stCostCenter = "";
+                 _stSpecialOrders1 = "";
+                 _stSpecialOrders2 = "";
+                 _stUploadFile = "";
+                 _stSystemGroup = "";
+                 _stAgentApprova = "";
+                 _stHospital = "";
+                if ($('#chkCostCenter').prop('checked')) {
+                    _stCostCenter = $('#chkCostCenter').val();
+                    //alert(_stCostCenter)
+
+                }
+                if ($('#chkSpecialOrders1').prop('checked')) {
+                    _stSpecialOrders1 = $('#chkSpecialOrders1').val();
+                }
+                if ($('#chkSpecialOrders2').prop('checked')) {
+                    _stSpecialOrders2 = $('#chkSpecialOrders2').val();
+                }
+                if ($('#chkUploadFile').prop('checked')) {
+                    _stUploadFile = $('#chkUploadFile').val();
+                }
+                if ($('#chkSystemGroup').prop('checked')) {
+                    _stSystemGroup = $('#chkSystemGroup').val();
+                }
+                if ($('#chkAgentApproval').prop('checked')) {
+                    _stAgentApprova = $('#chkAgentApproval').val();
+                }
+                if ($('#chkHospital').prop('checked')) {
+                    _stHospital = $('#chkHospital').val();
+                }
+            }
+
+        });
+
+
+
+
+
+
+    </script>
+}
+<div class="tool_bar">
+    <label>系统审计</label>
+</div>
+<div class="main_view">
+    <div style="margin: 20px;overflow:auto" class="panel admin-panel">
+        <div class="border-bottom inline form-auto padding">
+            <div class="container margin-little-left">
+                <div class="line">
+                    <input type="text" class="input input-small" style="width:130px;" id="ApprovalMUDID" name="ApprovalMUDID" placeholder="操作人MUDID" />
+
+                    <label class="border-small label-block">
+                        操作时间
+                        <input type="text" class="input input-small" style="width:100px;" id="starDate" name="startMeetingDate" placeholder="开始时间" />
+                        <input type="text" class="input input-small" style="width:100px;" id="endDate" name="endMeetingDate" placeholder="结束时间" />
+                    </label>
+                    <div style="margin-top:4px;" id="first">
+                        操作类型
+                        <label style="margin-right:3px"><input id="chkCostCenter" name="chkCostCenter" value="0" type="checkbox" />预申请最高审批人</label>
+                        <label style="margin-right:3px"><input id="chkSpecialOrders1" name="chkSpecialOrders1" value="1" type="checkbox" />特殊订单-呼叫中心操作退单</label>
+                        <label style="margin-right:3px"><input id="chkSpecialOrders2" name="chkSpecialOrders2" value="2" type="checkbox" />特殊订单-会议文件丢失</label>
+                        <label style="margin-right:3px"><input id="chkUploadFile" name="chkUploadFile" value="3" type="checkbox" />重新分配</label>
+                        <label style="margin-right:3px"><input id="chkSystemGroup" name="chkSystemGroup" value="4" type="checkbox" />系统组别管理</label>
+                        <label style="margin-right:3px"><input id="chkAgentApproval" name="chkAgentApproval" value="5" type="checkbox" />代理人审批</label>
+                        <label style="margin-right:3px"><input id="chkHospital" name="chkHospital" value="6" type="checkbox" />医院管理</label>
+                        @*<label style="margin-right:3px"><input id="chkBoxLarge60" name="chkBoxLarge60" value="5" type="checkbox" />院外 T名单</label>*@
+                        <button class="button button-small bg-green icon-search" id="btnLoad"> 查询</button>
+                        <button class="button button-small bg-blue icon-file-excel-o" id="btnExport"> 导出</button>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+
+        <table id="costcenter_dataTable" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>操作人</th>
+                    <th>操作日期</th>
+                    <th>操作时间</th>
+                    <th>操作类型</th>
+                    <th>变更内容</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>${dr.UserID}$</td>
+                    <td>${dr.CreatDate}$</td>
+                    <td>${dr.CreatTime}$</td>
+                    <td>${dr.Type}$</td>
+                    <td>${dr.ChangeContent}$</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="8" class="paging"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+
+

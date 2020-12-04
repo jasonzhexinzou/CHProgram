@@ -1,0 +1,99 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+    <link rel="stylesheet" href="~/Content/plugin/pintuer/pintuer.css" />
+    <script type="text/javascript" src="~/Content/js/jquery.js"></script>
+    <script type="text/javascript" src="~/Content/js/jquery.form.js"></script>
+    <script type="text/javascript" src="~/Content/plugin/pintuer/pintuer.js"></script>
+    <script type="text/javascript" src="~/Content/plugin/pintuer/respond.js"></script>
+    <link rel="stylesheet" href="~/Content/plugin/iPath1/iPath.css" />
+    <script type="text/javascript" src="~/Content/plugin/iPath1/iPath.js"></script>
+    <script type="text/javascript" src="~/Content/js/time.js"></script>
+
+    <script type="text/javascript" src="~/Content/js/admin/admin.js"></script>
+    <link rel="stylesheet" href="~/Content/css/admin/admin.css" />
+    <title>易企吃饭</title>
+    <script type="text/javascript">
+        var contextUri = '@Href("~")';
+        contextUri = contextUri == '/' ? '' : contextUri;
+
+        function showLoading() {
+            iPath.LodingMask();
+        }
+
+        function hideLoading() {
+            iPath.UnLodingMask();
+        }
+    </script>
+    <script type="text/javascript">
+
+        $(function () {
+            $('#btnChangePwd').click(function () {
+                $showdialogForUrl(
+                    {
+                        title: '修改密码',
+                        width: '350px',
+                        height: '250px',
+                        url: contextUri + '/Admin/Home/ChangePwd',
+                        pageid: 'pwd',
+                        buttons: [
+                            {
+                                cls: 'button bg-green',
+                                txt: '保存',
+                                handler: function (e) { window.top.c_pwd.window.btnOKClick(e); }
+                            },
+                            {
+                                cls: 'button',
+                                txt: '取消',
+                                handler: function (e) { e.close(); }
+                            }
+                        ]
+
+                    }
+                );
+            });
+        });
+
+    </script>
+</head>
+<body>
+    <div class="layout">
+        <div class="layout_title">
+            <div class="logo"></div>
+            <div class="sysname">易企吃饭管理系统</div>
+            <div class="systoolbar">
+                @{
+                    var CurrentAdminUser = Session[MealAdmin.Util.ConstantHelper.CurrentAdminUser] as IamPortal.AppLogin.AdminUser;
+                }
+                欢迎您： @CurrentAdminUser.Name
+                @*<label><a href="~/Admin/Home/Index">退出</a></label>*@
+            </div>
+        </div>
+        <div class="layout_left">
+            <ul class="menu">
+                <li>
+                    <a class="menuname">功能配置</a>
+                    <div class="children">
+                        <ul>
+                            <li>
+                                <a class="menuname" target="main_frame" href="~/Admin/CostCenter/Index">成本中心</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="layout_main" _current_panel_id="">
+            <iframe id="main_frame" name="main_frame" frameborder="no" border="0" marginwidth="0" marginheight="0"
+                    src=""></iframe>
+        </div>
+    </div>
+</body>
+</html>

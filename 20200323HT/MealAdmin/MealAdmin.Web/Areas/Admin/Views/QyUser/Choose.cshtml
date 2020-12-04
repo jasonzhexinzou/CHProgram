@@ -1,0 +1,74 @@
+﻿@{
+    ViewBag.Title = "选择企业成员";
+    Layout = "~/Views/Shared/_LayoutPagePanel.cshtml";
+}
+<link rel="stylesheet" href="~/Content/css/admin/chooseuser.css" />
+<script type="text/javascript" src="~/Content/js/admin/chooseuser.js"></script>
+
+<script type="text/javascript">
+
+    var chooseUser;
+    $(function () {
+        chooseUser = new ChooseUser();
+        chooseUser.Init();
+    });
+
+    function btnOKClick(e, callback) {
+
+        var ids = chooseUser.GetChecked();
+        if (ids.length < 1) {
+            $showdialog({ body: '请至少选择一个企业成员' });
+            return;
+        }
+        try {
+            if (callback != undefined) {
+                callback(ids);
+            }
+            e.close();
+        } catch (exp) { }
+
+    }
+
+</script>
+
+<div style="padding: 15px;">
+    <div class="choosedpanel">
+        <div class="choosed" id="chooseduser">
+            <div class="item" _id="${item.id}$">
+                <div class="icon-user">&nbsp;</div>
+                <div>${item.name}$</div>
+                <div class="remove"></div>
+            </div>
+        </div>
+        <div class="search">
+            <input type="text" id="keyword" />
+        </div>
+    </div>
+    <div class="deptpanel">
+        <div class="pathlink">
+            <div class="item">
+                <a id="deptRoot">全部</a>
+            </div>
+        </div>
+        <div class="depttreepanel">
+            <ul id="deptTree">
+                <li>
+                    <label class="icon-sitemap" _id="${item.ID}$">&nbsp;${item.Name}$</label>
+                </li>
+            </ul>
+            <ul id="deptTree_users">
+                <li>
+                    <label class="icon-user" _id="${item.ID}$">&nbsp;${item.Name}$</label>
+                    <label>&nbsp;[${item.Email}$]&nbsp;[${item.UserId}$]</label>
+                    <span>
+                        <input type="checkbox" _id="${item.ID}$" _name="${item.Name}$" />
+                    </span>
+                </li>
+            </ul>
+        </div>
+        <div id="footbar">
+            <button type="button" id="btnCheckedAllUser" class="button button-little bg-blue">全选</button>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,63 @@
+﻿@{
+    ViewBag.Title = "导入成员";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+
+    <script type="text/javascript">
+
+        $(function () {
+        });
+
+        function btnOKClick(e, callback) {
+            var _ids = $('#txtUserIDs').val();
+            var _aryIds = _ids.split('\n');
+            var _aryIdsCnt = 0;
+            $.each(_aryIds, function (i, n) {
+                if (n != '') {
+                    _aryIdsCnt++;
+                }
+            });
+            if (_aryIdsCnt > 0) {
+                $showdialogForConfim(
+                    {
+                        title: '确认',
+                        body: '确认导入' + _aryIdsCnt + ' 行记录？',
+                        ok: function () {
+                            $.PintuerPost(contextUri + '/P/Group/SaveInputMember', { GroupType: '@ViewBag.GroupType', MudIDs: _ids }, function (result) {
+                                if (result.state != 1) {
+                                    $showdialog({ body: result.txt });
+                                }
+                                else {
+                                    $showdialog({ body: "导入成功！" });
+                                }
+
+                                if (callback != undefined) {
+                                    callback();
+                                }
+                            });
+                        }
+                    }
+                );
+            }
+            /*
+            var ids = chooseUser.GetChecked();
+            if (ids.length < 1) {
+                $showdialog({ body: '请至少选择一个企业成员' });
+                return;
+            }
+            try {
+                if (callback != undefined) {
+                    callback(ids);
+                }
+                e.close();
+            } catch (exp) { }
+            */
+        }
+
+    </script>
+}
+<div style="padding: 15px;">
+    <textarea id="txtUserIDs" name="txtUserIDs" rows="20" cols="35" placeholder="请录入MUDID，以换行分隔"></textarea>
+</div>

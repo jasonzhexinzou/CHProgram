@@ -1,0 +1,348 @@
+﻿
+@{
+    ViewBag.Title = "MMCoE审批";
+    Layout = "~/Areas/P/Views/Shared/_LayoutWxPage.cshtml";
+}
+
+<link rel="stylesheet" href="~/Content/css/food_order.css?v=javaScriptVersion" />
+<style type="text/css">
+    .page-body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 60px;
+        overflow: auto;
+    }
+
+    .page-foot {
+        position: absolute;
+        height: 60px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .weui-btn + .weui-btn {
+        margin-top: 3px;
+    }
+
+    .choosedwximage:before, .choosedwximage:after {
+        content: none;
+    }
+
+    .my_weui-cells {
+        margin-top: 0px;
+    }
+</style>
+
+<script type="text/html" id="tmpl_imges">
+    {{each items}}
+    <img class="weui-uploader__input-box choosedwximage" src="{{$value}}" style="margin:10px 0 16px 10px;" />
+    {{/each}}
+</script>
+
+<script type="text/html" id="tmpl_order">
+    <div class="weui-cells__title">基本信息</div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">CN号</label></div>
+            <div class="weui-cell__bd">
+                {{CnCode}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">Market</label></div>
+            <div class="weui-cell__bd">
+                {{hospital.market}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">MUDID</label></div>
+            <div class="weui-cell__bd">
+                {{meeting.userId}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">会议人数</label></div>
+            <div class="weui-cell__bd">
+                {{details.attendCount}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">订餐金额</label></div>
+            <div class="weui-cell__bd">
+                {{foods.allPrice}}
+            </div>
+        </div>
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">实际金额</label></div>
+            <div class="weui-cell__bd">
+                {{if XmsTotalPrice > 0 && XmsTotalPrice != foods.allPrice}}
+                {{XmsTotalPrice}}
+                {{else}}
+                {{foods.allPrice}}
+                {{/if}}
+            </div>
+        </div>
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">金额调整原因</label></div>
+            <div class="weui-cell__bd">
+                {{ChangeTotalPriceReason}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">医院名称</label></div>
+            <div class="weui-cell__bd">
+                {{hospital.hospitalName}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">送餐地址</label></div>
+            <div class="weui-cell__bd">
+                {{hospital.address}} {{details.deliveryAddress}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">收餐人</label></div>
+            <div class="weui-cell__bd">
+                {{details.consignee}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联系电话</label></div>
+            <div class="weui-cell__bd">
+                {{details.phone}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">送餐时间</label></div>
+            <div class="weui-cell__bd">
+                {{details.deliverTime}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">会议名称</label></div>
+            <div class="weui-cell__bd">
+                {{meeting.title}}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">备注</label></div>
+            <div class="weui-cell__bd">
+                {{details.remark}}
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="tmpl_mmcoe">
+    <div class="weui-cells__title">
+        邮件截图
+        <p style="float:right;">{{MMCoEApproveState}}</p>
+    </div>
+</script>
+
+<script type="text/html" id="tmpl_mmcoereason">
+    <div class="weui-cells__title">驳回理由（若驳回订单则必须填写）</div>
+    <div class="weui-cells">
+        <div class="weui-cell__bd">
+            <textarea class="weui-textarea" placeholder="驳回理由" rows="3" style="padding-left:15px;" readonly="readonly">{{MMCoEReason}}</textarea>
+        </div>
+    </div>
+</script>
+
+<script type="text/javascript">
+    var render;
+    var renderImages;
+    var renderMMCoE;
+    var renderMMCoEReason;
+    var orderId = '@ViewBag.orderId';
+
+    $(function () {
+        render = template('tmpl_order');
+        renderImages = template('tmpl_imges');
+        renderMMCoE = template('tmpl_mmcoe');
+        renderMMCoEReason = template('tmpl_mmcoereason');
+
+        post('/P/Order/LoadOrderInfo', { id: orderId },
+            function (d) {
+
+                if (d.data.IsChange == 0)
+                {
+                    mmcoeView(d.data, d.data.Detail);
+                }
+                else {
+                    mmcoeView(d.data, d.data.ChangeDetail);
+                }
+            }, 'json');
+    });
+
+    function mmcoeView(mmcoeData,mmcoeDetail)
+    {
+        var _orderInfo = JSON.parse(mmcoeDetail);
+        _orderInfo.XmsTotalPrice = mmcoeData.XmsTotalPrice;
+        _orderInfo.ChangeTotalPriceReason = mmcoeData.ChangeTotalPriceReason;
+        _orderInfo.details.deliverTime = _orderInfo.details.deliverTime.toString().replace(/T/g, ' ').substring(0, 16);
+        if (mmcoeData.MMCoEApproveState == 1) {
+            $('#index').show();
+            $('#details').hide();
+            var html = render(_orderInfo);
+            $('#orderinfo').html(html);
+
+            var images = _orderInfo.mmCoE.split(',');
+            for (var i in images) {
+                images[i] = awsUrl + images[i];
+            }
+
+            var html = $(renderImages({ items: images }));
+
+
+            var imageUrls = new Array();
+            var http = location.protocol + '//' + location.host;
+            for (var i in images) {
+                var _url = images[i];
+                imageUrls.push(_url);
+            }
+            $('#mmCoEImages').html(html);
+            $('#mmCoEImages img').each(function (i, e) {
+                $(this).click(function () {
+                    WeixinJSBridge.invoke('imagePreview', {
+                        'current': imageUrls[i],
+                        'urls': imageUrls
+                    });
+                });
+            });
+
+        } else {
+            $('#index').hide();
+            $('#details').show();
+            if (mmcoeData.MMCoEApproveState == 2) {
+                mmcoeData.MMCoEApproveState = '审批驳回';
+                $('#mmcoereason').show();
+                var html = renderMMCoEReason(mmcoeData);
+                $('#mmcoereason').html(html);
+
+            } else {
+                mmcoeData.MMCoEApproveState = '审批通过';
+            }
+
+            var html = renderMMCoE(mmcoeData);
+            $('#mmcoe').html(html);
+            var html = render(_orderInfo);
+            $('#_orderinfo').html(html);
+            var images = _orderInfo.mmCoE.split(',');
+            for (var i in images) {
+                images[i] = awsUrl + images[i];
+            }
+
+            var html = $(renderImages({ items: images }));
+
+
+            var imageUrls = new Array();
+            var http = location.protocol + '//' + location.host;
+            for (var i in images) {
+                var _url = images[i];
+                imageUrls.push(_url);
+            }
+            $('#_mmCoEImages').html(html);
+            $('#_mmCoEImages img').each(function (i, e) {
+                $(this).click(function () {
+                    WeixinJSBridge.invoke('imagePreview', {
+                        'current': imageUrls[i],
+                        'urls': imageUrls
+                    });
+                });
+            });
+        }
+    }
+
+    function save(state) {
+        var reason = '';
+        if (state == 2) {
+            if ($('#account').val() == '') {
+                showTopMsg('请填写驳回理由');
+                return;
+            }
+            reason = $('#account').val();
+        }
+
+        post('/P/Order/SaveMMCoEResult',
+                {
+                    orderId: orderId,
+                    state: state,
+                    reason: reason
+                },
+                function (d) {
+                    if (state == 2) {
+                        showDlg(d.txt, '返回', function () {
+                            WeixinJSBridge.call('closeWindow');
+                        }, 'info');
+                    } else {
+                        showDlg(d.txt, '返回', function () {
+                            WeixinJSBridge.call('closeWindow');
+                        }, 'success');
+                    }
+
+                }, 'json');
+    }
+
+    function closeWindow() {
+        WeixinJSBridge.call('closeWindow');
+    }
+</script>
+
+<div class="page-main" id="index">
+    <div class="page-body">
+        <div class="weui-cells__title">邮件截图</div>
+        <div class="weui-cells">
+            <div class="weui-uploader__bd">
+                <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="mmCoEImages">
+
+                </div>
+            </div>
+        </div>
+
+        <div class="weui-cells__title">驳回理由（若驳回订单则必须填写）</div>
+        <div class="weui-cells">
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" placeholder="驳回理由" rows="3" style="padding-left:15px;" id="account"></textarea>
+            </div>
+        </div>
+        <div id="orderinfo">
+
+        </div>
+    </div>
+    <div class="page-foot">
+        <button type="button" class="weui-btn weui-btn_orange" id="btnRebut" style="width:49%;float:right;margin-top:3px;" onclick="save(2)">驳回</button>
+        <button type="button" class="weui-btn weui-btn_orange" id="btnConsent" style="width:49%;float:left;" onclick="save(3)">通过</button>
+    </div>
+</div>
+
+<div class="page-main" id="details" style="display:none;">
+    <div class="page-body">
+        <div id="mmcoe">
+
+        </div>
+        <div class="weui-cells my_weui-cells">
+            <div class="weui-uploader__bd">
+                <div class="weui_cell weui_cells_ex" style="margin-top: 1px" id="_mmCoEImages">
+
+                </div>
+            </div>
+        </div>
+        <div id="mmcoereason" style="display:none;">
+
+        </div>
+        <div id="_orderinfo">
+
+        </div>
+    </div>
+    <div class="page-foot">
+        <button type="button" class="weui-btn weui-btn_orange" onclick="closeWindow()">返回</button>
+    </div>
+</div>

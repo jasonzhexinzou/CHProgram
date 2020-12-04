@@ -1,0 +1,551 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{03366886-27FB-4F05-B1A6-614BA360359B}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MealH5</RootNamespace>
+    <AssemblyName>MealH5</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+    <Use64BitIISExpress />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\packages\AWSSDK.Core.3.3.17\lib\net45\AWSSDK.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="AWSSDK.S3, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\packages\AWSSDK.S3.3.3.9\lib\net45\AWSSDK.S3.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="iPathFeast.Agent">
+      <HintPath>import\iPathFeast.Agent.dll</HintPath>
+    </Reference>
+    <Reference Include="iPathFeast.API.Client">
+      <HintPath>import\iPathFeast.API.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="iPathFeast.ApiEntity, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>import\iPathFeast.ApiEntity.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="XFramework.WeChatAPI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\XFramework.WeChatAPI.1.1.0.10\lib\net45\XFramework.WeChatAPI.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XFramework.XException, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\XFramework.XException.1.1.0\lib\net45\XFramework.XException.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XFramework.XInject, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\XFramework.XInject.1.1.0.2\lib\net45\XFramework.XInject.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XFramework.XInject.MVC, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\XFramework.XInject.MVC.1.1.0.2\lib\net45\XFramework.XInject.MVC.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XFramework.XUtil, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\XFramework.XUtil.1.1.0.2\lib\net45\XFramework.XUtil.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Web.Razor">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Webpages">
+      <HintPath>..\packages\Microsoft.AspNet.Webpages.3.2.3\lib\net45\System.Web.Webpages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Webpages.Deployment">
+      <HintPath>..\packages\Microsoft.AspNet.Webpages.3.2.3\lib\net45\System.Web.Webpages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Webpages.Razor">
+      <HintPath>..\packages\Microsoft.AspNet.Webpages.3.2.3\lib\net45\System.Web.Webpages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Helpers">
+      <HintPath>..\packages\Microsoft.AspNet.Webpages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\P\Views\Upload\Approval.cshtml" />
+    <Content Include="Areas\P\Views\Upload\Details.cshtml" />
+    <Content Include="Areas\P\Views\Upload\EditUploadFiles.cshtml" />
+    <Content Include="Areas\P\Views\Upload\InformationCue.cshtml" />
+    <Content Include="Areas\P\Views\Upload\UploadFiles.cshtml" />
+    <Content Include="Areas\P\Views\Upload\UploadFileStatus.cshtml" />
+    <Content Include="Areas\P\Views\Upload\UploadOrder.cshtml" />
+    <Content Include="Bean_Config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\bootstrap\bootstrap-select.css" />
+    <Content Include="Content\bootstrap\css\bootstrap-theme.css" />
+    <Content Include="Content\bootstrap\bootstrap-select.js" />
+    <Content Include="Content\bootstrap\css\bootstrap-theme.min.css" />
+    <Content Include="Content\bootstrap\bootstrap.css" />
+    <Content Include="Content\bootstrap\css\bootstrap.css" />
+    <Content Include="Content\bootstrap\bootstrap3.3.7.js" />
+    <Content Include="Content\bootstrap\css\bootstrap.min.css" />
+    <Content Include="Content\bootstrap\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Content\bootstrap\js\bootstrap.js" />
+    <Content Include="Content\bootstrap\js\bootstrap.min.js" />
+    <Content Include="Content\bootstrap\js\npm.js" />
+    <Content Include="Content\css\cost_summary.css" />
+    <Content Include="Content\css\foodindex.css" />
+    <Content Include="Content\css\food_order.css" />
+    <Content Include="Content\css\loadgps.css" />
+    <Content Include="Content\css\map.css" />
+    <Content Include="Content\css\order_list.css" />
+    <Content Include="Content\css\PreApprovalState.css" />
+    <Content Include="Content\css\preApproval_edit.css" />
+    <Content Include="Content\css\preApproval_submit.css" />
+    <Content Include="Content\css\restaurant_menu.css" />
+    <Content Include="Content\css\restaurant_info.css" />
+    <Content Include="Content\echarts\echarts.min.js" />
+    <Content Include="Content\fontawesome\css\font-awesome.css" />
+    <Content Include="Content\fontawesome\css\font-awesome.min.css" />
+    <Content Include="Content\fontawesome\fonts\fontawesome-webfont.svg" />
+    <Content Include="Content\fontawesome\HELP-US-OUT.txt" />
+    <Content Include="Content\image\0.png" />
+    <Content Include="Content\image\add.png" />
+    <Content Include="Content\image\add_1.png" />
+    <Content Include="Content\image\approve0.png" />
+    <Content Include="Content\image\approve1.png" />
+    <Content Include="Content\image\approve2.png" />
+    <Content Include="Content\image\bds.jpg" />
+    <Content Include="Content\image\bds.png" />
+    <Content Include="Content\image\bg_c441e3d8.png" />
+    <Content Include="Content\image\Calendar.png" />
+    <Content Include="Content\image\card.png" />
+    <Content Include="Content\image\clear.png" />
+    <Content Include="Content\image\close.png" />
+    <Content Include="Content\image\cost_title.jpg" />
+    <Content Include="Content\image\delete.png" />
+    <Content Include="Content\image\dingwei.png" />
+    <Content Include="Content\image\dingweixuanze.png" />
+    <Content Include="Content\image\edit.png" />
+    <Content Include="Content\image\f5.png" />
+    <Content Include="Content\image\gouwuche.png" />
+    <Content Include="Content\image\gps.png" />
+    <Content Include="Content\image\info.png" />
+    <Content Include="Content\image\line-chart.png" />
+    <Content Include="Content\image\login_bg.png" />
+    <Content Include="Content\image\login_form_bg.png" />
+    <Content Include="Content\image\logo.jpg" />
+    <Content Include="Content\image\money.png" />
+    <Content Include="Content\image\more2.png" />
+    <Content Include="Content\image\nop.png" />
+    <Content Include="Content\image\order.png" />
+    <Content Include="Content\image\orderstate.png" />
+    <Content Include="Content\image\orderstatebg.png" />
+    <Content Include="Content\image\orderstatechecked.png" />
+    <Content Include="Content\image\p1.png" />
+    <Content Include="Content\image\p2.png" />
+    <Content Include="Content\image\penic.png" />
+    <Content Include="Content\image\phone.png" />
+    <Content Include="Content\image\pic_160.png" />
+    <Content Include="Content\image\preApproval.png" />
+    <Content Include="Content\image\Publishing.png" />
+    <Content Include="Content\image\Search.png" />
+    <Content Include="Content\image\Search2.png" />
+    <Content Include="Content\image\shangjia.png" />
+    <Content Include="Content\image\special.png" />
+    <Content Include="Content\image\star0.png" />
+    <Content Include="Content\image\star1.png" />
+    <Content Include="Content\image\sunjian.png" />
+    <Content Include="Content\image\tianjia.png" />
+    <Content Include="Content\image\u3196.png" />
+    <Content Include="Content\image\u3216.png" />
+    <Content Include="Content\image\u3234.png" />
+    <Content Include="Content\image\unfinished.png" />
+    <Content Include="Content\image\xms.png" />
+    <Content Include="Content\image\xuanze.png" />
+    <Content Include="Content\image\xuanze_.png" />
+    <Content Include="Content\image\zhuangshi.png" />
+    <Content Include="Content\js\addressList.js" />
+    <Content Include="Content\js\AutoTransferState.js" />
+    <Content Include="Content\js\citys.js" />
+    <Content Include="Content\js\cost_summary.js" />
+    <Content Include="Content\js\dropload.min.js" />
+    <Content Include="Content\js\fastclick.js" />
+    <Content Include="Content\js\foodindex.js" />
+    <Content Include="Content\js\foodList.js" />
+    <Content Include="Content\js\food_choosehospital.js" />
+    <Content Include="Content\js\food_order.js" />
+    <Content Include="Content\js\gpshelper.js" />
+    <Content Include="Content\js\jquery.js" />
+    <Content Include="Content\js\json2.js" />
+    <Content Include="Content\js\messageconfig.js" />
+    <Content Include="Content\js\normal.js" />
+    <Content Include="Content\js\order_details.js" />
+    <Content Include="Content\js\order_details_handler.js" />
+    <Content Include="Content\js\order_list.js" />
+    <Content Include="Content\js\order_original.js" />
+    <Content Include="Content\js\PreApprovalState.js" />
+    <Content Include="Content\js\preApproval_addAddress.js" />
+    <Content Include="Content\js\preApproval_address.js" />
+    <Content Include="Content\js\preApproval_edit.js" />
+    <Content Include="Content\js\preApproval_index.js" />
+    <Content Include="Content\js\preApproval_submit.js" />
+    <Content Include="Content\js\restaurantList.js" />
+    <Content Include="Content\js\restaurant_menu.js" />
+    <Content Include="Content\js\submitorder.js" />
+    <Content Include="Content\js\Upload_UploadFileStatus.js" />
+    <Content Include="Content\plugin\artTemplate\template.js" />
+    <Content Include="Content\plugin\iPath1\iPath.css" />
+    <Content Include="Content\plugin\iPath1\iPath.js" />
+    <Content Include="Content\plugin\iPath1\loading.gif" />
+    <Content Include="Content\plugin\LCalendar\css\LCalendar.css" />
+    <Content Include="Content\plugin\LCalendar\css\LCalendar.min.css" />
+    <Content Include="Content\plugin\LCalendar\js\LCalendar.js" />
+    <Content Include="Content\plugin\LCalendar\js\LCalendar.min.js" />
+    <Content Include="Content\plugin\Mdate\iScroll.js" />
+    <Content Include="Content\plugin\Mdate\Mdate.js" />
+    <Content Include="Content\plugin\Mdate\needcss\Mdate.css" />
+    <Content Include="Content\plugin\star\iPath_Star.css" />
+    <Content Include="Content\plugin\star\iPath_Star.js" />
+    <Content Include="Content\plugin\star\star.png" />
+    <Content Include="Content\plugin\star\star0.png" />
+    <Content Include="Content\plugin\star\star1.png" />
+    <Content Include="Content\plugin\weui\weui.css" />
+    <Content Include="Content\plugin\weui\weui.min.css" />
+    <Content Include="Content\plugin\weui\weui.min.js" />
+    <Content Include="Content\Site.css" />
+    <Content Include="Content\Tipso\tipso.css" />
+    <Content Include="Content\Tipso\tipso.js" />
+    <Content Include="Content\Tipso\tipso.min.css" />
+    <Content Include="Content\Tipso\tipso.min.js" />
+    <Content Include="Exception.xml" />
+    <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Global.asax" />
+    <Content Include="import\iPathFeast.Agent.dll" />
+    <Content Include="import\iPathFeast.API.Client.dll" />
+    <Content Include="import\iPathFeast.ApiEntity.dll" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Areas\P\Views\CostAnalysis\PreOrderAnalysis.cshtml" />
+    <Content Include="Areas\P\Views\CostAnalysis\PreApprovalAnalysisUp.cshtml" />
+    <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="Scripts\jquery-1.10.2.js" />
+    <Content Include="Scripts\jquery-1.10.2.min.js" />
+    <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Areas\P\Controllers\BaseController.cs" />
+    <Compile Include="Areas\P\Controllers\BaseConfigController.cs" />
+    <Compile Include="Areas\P\Controllers\CallbackController.cs" />
+    <Compile Include="Areas\P\Controllers\ExceptionController.cs" />
+    <Compile Include="Areas\P\Controllers\FoodController.cs" />
+    <Compile Include="Areas\P\Controllers\CostAnalysisController.cs" />
+    <Compile Include="Areas\P\Controllers\OrderController.cs" />
+    <Compile Include="Areas\P\Controllers\OtherController.cs" />
+    <Compile Include="Areas\P\Controllers\PreApprovalController.cs" />
+    <Compile Include="Areas\P\Controllers\PreApprovalStateController.cs" />
+    <Compile Include="Areas\P\Controllers\PublishController.cs" />
+    <Compile Include="Areas\P\Controllers\RestaurantController.cs" />
+    <Compile Include="Areas\P\Controllers\UploadController.cs" />
+    <Compile Include="Areas\P\Filter\iPathOAuthFilter.cs" />
+    <Compile Include="Areas\P\Filter\OrderFilter.cs" />
+    <Compile Include="Areas\P\Filter\OrderInfoFilter.cs" />
+    <Compile Include="Areas\P\Filter\PreApprovalINfoFilter.cs" />
+    <Compile Include="Areas\P\Filter\WxUserFilter.cs" />
+    <Compile Include="Areas\P\Handler\WxMessageHandler.cs" />
+    <Compile Include="Areas\P\PAreaRegistration.cs" />
+    <Compile Include="Controllers\EmployeeController.cs" />
+    <Compile Include="Controllers\FileServiceController.cs" />
+    <Compile Include="Controllers\FoodController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\OrderController.cs" />
+    <Compile Include="Controllers\TestController.cs" />
+    <Compile Include="Filter\GlobalFilter.cs" />
+    <Compile Include="Filter\WxSessionFilter.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Handler\JsApiHandler.cs" />
+    <Compile Include="Handler\MealChannelHandler.cs" />
+    <Compile Include="Handler\WebConfigHandler.cs" />
+    <Compile Include="Handler\WxConfigManager.cs" />
+    <Compile Include="Models\WxUserInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util\ConstantHelper.cs" />
+    <Compile Include="Util\MsgLevelcs.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\web.config" />
+    <Content Include="packages.config" />
+    <Content Include="Views\Food\Index.cshtml" />
+    <Content Include="Views\Food\Restaurant.cshtml" />
+    <Content Include="Views\Food\Address.cshtml" />
+    <Content Include="Views\Food\Food.cshtml" />
+    <Content Include="Views\Food\Order.cshtml" />
+    <Content Include="Areas\P\Views\web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Areas\P\Views\Shared\_LayoutWxPage.cshtml" />
+    <Content Include="Areas\P\Views\Food\ChooseHospital.cshtml" />
+    <Content Include="Areas\P\Views\Shared\Exception.cshtml" />
+    <Content Include="Areas\P\Views\Restaurant\List.cshtml" />
+    <Content Include="Areas\P\Views\Food\ChooseCN.cshtml" />
+    <Content Include="Areas\P\Views\Restaurant\Menu.cshtml" />
+    <Content Include="Areas\P\Views\Food\Order.cshtml" />
+    <Content Include="Areas\P\Views\Food\MMCoE.cshtml" />
+    <Content Include="Areas\P\Views\Order\Index.cshtml" />
+    <Content Include="Areas\P\Views\Food\Chooser.cshtml" />
+    <Content Include="Areas\P\Views\Order\Evaluate.cshtml" />
+    <Content Include="Areas\P\Views\Order\Details.cshtml" />
+    <Content Include="Areas\P\Views\BaseConfig\Time.cshtml" />
+    <Content Include="Areas\P\Views\Order\OrderApproval.cshtml" />
+    <Content Include="Areas\P\Views\Order\Undelivered.cshtml" />
+    <Content Include="Areas\P\Views\Other\Personal.cshtml" />
+    <Content Include="Areas\P\Views\Other\CallCenter.cshtml" />
+    <Content Include="Areas\P\Views\Other\ProjectTeam.cshtml" />
+    <Content Include="Areas\P\Views\Order\OriginalOrder.cshtml" />
+    <Content Include="Areas\P\Views\Order\DetailTmpl.cshtml" />
+    <Content Include="Areas\P\Views\Other\Statement.cshtml" />
+    <Content Include="Areas\P\Views\PreApproval\Submit.cshtml" />
+    <Content Include="Areas\P\Views\PreApproval\Approval.cshtml" />
+    <Content Include="Areas\P\Views\PreApproval\Details.cshtml" />
+    <Content Include="Areas\P\Views\Food\ChoosePreApproval.cshtml" />
+    <Content Include="Areas\P\Views\PreApproval\Edit.cshtml" />
+    <Content Include="Areas\P\Views\PreApproval\MMCoEApprove.cshtml" />
+    <Content Include="Areas\P\Views\PreApprovalState\Index.cshtml" />
+    <Content Include="Areas\P\Views\Order\Confirm.cshtml" />
+    <Content Include="Areas\P\Views\Other\Contact.cshtml" />
+    <Content Include="Areas\P\Views\Other\UserManual.cshtml" />
+    <Content Include="Areas\P\Views\Other\Contact.cshtml" />
+    <Content Include="Areas\P\Views\Other\UserManual.cshtml" />
+    <Content Include="Areas\P\Views\Order\OrderDetails.cshtml" />
+    <Content Include="Areas\P\Views\Restaurant\ResList.cshtml" />
+    <Content Include="Areas\P\Views\Upload\AutoTransferState.cshtml" />
+    <Content Include="Areas\P\Views\Upload\AutoTransferOrderDetails.cshtml" />
+    <Content Include="Areas\P\Views\Publish\Index.cshtml" />
+    <Content Include="Areas\P\Views\Food\MapChooser.cshtml" />
+    <Content Include="Areas\P\Views\PreApproval\Map.cshtml" />
+    <Content Include="Areas\P\Views\PreApproval\AddAddress.cshtml" />
+    <Content Include="Areas\P\Views\PreApproval\AddressDetail.cshtml" />
+    <Content Include="Areas\P\Views\PreApprovalState\Address.cshtml" />
+    <Content Include="Areas\P\Views\PreApproval\AddressApprove.cshtml" />
+    <Content Include="Areas\P\Views\PreApproval\ApprovalDetails.cshtml" />
+    <Content Include="Areas\P\Views\Restaurant\SendTime.cshtml" />
+    <Content Include="Content\bootstrap\css\bootstrap-theme.css.map" />
+    <Content Include="Content\bootstrap\css\bootstrap-theme.min.css.map" />
+    <Content Include="Content\bootstrap\css\bootstrap.css.map" />
+    <Content Include="Content\bootstrap\css\bootstrap.min.css.map" />
+    <Content Include="Content\bootstrap\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Content\bootstrap\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="Content\bootstrap\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="Content\bootstrap\fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="Areas\P\Views\CostAnalysis\PreApprovalAnalysis.cshtml" />
+    <Content Include="Areas\P\Views\CostAnalysis\OrderAnalysisUp.cshtml" />
+    <Content Include="Areas\P\Views\CostAnalysis\OrderAnalysis.cshtml" />
+    <Content Include="Content\bootstrap\bootstrap.less" />
+    <Content Include="Content\fontawesome\fonts\fontawesome-webfont.eot" />
+    <Content Include="Content\fontawesome\fonts\fontawesome-webfont.ttf" />
+    <Content Include="Content\fontawesome\fonts\fontawesome-webfont.woff" />
+    <Content Include="Content\fontawesome\fonts\fontawesome-webfont.woff2" />
+    <Content Include="Content\fontawesome\fonts\FontAwesome.otf" />
+    <Content Include="Content\fontawesome\less\animated.less" />
+    <Content Include="Content\fontawesome\less\bordered-pulled.less" />
+    <Content Include="Content\fontawesome\less\core.less" />
+    <Content Include="Content\fontawesome\less\fixed-width.less" />
+    <Content Include="Content\fontawesome\less\font-awesome.less" />
+    <Content Include="Content\fontawesome\less\icons.less" />
+    <Content Include="Content\fontawesome\less\larger.less" />
+    <Content Include="Content\fontawesome\less\list.less" />
+    <Content Include="Content\fontawesome\less\mixins.less" />
+    <Content Include="Content\fontawesome\less\path.less" />
+    <Content Include="Content\fontawesome\less\rotated-flipped.less" />
+    <Content Include="Content\fontawesome\less\screen-reader.less" />
+    <Content Include="Content\fontawesome\less\stacked.less" />
+    <Content Include="Content\fontawesome\less\variables.less" />
+    <Content Include="Content\fontawesome\scss\font-awesome.scss" />
+    <Content Include="Content\fontawesome\scss\_animated.scss" />
+    <Content Include="Content\fontawesome\scss\_bordered-pulled.scss" />
+    <Content Include="Content\fontawesome\scss\_core.scss" />
+    <Content Include="Content\fontawesome\scss\_fixed-width.scss" />
+    <Content Include="Content\fontawesome\scss\_icons.scss" />
+    <Content Include="Content\fontawesome\scss\_larger.scss" />
+    <Content Include="Content\fontawesome\scss\_list.scss" />
+    <Content Include="Content\fontawesome\scss\_mixins.scss" />
+    <Content Include="Content\fontawesome\scss\_path.scss" />
+    <Content Include="Content\fontawesome\scss\_rotated-flipped.scss" />
+    <Content Include="Content\fontawesome\scss\_screen-reader.scss" />
+    <Content Include="Content\fontawesome\scss\_stacked.scss" />
+    <Content Include="Content\fontawesome\scss\_variables.scss" />
+    <Content Include="Areas\P\Views\CostAnalysis\CostSummary.cshtml" />
+    <Content Include="Areas\P\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\P\Views\Shared\_Layout.cshtml" />
+    <Content Include="Areas\P\Views\CostAnalysis\CostError.cshtml" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <None Include="Properties\PublishProfiles\Release.pubxml" />
+    <Content Include="Views\Test\Test.cshtml" />
+    <Content Include="Scripts\jquery-1.10.2.min.map" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+    <Folder Include="Areas\P\Models\" />
+    <Folder Include="Areas\P\Views\Callback\" />
+    <Folder Include="Areas\P\Views\Exception\" />
+    <Folder Include="Content\plugin\datetimepicker\" />
+    <Folder Include="upload\image\" />
+    <Folder Include="Views\Employee\" />
+    <Folder Include="Views\FileService\" />
+    <Folder Include="Views\Home\" />
+    <Folder Include="Views\Order\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MealAdmin\MealAdmin.Entity\MealAdmin.Entity.csproj">
+      <Project>{62816afc-0b05-43ff-9fd8-4da38b8ad21f}</Project>
+      <Name>MealAdmin.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MealAdmin\MealAdminApiClient\MealAdminApiClient.csproj">
+      <Project>{a0bc7fd9-4f01-42ae-94bd-4b7c8e92061b}</Project>
+      <Name>MealAdminApiClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MealApiServiceClient\MealApiServiceClient.csproj">
+      <Project>{ac41d9a5-bbe8-4a61-8852-082439b2b50d}</Project>
+      <Name>MealApiServiceClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MealApi\MealApiInterface\MealApiInterface.csproj">
+      <Project>{58dd2ada-ffcc-4de6-b9ec-706235f7bc5a}</Project>
+      <Name>MealApiInterface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MeeingMealApi\MeetingMealApiClient\MeetingMealApiClient.csproj">
+      <Project>{28020532-1ADC-4289-A369-A2E28CC2A378}</Project>
+      <Name>MeetingMealApiClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MeeingMealApi\MeetingMealEntity\MeetingMealEntity.csproj">
+      <Project>{6C38C5B0-3F26-4E09-9674-56C961CE1946}</Project>
+      <Name>MeetingMealEntity</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\AWSSDK.S3.3.3.9\analyzers\dotnet\cs\AWSSDK.S3.CodeAnalysis.dll" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>2739</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:2739/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

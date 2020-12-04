@@ -1,0 +1,53 @@
+﻿
+@{
+    ViewBag.Title = "批量删除医院数据";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+
+    <script type="text/javascript">
+
+        $(function () {
+        });
+
+        function btnOKClick(e, callback) {
+            var _ids = $('#txtHosIDs').val();
+            var _aryIds = _ids.split('\n');
+            var _aryIdsCnt = 0;
+            $.each(_aryIds, function (i, n) {
+                if (n != '') {
+                    _aryIdsCnt++;
+                }
+            });
+            if (_aryIdsCnt > 0) {
+                $showdialogForConfim(
+                    {
+                        title: '确认',
+                        body: '确认删除' + _aryIdsCnt + ' 行记录？',
+                        ok: function () {
+                            $.PintuerPost(contextUri + '/P/Hospital/DelHosByIds', { HosIDs: _ids }, function (result) {
+                                if (result.state != 1) {
+                                    $showdialog({ body: result.txt });
+                                }
+                                else {
+                                    $showdialog({ body: "删除成功！" });
+                                }
+
+                                if (callback != undefined) {
+                                    callback();
+                                }
+                            });
+                        }
+                    }
+                );
+            }
+        }
+
+    </script>
+}
+<div style="padding: 15px;">
+    <textarea id="txtHosIDs" name="txtHosIDs" rows="20" cols="35" placeholder="请录入医院ID，以换行分隔"></textarea>
+</div>
+
+

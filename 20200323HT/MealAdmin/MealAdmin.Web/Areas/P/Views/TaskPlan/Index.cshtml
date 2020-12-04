@@ -1,0 +1,50 @@
+﻿
+@{
+    ViewBag.Title = "功能测试";
+    Layout = "~/Views/Shared/_PLayoutPagePanel.cshtml";
+}
+
+@section scripts{
+
+            <script type="text/javascript">
+            
+                $(function () {
+            
+                    $('#btnReOpen').bind('click', function () {
+                        $showdialogForConfim(
+                                       {
+                                           title: '确认同步？',
+                                           body: '同步会使用新数据覆盖原有数据操作？操作大概需要10分钟',
+                                           ok: function () {
+                                               $showdialogForConfim(
+                                       {
+                                           title: '确认',
+                                           body: '确认RE-OPEN？',
+                                           ok: function () {
+                                               $.PintuerPost(contextUri + '/P/UploadFileManagement/UploadReopen', { UploadID: 'A28EC339-284E-4F60-82BD-1FFE94498F03', reason: '原因原因原因原因原因', remark: '备注备注备注备注备注' },
+                                                   function (result) {
+                                                       console.log('success!!!!');
+
+                                                   });
+                                           }
+                                       }
+                                   );
+                                           }
+                                       }
+                                   );
+                    });
+                    
+            
+                });
+            
+            
+               
+            </script>
+
+}
+
+<div>
+    <button id="reopen">RE-OPEN</button>
+
+</div>
+

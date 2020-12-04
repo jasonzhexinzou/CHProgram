@@ -1,0 +1,101 @@
+﻿
+@{
+    Layout = null;
+}
+
+<div id="restaurantlist">
+    <!-- 餐厅列表 -->
+    <div class="searchtools">
+        <div>
+            <div>
+                <input type="text" id="querykey" value="" />
+                <div></div>
+            </div>
+        </div>
+        <div id="btnSearch"></div>
+    </div>
+    <div class="filtertools">
+        <ul>
+            <li>
+                <a _data="" _popup="popup_categories">分类</a>
+            </li>
+            <li>
+                <span></span>
+                <a _data="" _popup="popup_order">排序</a>
+            </li>
+            <li>
+                <span></span>
+                <a _data="" _popup="popup_filter">筛选</a>
+            </li>
+        </ul>
+    </div>
+    <div class="body">
+        <div class="popup_categories">
+            <ul>
+                <li _data="" class="checked">全部</li>
+                <li _data="-10001">品牌商家</li>
+                <li _data="207">快餐便当</li>
+                <li _data="220">特色菜系</li>
+                <li _data="260">异国料理</li>
+                <li _data="233">小吃夜宵</li>
+                <li _data="239">甜品饮品</li>
+                <li _data="244">果蔬生鲜</li>
+                <li _data="248">鲜花蛋糕</li>
+                <li _data="252">商店超市</li>
+            </ul>
+        </div>
+        <div class="popup_order">
+            <ul>
+                <li _data="1">最热门</li>
+                <li _data="2">评分最高</li>
+                <li _data="3">起送价最低</li>
+                <li _data="4">销量最高</li>
+                <li _data="5">送餐最快</li>
+                <li _data="6">距离最近</li>
+                <li _data="7">订单量最大</li>
+            </ul>
+        </div>
+        <div class="popup_filter">
+            <ul>
+                <li _data="">全部</li>
+                <li _data="1">新店</li>
+            </ul>
+        </div>
+
+
+        <ul id="restaurant">
+            <li _id="${item.restaurant_id}$" _deliver_amount="${item.deliver_amount}$" _agent_fee="${item.agent_fee}$" _restaurant_name="${item.restaurant_name}$" _image_url="${item.image_url}$?w=65&h=65">
+                <div class="cover" style="background-image: url(${item.image_url}$?w=65&h=65)"></div>
+                <div class="prices">
+                    <div>
+                        ￥${item.deliver_amount}$ <span>起送</span>
+                    </div>
+                    <div>
+                        ￥${item.agent_fee}$ <span>配送费</span>
+                    </div>
+                </div>
+                <div class="restaurantinfo">
+                    <div class="line1">
+                        ${item.restaurant_name}$
+                    </div>
+                    <div class="line2">
+                        <div class="star_panel" data="${item.num_rating}$">
+                            @for (var i = 0; i < 5; i++)
+                            {
+                                <div class="star">
+                                    <div></div>
+                                    <div></div>
+                                    <div></div>
+                                </div>
+                            }
+                        </div>
+                        <div style="display: inline-block;">月销量${item.recent_order_num}$笔</div>
+                    </div>
+                    <div class="line3">
+                        ${item.deliver_spent}$分钟 @*| ${item.distances}$米*@
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
