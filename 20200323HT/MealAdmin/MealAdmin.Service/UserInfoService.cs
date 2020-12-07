@@ -22,7 +22,7 @@ namespace MealAdmin.Service
         public int Edit(string userId, string phoneNumber, string market, string tacode)
         {
             return userInfoDao.Edit(userId, phoneNumber, market, tacode);
-        }
+        }  
 
         public WP_QYUSER Find(string userId)
         {
