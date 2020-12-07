@@ -17,7 +17,7 @@
         public  string WorkPlace { get; set; }
         public  string DeviceId { get; set; }
         public  int State { get; set; }
-        public  string DeptNames { get; set; }
+        public  string DeptNames { get; set; } 
         public  string headimgurl { get; set; }
         public  DateTime CreateDate { get; set; }
         public  Guid Creator { get; set; }
